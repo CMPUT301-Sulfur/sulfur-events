@@ -1,5 +1,6 @@
 package com.example.sulfurevents;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -7,8 +8,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.sulfurevents.R;
+import com.example.sulfurevents.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
+
+
+    ActivityMainBinding binding;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,5 +31,29 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        binding.bottomNavigationView.setOnItemSelectedListener(item ->{
+
+
+            if (item.getItemId() == R.id.organizer_navigation) {
+                Intent intent = new Intent(MainActivity.this, OrganizerActivity.class);
+                startActivity(intent);
+                return true;
+            }
+
+
+
+
+            return false;
+
+        });
+
+        // going to OrganizerView
+
     }
+
+
+
 }
