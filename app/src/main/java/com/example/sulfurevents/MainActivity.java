@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.sulfurevents.R;
 import com.example.sulfurevents.databinding.ActivityMainBinding;
@@ -49,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
 
         });
-
-        // going to OrganizerView
 
     }
 
