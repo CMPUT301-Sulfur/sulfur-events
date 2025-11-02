@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "220483535751",
+    "project_id": "cmput301-project-fa6e8",
+    "storage_bucket": "cmput301-project-fa6e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:220483535751:android:33c28fdef80a5734f60922",
+        "android_client_info": {
+          "package_name": "com.example.sulfurevents"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsS0HVuhxiZgBCPWH07uC6649Z57jg6t4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
