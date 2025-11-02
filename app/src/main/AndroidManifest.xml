@@ -11,18 +11,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents">
+
+        <!-- Admin Dashboard is now the entry point -->
         <activity
-            android:name=".OrganizerActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".AdminDashboardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Other admin screens (no intent filter needed) -->
+        <activity android:name=".AdminEventsActivity" />
+        <activity android:name=".AdminProfilesActivity" />
+        <activity android:name=".AdminImagesActivity" />
+        <activity android:name=".EventImageDetailActivity" />
+
+        <!-- Organizer and Main can stay for later use -->
+        <activity android:name=".OrganizerActivity" />
+        <activity android:name=".MainActivity" />
+
     </application>
+
 
 </manifest>
