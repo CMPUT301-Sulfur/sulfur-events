@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="Home" />
+
+    <item
+        android:id="@+id/qr_scanner_navigation"
+        android:title="QR Scanner"
+        android:icon="@drawable/qr_scanner"/>
+
+    <item
+        android:id="@+id/organizer_navigation"
+        android:title="Your Events"
+        android:icon="@drawable/create_event"
+        />
+
+</menu>
