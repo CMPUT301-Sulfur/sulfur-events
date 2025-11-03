@@ -1,6 +1,8 @@
 package com.example.sulfurevents;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,8 +32,6 @@ public class OrganizerActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
 
-
-
         OrganizerEvent.add(new OrganizerEvents(
                 "Test",
                 "OCT 23, 2004",
@@ -42,6 +42,15 @@ public class OrganizerActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        // Create Event button
+        Button createEventButton = findViewById(R.id.CreateEventButton);
+        createEventButton.setOnClickListener(view ->{
+            Intent intent = new Intent(OrganizerActivity.this, CreateEventActivity.class);
+            startActivity(intent);
+        });
+
 
 
 
