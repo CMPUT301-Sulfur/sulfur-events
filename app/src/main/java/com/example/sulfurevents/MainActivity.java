@@ -102,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
                 String email = emailInput.getText().toString().trim();
                 String phone = phoneInput.getText().toString().trim();
 
-                // Validate required fields
                 if (name.isEmpty()) {
                     nameInput.setError("Name is required");
                     nameInput.requestFocus();
@@ -115,14 +114,12 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Phone number is optional
                 if (phone.isEmpty()) {
                     phone = "";
                 }
 
                 boolean isAdmin = false;
 
-                // Create user and add to database
                 User newUser = new User(deviceId, name, email, phone, isAdmin);
                 addUser(newUser);
             }
