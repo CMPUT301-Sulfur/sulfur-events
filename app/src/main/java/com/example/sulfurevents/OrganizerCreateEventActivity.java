@@ -3,8 +3,10 @@ package com.example.sulfurevents;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
@@ -12,14 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import kotlin.LateinitKt;
+import java.io.ByteArrayOutputStream;
 
-public class CreateEventActivity extends AppCompatActivity {
+
+public class OrganizerCreateEventActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore db;
@@ -59,6 +61,7 @@ public class CreateEventActivity extends AppCompatActivity {
         Button GenerateQRCodeEventButon = findViewById(R.id.GenerateEventButton);
         GenerateQRCodeEventButon.setOnClickListener(view ->{
             // CreateEvent(String Device ID, User CurrentUser,);
+            CreateEvent();
         });
 
 
@@ -73,7 +76,58 @@ public class CreateEventActivity extends AppCompatActivity {
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
     }
 
+    private String bitmaptobase64(Bitmap bitmap){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+    }
 
+    private void CreateEvent(){
+        String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
+        String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
+        String start = ((EditText)findViewById(R.id.etStartDate)).getText().toString();
+        String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
+        String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
+        String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
+
+        String eventId = db.collection("Events").document().getId();
+
+        Bitmap qrBitmap;
+        String qrBase64;
+
+        try{
+            // assign returned bitmap
+            qrBitmap = generateQR(eventId);
+            // convert to base 64
+            qrBase64 = bitmaptobase64(qrBitmap);
+
+        }catch (Exception e){
+            // we should add a toast and say "cannot create event"
+
+            return;
+        }
+
+        OrganizerEvent event = new OrganizerEvent();
+        event.eventId = eventId;
+        event.organizerId = DeviceID;
+        event.EventName = title;
+        event.description = description;
+        event.startDate = start;
+        event.endDate = end;
+        event.location = location;
+        event.limitGuests = limit;
+        event.qrCode = qrBase64;
+
+        // need to change from finish() to PreviewEvent Activity screen
+        db.collection("Events").document(eventId)
+                .set(event)
+                .addOnSuccessListener(unused ->{
+                    finish();
+                });
+
+
+
+    }
 
 
 
