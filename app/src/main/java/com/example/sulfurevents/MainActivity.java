@@ -20,15 +20,17 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.sulfurevents.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity {
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+
     private Button submitButton;
     private Button editButton;
     private TextInputEditText nameInput;
@@ -55,29 +57,32 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.bottomNavigationView.setOnItemSelectedListener(item ->{
+        binding.bottomNavigationView.setOnItemSelectedListener(item -> {
 
+            db = FirebaseFirestore.getInstance();
+            deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        db = FirebaseFirestore.getInstance();
-        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            db.collection("Profiles").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
 
-        db.collection("Profiles").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+                if (!documentSnapshot.exists()) {
+                    setContentView(R.layout.welcome_entrant);
+                    EdgeToEdge.enable(this);
+                    setupInsets(R.id.welcome);
+                    initializeNewUserViews();
+                    setupSubmitButton();
+                } else {
+                    setContentView(R.layout.returning_entrant);
+                    EdgeToEdge.enable(this);
+                    setupInsets(R.id.profile);
+                    initializeReturningUserViews();
+                }
+            });
 
-            if(!documentSnapshot.exists()) {
-                setContentView(R.layout.welcome_entrant);
-                EdgeToEdge.enable(this);
-                setupInsets(R.id.welcome);
-                initializeNewUserViews();
-                setupSubmitButton();
-            } else {
-                setContentView(R.layout.returning_entrant);
-                EdgeToEdge.enable(this);
-                setupInsets(R.id.profile);
-                initializeReturningUserViews();
-            }
+            return false;
         });
-
     }
+
+
     private void initializeNewUserViews() {
         submitButton = findViewById(R.id.submit_button);
         nameInput = findViewById(R.id.name_input);
@@ -100,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    }
 
     private void setupSubmitButton() {
         submitButton.setOnClickListener(new View.OnClickListener() {
