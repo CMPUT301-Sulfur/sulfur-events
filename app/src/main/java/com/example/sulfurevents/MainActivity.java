@@ -18,6 +18,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.sulfurevents.databinding.ActivityMainBinding;
+
+public class MainActivity extends AppCompatActivity {
 
 import java.util.Collection;
 import java.util.Collections;
@@ -42,6 +45,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.OrganizerEventView), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        binding.bottomNavigationView.setOnItemSelectedListener(item ->{
+
 
         db = FirebaseFirestore.getInstance();
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -85,13 +100,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void displayUserInfo() {
-        if (currentUser != null) {
-            nameDisplay.setText("Name: " + currentUser.getName());
-            emailDisplay.setText("Email: " + currentUser.getEmail());
-            String phone = currentUser.getPhone();
-            phoneDisplay.setText("Phone Number: " + (phone.isEmpty() ? "Not provided" : phone));
-        }
     }
 
     private void setupSubmitButton() {

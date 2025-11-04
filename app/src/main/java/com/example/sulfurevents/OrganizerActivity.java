@@ -1,6 +1,8 @@
 package com.example.sulfurevents;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,15 +24,13 @@ public class OrganizerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.organizer_activity);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.OrganizerEventView), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
-
-
 
         OrganizerEvent.add(new OrganizerEvents(
                 "Test",
@@ -42,6 +42,15 @@ public class OrganizerActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        // Create Event button
+        Button createEventButton = findViewById(R.id.CreateEventButton);
+        createEventButton.setOnClickListener(view ->{
+            Intent intent = new Intent(OrganizerActivity.this, CreateEventActivity.class);
+            startActivity(intent);
+        });
+
 
 
 
