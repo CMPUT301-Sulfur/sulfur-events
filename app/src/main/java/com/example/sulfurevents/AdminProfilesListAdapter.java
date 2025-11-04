@@ -37,6 +37,9 @@ public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
             tvEmail.setText("Email: " + (profile.getEmail() == null || profile.getEmail().isEmpty() ? "—" : profile.getEmail()));
             tvPhone.setText("Phone: " + (profile.getPhone() == null || profile.getPhone().isEmpty() ? "—" : profile.getPhone()));
             tvDevice.setText("Device ID: " + (profile.getDeviceId() == null || profile.getDeviceId().isEmpty() ? "—" : profile.getDeviceId()));
+            tvDevice.setText("Name: " + (profile.getName() == null || profile.getName().isEmpty() ? "—" : profile.getName()));
+
+
 
             btnDelete.setOnClickListener(v -> {
                 if (getContext() instanceof AdminProfilesActivity) {

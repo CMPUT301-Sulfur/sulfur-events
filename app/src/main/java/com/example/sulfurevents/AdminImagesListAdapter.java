@@ -11,15 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class AdminImagesListAdapter extends ArrayAdapter<ImageEventModel> {
+// Adapter for displaying events (with images) in AdminImagesActivity
+public class AdminImagesListAdapter extends ArrayAdapter<EventModel> {
 
-    public AdminImagesListAdapter(Context context, List<ImageEventModel> events) {
+    public AdminImagesListAdapter(Context context, List<EventModel> events) {
         super(context, 0, events);
     }
 
@@ -30,32 +30,32 @@ public class AdminImagesListAdapter extends ArrayAdapter<ImageEventModel> {
                     .inflate(R.layout.item_admin_image_event, parent, false);
         }
 
-        ImageEventModel event = getItem(position);
+        EventModel event = getItem(position);
 
         ImageView imgThumbnail = convertView.findViewById(R.id.imgEventThumbnail);
         TextView tvName = convertView.findViewById(R.id.tvImageEventName);
         TextView tvEmail = convertView.findViewById(R.id.tvImageEventEmail);
         Button btnManage = convertView.findViewById(R.id.btnManageEventImages);
 
-        tvName.setText(event.getEventName());
-        tvEmail.setText("Organizer: " + event.getOrganizerEmail());
+        if (event != null) {
+            tvName.setText(event.getEventName());
+            tvEmail.setText("Organizer: " + event.getOrganizerEmail());
 
-        btnManage.setOnClickListener(v -> Toast.makeText(getContext(), "View/Delete Images for: " + event.getEventName(),
-                Toast.LENGTH_SHORT).show()
-        );
+            // Load image from Firestore URL
+            Glide.with(getContext())
+                    .load(event.getImageUrl())
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background)
+                    .into(imgThumbnail);
 
-        // Load image from Firestore URL
-        Glide.with(getContext()).load(event.getImageUrl())
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(imgThumbnail);
-
-        btnManage.setOnClickListener(v -> {
-            if (getContext() instanceof AdminImagesActivity) {
-                ((AdminImagesActivity) getContext()).openEventImageDetail(event);
-            }
-        });
+            // Handle "View/Delete Images" button click
+            btnManage.setOnClickListener(v -> {
+                if (getContext() instanceof AdminImagesActivity) {
+                    ((AdminImagesActivity) getContext()).openEventImageDetail(event);
+                }
+            });
+        }
 
         return convertView;
     }
-
 }

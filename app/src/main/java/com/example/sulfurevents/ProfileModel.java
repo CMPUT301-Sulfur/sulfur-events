@@ -10,6 +10,7 @@ public class ProfileModel {
     private String phone;
     private String deviceId;
     private String userType;     // "entrant" or "organizer"
+    private String name;
 
     public ProfileModel() { }
 
@@ -27,4 +28,13 @@ public class ProfileModel {
     public String getPhone() { return phone; }
     public String getDeviceId() { return deviceId; }
     public String getUserType() { return userType; }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

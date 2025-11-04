@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 
 public class AdminDashboardActivity extends AppCompatActivity {
-
     private Button btnManageEvents;
     private Button btnManageProfiles;
     private Button btnManageImages;
