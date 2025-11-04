@@ -35,9 +35,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+
 }
 
+
 dependencies {
+    // Qr Code generation
+    implementation(libs.zxing.embedded)
+    implementation(libs.zxing.core)
+
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

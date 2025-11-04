@@ -13,11 +13,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.Firebase;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
 public class OrganizerActivity extends AppCompatActivity {
 
     ArrayList<OrganizerEvents> OrganizerEvent = new ArrayList<>();
+
+    private FirebaseFirestore db;
+    private String DeviceID;
+    private User CurrentUser;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +67,6 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent intent = new Intent(OrganizerActivity.this, CreateEventActivity.class);
             startActivity(intent);
         });
-
-
-
 
     }
 

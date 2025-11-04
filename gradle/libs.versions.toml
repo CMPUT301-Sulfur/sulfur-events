@@ -21,6 +21,9 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 
+zxing-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version = "4.3.0" }
+zxing-core = { group = "com.google.zxing", name = "core", version = "3.5.1" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 
