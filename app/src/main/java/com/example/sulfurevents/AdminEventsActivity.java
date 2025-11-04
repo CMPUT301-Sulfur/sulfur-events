@@ -1,79 +1,77 @@
 // AdminEventsActivity
-// This activity shows all events for the admin. It lets the admin browse events,
-// search by event name, and (later) delete events from the database.
+// This activity loads all events from Firebase Database.
+// The admin can view event details and delete events.
 
 package com.example.sulfurevents;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import javax.annotation.Nullable;
 
 public class AdminEventsActivity extends AppCompatActivity {
 
-    private Button btnBack;
-    private EditText etSearchEvent;
     private ListView listViewEvents;
-
-    // Our custom adapter (AdminEventsListAdapter)
+    private ArrayList<EventModel> eventList;
     private AdminEventsListAdapter adapter;
+    private FirebaseFirestore db;
+    private CollectionReference eventsRef;
 
-    // Placeholder data lists
-    private List<EventModel> eventList = new ArrayList<>();
-    private List<EventModel> filteredList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_events_activity);
 
-        // UI elements
-        btnBack = findViewById(R.id.btnBackEvents);
-        etSearchEvent = findViewById(R.id.etSearchEvent);
+        Button btnBack = findViewById(R.id.btnBackEvents);
+        btnBack.setOnClickListener(v -> finish());
+
         listViewEvents = findViewById(R.id.listViewEvents);
-
-        // Back button
-        btnBack.setOnClickListener(v -> finish()); // returns to Admin Dashboard
-
-        // Placeholder event data
-        eventList.add(new EventModel("Music Night", "organizer1@email.com", "Active"));
-        eventList.add(new EventModel("Art Expo", "artist@email.com", "Expired"));
-        eventList.add(new EventModel("Tech Fair", "techguy@email.com", "Active"));
-        eventList.add(new EventModel("Food Carnival", "chef@email.com", "Expired"));
-
-
-        // copy all items to filtered list initially
-        filteredList.addAll(eventList);
-
-        // set adapter
-        adapter = new AdminEventsListAdapter(this, filteredList);
+        eventList = new ArrayList<>();
+        adapter = new AdminEventsListAdapter(this, eventList);
         listViewEvents.setAdapter(adapter);
 
-        // search functionality
-        etSearchEvent.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterEvents(s.toString());
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("Events");
+
+        loadEventsFromFirestore();
+    }
+
+    private void loadEventsFromFirestore() {
+        eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+
+                eventList.clear();
+
+                for (DocumentSnapshot doc : snapshots) {
+                    EventModel event = doc.toObject(EventModel.class);
+                    if (event != null) {
+                        event.setEventId(doc.getId()); // store document ID
+                        eventList.add(event);
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
             }
-            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
-    // filters the event list based on search input
-    private void filterEvents(String query) {
-        filteredList.clear();
-        for (EventModel event : eventList) {
-            if (event.getEventName().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(event);
-            }
-        }
-        adapter.notifyDataSetChanged(); // refresh list view
+    // Delete event by document ID
+    public void deleteEvent(String eventId) {
+        eventsRef.document(eventId).delete()
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show());
     }
 }

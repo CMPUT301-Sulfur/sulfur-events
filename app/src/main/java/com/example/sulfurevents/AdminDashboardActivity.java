@@ -25,7 +25,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageProfiles = findViewById(R.id.btnManageProfiles);
         btnManageImages = findViewById(R.id.btnManageImages);
 
-        // Navigate to Manage Events
+        // go to Manage Events
         btnManageEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,7 +34,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Navigate to Manage Profiles
+        // go to Manage Profiles
         btnManageProfiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,7 +43,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Navigate to Manage Images
+        // go to Manage Images
         btnManageImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

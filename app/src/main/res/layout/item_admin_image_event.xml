@@ -3,22 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#FFFFFF"
-        android:padding="12dp"
-        android:layout_marginBottom="8dp">
+        android:padding="8dp"
+        android:layout_marginBottom="6dp">
 
         <!-- Thumbnail -->
         <ImageView
             android:id="@+id/imgEventThumbnail"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:src="@drawable/ic_launcher_background"
             android:scaleType="centerCrop"
-            android:layout_marginEnd="12dp" />
+            android:layout_marginEnd="10dp" />
 
         <!-- Info column -->
         <LinearLayout
@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Event Name"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#000000" />
 
@@ -41,18 +41,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Organizer: example@email.com"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="#333333"
-                android:layout_marginTop="2dp" />
-
-            <TextView
-                android:id="@+id/tvImageEventStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Status: Active"
-                android:textSize="14sp"
-                android:textColor="#333333"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="1dp" />
 
             <Button
                 android:id="@+id/btnManageEventImages"
@@ -61,9 +52,10 @@
                 android:text="View / Delete Images"
                 android:backgroundTint="#B0B8C3"
                 android:textColor="#000000"
-                android:layout_marginTop="6dp" />
+                android:layout_marginTop="4dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp" />
         </LinearLayout>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

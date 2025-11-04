@@ -5,46 +5,55 @@
 package com.example.sulfurevents;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import javax.annotation.Nullable;
+
+
 public class AdminImagesActivity extends AppCompatActivity {
 
-    private Button btnBack;
     private EditText etSearchImageEvent;
     private ListView listViewImageEvents;
-
     private AdminImagesListAdapter adapter;
     private List<ImageEventModel> eventList = new ArrayList<>();
-    private List<ImageEventModel> filteredList = new ArrayList<>();
+    private FirebaseFirestore db;
+    private CollectionReference eventsRef;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_images_activity);
 
-        btnBack = findViewById(R.id.btnBackImages);
+        Button btnBack = findViewById(R.id.btnBackImages);
+        btnBack.setOnClickListener(v -> finish());
+
         etSearchImageEvent = findViewById(R.id.etSearchImageEvent);
         listViewImageEvents = findViewById(R.id.listViewImageEvents);
 
-        btnBack.setOnClickListener(v -> finish());
-
-        // Placeholder events
-        eventList.add(new ImageEventModel("Music Night", "organizer1@email.com", "Active", R.drawable.ic_launcher_foreground));
-        eventList.add(new ImageEventModel("Art Expo", "artist@email.com", "Expired", R.drawable.ic_launcher_foreground));
-        eventList.add(new ImageEventModel("Tech Fair", "tech@email.com", "Active", R.drawable.ic_launcher_foreground));
-        eventList.add(new ImageEventModel("Food Carnival", "chef@email.com", "Expired", R.drawable.ic_launcher_foreground));
-
-        filteredList.addAll(eventList);
-
-        adapter = new AdminImagesListAdapter(this, filteredList);
+        adapter = new AdminImagesListAdapter(this, eventList);
         listViewImageEvents.setAdapter(adapter);
+
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("Events");
 
         // search functionality
         etSearchImageEvent.addTextChangedListener(new TextWatcher() {
@@ -54,15 +63,48 @@ public class AdminImagesActivity extends AppCompatActivity {
             }
             @Override public void afterTextChanged(Editable s) {}
         });
+
+        loadEventsWithImages();
+    }
+
+    private void loadEventsWithImages() {
+        eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException e) {
+
+                eventList.clear();
+                for (DocumentSnapshot doc : snapshots) {
+                    ImageEventModel event = doc.toObject(ImageEventModel.class);
+                    if (event != null && event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
+                        event.setEventId(doc.getId());
+                        eventList.add(event);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    // Called from adapter when "View/Delete Images" button is clicked
+    public void openEventImageDetail(ImageEventModel event) {
+        Intent intent = new Intent(this, EventImageDetailActivity.class);
+        intent.putExtra("eventId", event.getEventId());
+        intent.putExtra("eventName", event.getEventName());
+        intent.putExtra("organizerEmail", event.getOrganizerEmail());
+        intent.putExtra("imageUrl", event.getImageUrl());
+        startActivity(intent);
     }
 
     private void filterEvents(String query) {
-        filteredList.clear();
+        List<ImageEventModel> filtered = new ArrayList<>();
         for (ImageEventModel event : eventList) {
             if (event.getEventName().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(event);
+                filtered.add(event);
             }
         }
+        adapter.clear();
+        adapter.addAll(filtered);
         adapter.notifyDataSetChanged();
     }
 }

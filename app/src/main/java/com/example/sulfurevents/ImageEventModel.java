@@ -4,28 +4,46 @@
 package com.example.sulfurevents;
 
 public class ImageEventModel {
+    private String eventId;
     private String eventName;
     private String organizerEmail;
     private String status;
-    private int imageResId; // using a drawable placeholder for now
+    private String imageUrl; // from Firestore
 
-    public ImageEventModel(String eventName, String organizerEmail, String status, int imageResId) {
-        this.eventName = eventName;
-        this.organizerEmail = organizerEmail;
-        this.status = status;
-        this.imageResId = imageResId;
+    public ImageEventModel() {}
+
+    public String getEventId() {
+        return eventId;
+    }
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     public String getEventName() {
         return eventName;
     }
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
     public String getOrganizerEmail() {
         return organizerEmail;
     }
+    public void setOrganizerEmail(String organizerEmail) {
+        this.organizerEmail = organizerEmail;
+    }
+
     public String getStatus() {
         return status;
     }
-    public int getImageResId() {
-        return imageResId;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

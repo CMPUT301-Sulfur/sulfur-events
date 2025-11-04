@@ -1,11 +1,9 @@
 // AdminImagesListAdapter
-// Adapter for displaying events with images in a ListView.
-// Shows thumbnail, event info, and a button to manage images.
+// Adapter for displaying events with images in AdminImagesActivity.
 
 package com.example.sulfurevents;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -26,9 +23,8 @@ public class AdminImagesListAdapter extends ArrayAdapter<ImageEventModel> {
         super(context, 0, events);
     }
 
-    @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.item_admin_image_event, parent, false);
@@ -36,24 +32,30 @@ public class AdminImagesListAdapter extends ArrayAdapter<ImageEventModel> {
 
         ImageEventModel event = getItem(position);
 
-        ImageView imgThumb = convertView.findViewById(R.id.imgEventThumbnail);
+        ImageView imgThumbnail = convertView.findViewById(R.id.imgEventThumbnail);
         TextView tvName = convertView.findViewById(R.id.tvImageEventName);
         TextView tvEmail = convertView.findViewById(R.id.tvImageEventEmail);
-        TextView tvStatus = convertView.findViewById(R.id.tvImageEventStatus);
         Button btnManage = convertView.findViewById(R.id.btnManageEventImages);
 
-        imgThumb.setImageResource(event.getImageResId());
         tvName.setText(event.getEventName());
         tvEmail.setText("Organizer: " + event.getOrganizerEmail());
-        tvStatus.setText("Status: " + event.getStatus());
+
+        btnManage.setOnClickListener(v -> Toast.makeText(getContext(), "View/Delete Images for: " + event.getEventName(),
+                Toast.LENGTH_SHORT).show()
+        );
+
+        // Load image from Firestore URL
+        Glide.with(getContext()).load(event.getImageUrl())
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(imgThumbnail);
 
         btnManage.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), EventImageDetailActivity.class);
-            intent.putExtra("eventName", event.getEventName());
-            intent.putExtra("organizerEmail", event.getOrganizerEmail());
-            getContext().startActivity(intent);
+            if (getContext() instanceof AdminImagesActivity) {
+                ((AdminImagesActivity) getContext()).openEventImageDetail(event);
+            }
         });
 
         return convertView;
     }
+
 }

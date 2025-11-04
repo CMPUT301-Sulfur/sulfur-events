@@ -29,6 +29,13 @@
             android:textColor="#333333"
             android:layout_marginTop="4dp" />
 
+        <TextView
+            android:id="@+id/tvProfileDeviceId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Device ID: " />
+
+
         <Button
             android:id="@+id/btnDeleteProfile"
             android:layout_width="wrap_content"
