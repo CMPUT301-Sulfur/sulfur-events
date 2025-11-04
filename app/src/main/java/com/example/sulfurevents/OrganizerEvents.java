@@ -1,6 +1,6 @@
 package com.example.sulfurevents;
 
-public class OrganizerEvents extends MainActivity {
+public class OrganizerEvents{
 
     String EventName, Date, Location;
     int Capacity;

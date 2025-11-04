@@ -20,13 +20,12 @@ import java.util.ArrayList;
 
 public class OrganizerActivity extends AppCompatActivity {
 
-    ArrayList<OrganizerEvents> OrganizerEvent = new ArrayList<>();
 
     private FirebaseFirestore db;
     private String DeviceID;
     private User CurrentUser;
 
-
+    ArrayList<OrganizerEvents> OrganizerEvent = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +39,8 @@ public class OrganizerActivity extends AppCompatActivity {
         });
 
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
+
+
 
         OrganizerEvent.add(new OrganizerEvents(
                 "Test",
