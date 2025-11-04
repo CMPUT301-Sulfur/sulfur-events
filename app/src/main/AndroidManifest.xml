@@ -10,9 +10,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SulfurEvents">
-
-        <!-- Admin Dashboard is now the entry point -->
+        android:theme="@style/Theme.SulfurEvents" >
+        <activity
+            android:name=".OrganizerCreateEventActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".OrganizerActivity"
+            android:exported="true" />
         <activity
             android:name=".AdminDashboardActivity"
             android:exported="true">

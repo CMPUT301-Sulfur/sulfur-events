@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEventsAdapter.MyViewHolder> {
 
     Context context;
-    ArrayList<OrganizerEvents> OrganizerEvent;
+    ArrayList<OrganizerEvent> OrganizerEvent;
 
-    public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvents> OrganizerEvent){
+    public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvent> OrganizerEvent){
 
         this.context = context;
         this.OrganizerEvent = OrganizerEvent;
@@ -37,8 +37,8 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         // Assigning Values to the view we create in the recycler_view_row layout file
         // based on the position of the recyclerView
-        holder.EventName.setText(OrganizerEvent.get(position).getEventName());
-        holder.Date.setText(OrganizerEvent.get(position).getDate());
+        holder.EventName.setText(OrganizerEvent.get(position).getEventTitle());
+        holder.Date.setText(OrganizerEvent.get(position).getStartDate());
         //holder.CurrentCapacity.setText(OrganizerEvent.get(position).getCurrentCapacity()); // want capacity to be displayed
         holder.Location.setText(OrganizerEvent.get(position).getLocation());
     }
