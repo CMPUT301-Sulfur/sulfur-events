@@ -11,32 +11,20 @@ public class EventModel {
     private String status;
     private String imageUrl;
 
-    public EventModel() { }
+    public EventModel() { } // Needed for Firestore
 
-    public EventModel(String eventName, String organizerEmail, String status, String imageUrl) {
-        this.eventName = eventName;
-        this.organizerEmail = organizerEmail;
-        this.status = status;
-        this.imageUrl = imageUrl;
-    }
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
 
-    public String getEventId() {
-        return eventId;
-    }
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
+    public String getEventName() { return eventName; }
+    public void setEventName(String eventName) { this.eventName = eventName; }
 
-    public String getEventName() {
-        return eventName;
-    }
-    public String getOrganizerEmail() {
-        return organizerEmail;
-    }
-    public String getStatus() {
-        return status;
-    }
-    public String getImageUrl() {
-        return imageUrl;
-    }
+    public String getOrganizerEmail() { return organizerEmail; }
+    public void setOrganizerEmail(String organizerEmail) { this.organizerEmail = organizerEmail; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

@@ -32,11 +32,9 @@ public class AdminImagesActivity extends AppCompatActivity {
     private EditText etSearchImageEvent;
     private ListView listViewImageEvents;
     private AdminImagesListAdapter adapter;
-    private List<ImageEventModel> eventList = new ArrayList<>();
+    private List<EventModel> eventList = new ArrayList<>(); // ✅ Use EventModel here
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +47,7 @@ public class AdminImagesActivity extends AppCompatActivity {
         etSearchImageEvent = findViewById(R.id.etSearchImageEvent);
         listViewImageEvents = findViewById(R.id.listViewImageEvents);
 
+        // ✅ Adapter must also use EventModel
         adapter = new AdminImagesListAdapter(this, eventList);
         listViewImageEvents.setAdapter(adapter);
 
@@ -68,43 +67,44 @@ public class AdminImagesActivity extends AppCompatActivity {
     }
 
     private void loadEventsWithImages() {
-        eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot snapshots,
-                                @Nullable FirebaseFirestoreException e) {
+        eventsRef.addSnapshotListener((snapshots, e) -> {
+            if (e != null) return;
 
-                eventList.clear();
+            eventList.clear();
+            if (snapshots != null) {
                 for (DocumentSnapshot doc : snapshots) {
-                    ImageEventModel event = doc.toObject(ImageEventModel.class);
+                    EventModel event = doc.toObject(EventModel.class);
                     if (event != null && event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
                         event.setEventId(doc.getId());
                         eventList.add(event);
                     }
                 }
-                adapter.notifyDataSetChanged();
             }
+            adapter.notifyDataSetChanged();
         });
     }
 
+    private void filterEvents(String query) {
+        List<EventModel> filtered = new ArrayList<>();
+        for (EventModel event : eventList) {
+            if (event.getEventName() != null &&
+                    event.getEventName().toLowerCase().contains(query.toLowerCase())) {
+                filtered.add(event);
+            }
+        }
+
+        adapter.clear();
+        adapter.addAll(filtered);
+        adapter.notifyDataSetChanged();
+    }
+
     // Called from adapter when "View/Delete Images" button is clicked
-    public void openEventImageDetail(ImageEventModel event) {
+    public void openEventImageDetail(EventModel event) {
         Intent intent = new Intent(this, EventImageDetailActivity.class);
         intent.putExtra("eventId", event.getEventId());
         intent.putExtra("eventName", event.getEventName());
         intent.putExtra("organizerEmail", event.getOrganizerEmail());
         intent.putExtra("imageUrl", event.getImageUrl());
         startActivity(intent);
-    }
-
-    private void filterEvents(String query) {
-        List<ImageEventModel> filtered = new ArrayList<>();
-        for (ImageEventModel event : eventList) {
-            if (event.getEventName().toLowerCase().contains(query.toLowerCase())) {
-                filtered.add(event);
-            }
-        }
-        adapter.clear();
-        adapter.addAll(filtered);
-        adapter.notifyDataSetChanged();
     }
 }
