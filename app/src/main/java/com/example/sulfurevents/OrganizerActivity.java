@@ -3,6 +3,7 @@ package com.example.sulfurevents;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +44,13 @@ public class OrganizerActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+
+        // Back Button back into mainActivity
+        ImageButton BackButton = findViewById(R.id.BackButtonOrganizerEvents);
+        BackButton.setOnClickListener(view ->{
+            Intent intent = new Intent(OrganizerActivity.this, MainActivity.class);
+            finish();
+        });
 
         // Create Event button
         Button createEventButton = findViewById(R.id.CreateEventButton);

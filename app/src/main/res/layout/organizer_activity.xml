@@ -8,6 +8,17 @@
     android:background="#D3DEFF"
     tools:context=".OrganizerActivity">
 
+        <ImageButton
+            android:id="@+id/BackButtonOrganizerEvents"
+            android:layout_width="47dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/back_arrow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/HeaderTitle"
             android:layout_width="wrap_content"
