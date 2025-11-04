@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null) {
             nameDisplay.setText("Name: " + currentUser.getName());
             emailDisplay.setText("Email: " + currentUser.getEmail());
-            String phoneNumber = currentUser.getPhoneNumber();
-            phoneDisplay.setText("Phone Number: " + (phoneNumber.isEmpty() ? "Not provided" : phoneNumber));
+            String phone = currentUser.getPhone();
+            phoneDisplay.setText("Phone Number: " + (phone.isEmpty() ? "Not provided" : phone));
         }
     }
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
-                String phoneNumber = phoneInput.getText().toString().trim();
+                String phone = phoneInput.getText().toString().trim();
 
                 // Validate required fields
                 if (name.isEmpty()) {
@@ -116,14 +116,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Phone number is optional
-                if (phoneNumber.isEmpty()) {
-                    phoneNumber = "";
+                if (phone.isEmpty()) {
+                    phone = "";
                 }
 
                 boolean isAdmin = false;
 
                 // Create user and add to database
-                User newUser = new User(deviceId, name, email, phoneNumber, isAdmin);
+                User newUser = new User(deviceId, name, email, phone, isAdmin);
                 addUser(newUser);
             }
         });
@@ -134,10 +134,10 @@ public class MainActivity extends AppCompatActivity {
         docRef.set(user);
     }
 
-    public void updateUser(User user, String name, String email, String phoneNumber){
+    public void updateUser(User user, String name, String email, String phone){
         user.setName(name);
         user.setEmail(email);
-        user.setPhoneNumber(phoneNumber);
+        user.setPhone(phone);
         db.collection("Profiles").document(user.getDeviceId()).set(user);
     }
 }

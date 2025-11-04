@@ -4,14 +4,14 @@ public class User {
     private String deviceId;
     private String name;
     private String email;
-    private String phoneNumber;
+    private String phone;
     private boolean isAdmin;
 
-    public User(String deviceId, String name, String email, String phoneNumber, boolean isAdmin){
+    public User(String deviceId, String name, String email, String phone, boolean isAdmin){
         this.deviceId = deviceId;
         this.name = name;
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.phone = phone;
         this.isAdmin = isAdmin;
     }
 
@@ -43,12 +43,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone(String phoneNumber) {
+        this.phone = phone;
     }
 
     public boolean isAdmin() {
