@@ -67,5 +67,4 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
 
         }
     }
-
 }

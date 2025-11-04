@@ -22,7 +22,6 @@ import com.example.sulfurevents.databinding.ActivityMainBinding;
 
 
 import java.util.Collection;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,20 +46,38 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.OrganizerEventView), (v, insets) -> {
+
+        //setContentView(R.layout.activity_main);
+
+        //ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.MainActivityView)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.MainActivityView, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+
+
+        //binding = ActivityMainBinding.inflate(getLayoutInflater());
+        //setContentView(binding.getRoot());
+
+        // database getting instance and Device ID
+        db = FirebaseFirestore.getInstance();
+        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
 
-            db = FirebaseFirestore.getInstance();
-            deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+            // Bottom navigation to Organizer HomePage
+            if (item.getItemId() == R.id.organizer_navigation) {
+                Intent intent = new Intent(MainActivity.this, OrganizerActivity.class);
+                startActivity(intent);
+                return true;
+            }
 
             db.collection("Profiles").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
 
@@ -78,10 +95,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            return false;
-        });
-    }
+            return true;
 
+        });
+
+    }
 
     private void initializeNewUserViews() {
         submitButton = findViewById(R.id.submit_button);

@@ -32,10 +32,6 @@
         <activity android:name=".AdminImagesActivity" />
         <activity android:name=".EventImageDetailActivity" />
 
-        <!-- Organizer and Main can stay for later use -->
-        <activity android:name=".OrganizerActivity" />
-        <activity android:name=".MainActivity" />
-
     </application>
 
 
