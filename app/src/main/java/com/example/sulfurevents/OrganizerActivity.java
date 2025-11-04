@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 public class OrganizerActivity extends AppCompatActivity {
 
-
     ArrayList<OrganizerEvents> OrganizerEvent = new ArrayList<>();
 
     @Override
@@ -34,8 +33,9 @@ public class OrganizerActivity extends AppCompatActivity {
 
         OrganizerEvent.add(new OrganizerEvents(
                 "Test",
-                "OCT 23, 2004",
-                "Canada"
+                "OCT, 2004",
+                "Canada",
+                15
         ));
 
         OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);

@@ -1,26 +1,20 @@
 package com.example.sulfurevents;
 
-public class OrganizerEvents {
+public class OrganizerEvents extends MainActivity {
 
-    String EventName;
-    String Date;
-    String Location;
-    int TotalCapacity;
-    int CurrentCapacity;
+    String EventName, Date, Location;
+    int Capacity;
 
 
     // Constructor
-    public OrganizerEvents(String eventName, String date, String location) {
+    public OrganizerEvents(String eventName, String date, String location, int capacity) {
         this.EventName = eventName;
         this.Date = date;
         this.Location = location;
-        //this.TotalCapacity = totalCapacity;
-        //this.CurrentCapacity = currentCapacity;
+        this.Capacity = capacity;
     }
 
-    //Getters
-
-
+    // Getters
     public String getEventName() {
         return EventName;
     }
@@ -33,18 +27,25 @@ public class OrganizerEvents {
         return Location;
     }
 
-//    public int getTotalCapacity() {
-//        return TotalCapacity;
-//    }
-
-    public int getCurrentCapacity() {
-        return CurrentCapacity;
+    public int getCapacity() {
+        return Capacity;
     }
 
-    // testing
+    // Setters
 
+    public void setEventName(String eventName) {
+        EventName = eventName;
+    }
 
+    public void setDate(String date) {
+        Date = date;
+    }
 
+    public void setLocation(String location) {
+        Location = location;
+    }
 
-
+    public void setCapacity(int capacity) {
+        Capacity = capacity;
+    }
 }
