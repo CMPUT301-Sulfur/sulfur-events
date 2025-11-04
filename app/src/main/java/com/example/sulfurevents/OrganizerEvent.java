@@ -15,17 +15,16 @@ public class OrganizerEvent {
     public String organizerEmail;
 
 
-    int Capacity;
+    //empty constructor because the organizer adds
 
-    //emphyt constructor because the organizer adds
-
-    public OrganizerEvent(){};
+    public OrganizerEvent() {
+    }
 
     public OrganizerEvent(String eventId, String organizerId,
                           String EventTitle, String description,
                           String startDate, String endDate,
                           String location, String limitGuests,
-                          String link, String qrCode) {
+                          String link, String qrCode, String organizerEmail) {
 
         this.eventId = eventId;
         this.organizerId = organizerId;
@@ -37,6 +36,7 @@ public class OrganizerEvent {
         this.limitGuests = limitGuests;
         this.link = link;
         this.qrCode = qrCode;
+        this.organizerEmail = organizerEmail;
     }
 
 //    public void addEventCardToMainPage(String EventTitle, String location, int Capacity, String link, String startDate) {
@@ -85,6 +85,10 @@ public class OrganizerEvent {
         return qrCode;
     }
 
+    public String getOrganizerEmail() {
+        return organizerEmail;
+    }
+
 
     //Setters
 
@@ -128,47 +132,8 @@ public class OrganizerEvent {
         this.qrCode = qrCode;
     }
 
+    public void setorganizerEmail() {
+        this.organizerEmail = organizerEmail;
+    }
 
-    //    // Constructor
-//    public Event(String eventName, String date, String location, int capacity) {
-//        this.EventName = eventName;
-//        this.Date = date;
-//        this.Location = location;
-//        this.Capacity = capacity;
-//    }
-//
-//    // Getters
-//    public String getEventName() {
-//        return EventName;
-//    }
-//
-//    public String getDate() {
-//        return Date;
-//    }
-//
-//    public String getLocation() {
-//        return Location;
-//    }
-//
-//    public int getCapacity() {
-//        return Capacity;
-//    }
-//
-//    // Setters
-//
-//    public void setEventName(String eventName) {
-//        EventName = eventName;
-//    }
-//
-//    public void setDate(String date) {
-//        Date = date;
-//    }
-//
-//    public void setLocation(String location) {
-//        Location = location;
-//    }
-//
-//    public void setCapacity(int capacity) {
-//        Capacity = capacity;
-//    }
 }

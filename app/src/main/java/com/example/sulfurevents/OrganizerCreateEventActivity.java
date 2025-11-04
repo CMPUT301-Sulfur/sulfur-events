@@ -89,6 +89,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
+        String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
         String eventId = db.collection("Events").document().getId();
 
@@ -117,6 +118,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.location = location;
         event.limitGuests = limit;
         event.qrCode = qrBase64;
+        event.organizerEmail = OGEmail;
 
         // need to change from finish() to PreviewEvent Activity screen
         db.collection("Events").document(eventId)
@@ -124,13 +126,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused ->{
                     finish();
                 });
-
-
-
     }
-
-
-
-
 
 }
