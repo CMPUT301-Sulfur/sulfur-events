@@ -110,7 +110,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         OrganizerEvent event = new OrganizerEvent();
         event.eventId = eventId;
         event.organizerId = DeviceID;
-        event.EventName = title;
+        event.eventName = title;
         event.description = description;
         event.startDate = start;
         event.endDate = end;

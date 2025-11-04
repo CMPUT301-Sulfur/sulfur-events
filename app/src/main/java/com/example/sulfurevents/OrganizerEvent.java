@@ -4,7 +4,7 @@ public class OrganizerEvent {
 
     public String eventId;
     public String organizerId;
-    public String EventName;
+    public String eventName;
     public String description;
     public String startDate;
     public String endDate;
@@ -12,6 +12,8 @@ public class OrganizerEvent {
     public String limitGuests;
     public String link;    // <--- add this
     public String qrCode;
+    public String organizerEmail;
+
 
     int Capacity;
 
@@ -27,7 +29,7 @@ public class OrganizerEvent {
 
         this.eventId = eventId;
         this.organizerId = organizerId;
-        this.EventName = EventTitle;
+        this.eventName = EventTitle;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -52,7 +54,7 @@ public class OrganizerEvent {
     }
 
     public String getEventTitle() {
-        return EventName;
+        return eventName;
     }
 
     public String getDescription() {
@@ -95,7 +97,7 @@ public class OrganizerEvent {
     }
 
     public void setEventTitle(String eventTitle) {
-        this.EventName = eventTitle;
+        this.eventName = eventTitle;
     }
 
     public void setDescription(String description) {
