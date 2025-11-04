@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
@@ -12,6 +13,30 @@
         android:layout_height="match_parent">
 
         <!-- Back Button -->
+
+        <EditText
+            android:id="@+id/organizerEmail"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:background="@drawable/rounded_input"
+            android:hint="Ex. ABC@gmail.com"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvOrganizerEmail" />
+
+        <TextView
+            android:id="@+id/tvOrganizerEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Contact Email Information"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/posterUploadArea" />
+
         <ImageButton
             android:id="@+id/Back_Button"
             android:layout_width="32dp"
@@ -201,17 +226,17 @@
             android:id="@+id/GenerateEventButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
             android:backgroundTint="#67E084"
             android:text="Generate Link and Add Event"
-            android:textSize="20dp"
             android:textAlignment="center"
             android:textColor="@color/black"
+            android:textSize="20dp"
             android:textStyle="bold|italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/posterUploadArea" />
+            app:layout_constraintTop_toBottomOf="@+id/organizerEmail" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
