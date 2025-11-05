@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -24,6 +25,7 @@ public class OrganizerActivity extends AppCompatActivity {
     private String DeviceID;
     private User CurrentUser;
 
+
     ArrayList<OrganizerEvent> OrganizerEvent = new ArrayList<>();
 
 
@@ -45,20 +47,23 @@ public class OrganizerActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-        DeviceID = android.provider.Settings.Secure
+        DeviceID = Settings.Secure
                 .getString(getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID);
+                Settings.Secure.ANDROID_ID);
 
 
         // we are displaying events
         db = FirebaseFirestore.getInstance();
 
         db.collection("Events").whereEqualTo("organizerId", DeviceID)
-                .get()
-                .addOnSuccessListener(q ->{
-                    OrganizerEvent.clear();
-                    OrganizerEvent.addAll(q.toObjects(OrganizerEvent.class));
-                    adapter.notifyDataSetChanged();
+                .addSnapshotListener((value, error) ->{
+                    if(error != null || value == null){
+                        return;
+                    }else{
+                        OrganizerEvent.clear();
+                        OrganizerEvent.addAll(value.toObjects(OrganizerEvent.class));
+                        adapter.notifyDataSetChanged();
+                    }
                 });
 
 
@@ -75,6 +80,12 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent intent = new Intent(OrganizerActivity.this, OrganizerCreateEventActivity.class);
             startActivity(intent);
         });
+
+//        Button editEventButton = findViewById(R.id.EditEventButtonCard);
+//        editEventButton.setOnClickListener(view ->{
+//            Intent intent = new Intent(OrganizerActivity.this, OrganizerEditEventActivity.class);
+//            startActivity(intent);
+//        });
 
     }
 

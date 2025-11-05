@@ -135,4 +135,7 @@ public class OrganizerEvent {
         this.organizerEmail = organizerEmail;
     }
 
+
+
+
 }
