@@ -14,6 +14,8 @@ public class OrganizerEvent {
     public String qrCode;
     public String organizerEmail;
 
+    public String posterURL;
+
 
     //empty constructor because the organizer adds
 
@@ -24,7 +26,7 @@ public class OrganizerEvent {
                           String EventTitle, String description,
                           String startDate, String endDate,
                           String location, String limitGuests,
-                          String link, String qrCode, String organizerEmail) {
+                          String link, String qrCode, String organizerEmail, String posterURL) {
 
         this.eventId = eventId;
         this.organizerId = organizerId;
@@ -37,6 +39,7 @@ public class OrganizerEvent {
         this.link = link;
         this.qrCode = qrCode;
         this.organizerEmail = organizerEmail;
+        this.posterURL = posterURL;
     }
 
 //    public void addEventCardToMainPage(String EventTitle, String location, int Capacity, String link, String startDate) {
