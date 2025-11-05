@@ -1,13 +1,18 @@
 package com.example.sulfurevents;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,13 +25,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 
+// Image constant
+
 
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
+    private static final int IMAGE_REQUEST = 1;
+    private Uri posterUri = null;
 
     private FirebaseFirestore db;
     private String DeviceID;
     private User CurrentUser;
+
+
 
 
 
@@ -63,9 +74,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             CreateEvent();
         });
 
+        // listen for user to click on upload poster area
 
+        FrameLayout poster = findViewById(R.id.posterUploadArea);
+        poster.setOnClickListener(view ->{
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent,IMAGE_REQUEST);
+        });
 
     }
+
 
 
     // Generating QR code
@@ -100,12 +119,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             qrBitmap = generateQR(eventId);
             // convert to base 64
             qrBase64 = bitmaptobase64(qrBitmap);
-
-
         }catch (Exception e){
             // we should add a toast and say "cannot create event"
             return;
         }
+
+        if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
+        end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+            return; // Stop here, stay on this screen
+        }
+
 
         OrganizerEvent event = new OrganizerEvent();
         event.eventId = eventId;
@@ -125,6 +149,26 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused ->{
                     finish();
                 });
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        ImageView eventposter = findViewById(R.id.eventPosterPreview);
+
+        if(requestCode == IMAGE_REQUEST && resultCode != RESULT_OK){
+            posterUri = null;
+            eventposter.setImageResource(R.drawable.upload); // back to default icon
+            return;
+        }
+
+
+        if(requestCode  == IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
+            Uri imgURI = data.getData();
+            eventposter.setImageURI(imgURI);
+        }
     }
 
 }
