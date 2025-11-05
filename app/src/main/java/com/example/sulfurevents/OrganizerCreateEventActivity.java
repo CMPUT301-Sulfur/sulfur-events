@@ -57,7 +57,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         // Generate Link and Add Event Button
-
         Button GenerateQRCodeEventButon = findViewById(R.id.GenerateEventButton);
         GenerateQRCodeEventButon.setOnClickListener(view ->{
             // CreateEvent(String Device ID, User CurrentUser,);
@@ -70,7 +69,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
 
     // Generating QR code
-
     private Bitmap generateQR(String value) throws Exception{
         com.journeyapps.barcodescanner.BarcodeEncoder encoder = new com.journeyapps.barcodescanner.BarcodeEncoder();
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
@@ -95,6 +93,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         Bitmap qrBitmap;
         String qrBase64;
+        String Link;
 
         try{
             // assign returned bitmap
@@ -102,9 +101,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             // convert to base 64
             qrBase64 = bitmaptobase64(qrBitmap);
 
+
         }catch (Exception e){
             // we should add a toast and say "cannot create event"
-
             return;
         }
 
