@@ -25,7 +25,6 @@
 <!--        </activity>-->
 
 
-
         <activity
             android:name=".AdminDashboardActivity"
             android:exported="true">
