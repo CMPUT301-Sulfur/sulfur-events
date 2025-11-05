@@ -13,6 +13,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents" >
 
+        <activity android:name=".MainActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".OrganizerCreateEventActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".OrganizerActivity"
+            android:exported="true" />
 <!--         SWITCH LAUNCH ACTIVITY HERE -->
 
         <!-- To launch MainActivity (default user screen): -->
