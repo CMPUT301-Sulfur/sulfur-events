@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/welcome"
+    android:id="@+id/update"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -23,10 +23,10 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/profile_change_header"
+                    android:id="@+id/welcome_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Welcome New User"
+                    android:text="Profile Changes"
                     android:textSize="32sp"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -35,10 +35,16 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Provide Your Information Below"
+                    android:text="Provide Your Changes Below"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="32dp" />
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="(Leave Blank To Keep Old Information)"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="32dp"/>
+
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/name_input_layout"
@@ -83,7 +89,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                    android:id="@+id/submit_button"
+                    android:id="@+id/confirm_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit"
