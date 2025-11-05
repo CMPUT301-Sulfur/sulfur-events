@@ -26,7 +26,7 @@
                     android:id="@+id/welcome_back_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Welcome Back User"
+                    android:text="Profile"
                     android:textSize="32sp"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -71,7 +71,7 @@
                     android:id="@+id/edit_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Confirm Changes"
+                    android:text="Edit"
                     android:textSize="16sp" />
 
             </LinearLayout>
