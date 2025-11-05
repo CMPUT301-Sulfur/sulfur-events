@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D8E3F0"
+    tools:context=".EventImageDetailActivity">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E8ECF1"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/tvEventTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Image"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:id="@+id/tvEventInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Organizer: "
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp" />
+
+        <ImageView
+            android:id="@+id/imgEventDetail"
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            android:scaleType="centerCrop"
+            android:background="#D8D8D8"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btnDeleteImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Image"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#E57373"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnBackEventDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="← Back"
+            android:textColor="#000000"
+            android:backgroundTint="#B0BEC5" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

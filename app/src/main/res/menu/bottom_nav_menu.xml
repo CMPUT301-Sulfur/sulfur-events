@@ -2,7 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:title="Home" />
+        android:id="@+id/home_navigation"
+        android:title="Home"
+        android:icon="@drawable/ic_home" />
+
 
     <item
         android:id="@+id/qr_scanner_navigation"
@@ -14,5 +17,10 @@
         android:title="Your Events"
         android:icon="@drawable/create_event"
         />
+
+    <item
+        android:id="@+id/nav_view_events"
+        android:title="View Events"
+        android:icon="@drawable/ev_list" />
 
 </menu>
