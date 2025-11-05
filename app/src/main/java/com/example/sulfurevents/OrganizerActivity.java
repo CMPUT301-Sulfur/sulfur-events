@@ -67,6 +67,55 @@ public class OrganizerActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
+    private void drawWinners(String eventId, int numberToPick) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Events").document(eventId)
+                .collection("WaitingList")
+                .get()
+                .addOnSuccessListener(qs -> {
+                    java.util.List<com.google.firebase.firestore.DocumentSnapshot> all = qs.getDocuments();
+                    java.util.Collections.shuffle(all); // random order
+                    int toPick = Math.min(numberToPick, all.size());
+
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+
+                    for (int i = 0; i < all.size(); i++) {
+                        com.google.firebase.firestore.DocumentSnapshot ds = all.get(i);
+                        String profileId = ds.getId(); // assuming doc id == profileId
+
+                        if (i < toPick) {
+                            // chosen
+                            batch.update(ds.getReference(), "status", "chosen");
+
+                            String notifId = db.collection("Notifications").document().getId();
+                            java.util.Map<String, Object> notif = new java.util.HashMap<>();
+                            notif.put("toProfileId", profileId);
+                            notif.put("eventId", eventId);
+                            notif.put("type", "chosen");
+                            notif.put("message", "You were selected for this event. Accept or decline.");
+                            notif.put("createdAt", com.google.firebase.Timestamp.now());
+                            batch.set(db.collection("Notifications").document(notifId), notif);
+
+                        } else {
+                            // not chosen
+                            batch.update(ds.getReference(), "status", "not_chosen");
+
+                            String notifId = db.collection("Notifications").document().getId();
+                            java.util.Map<String, Object> notif = new java.util.HashMap<>();
+                            notif.put("toProfileId", profileId);
+                            notif.put("eventId", eventId);
+                            notif.put("type", "not_chosen");
+                            notif.put("message", "You were not selected in the first draw.");
+                            notif.put("createdAt", com.google.firebase.Timestamp.now());
+                            batch.set(db.collection("Notifications").document(notifId), notif);
+                        }
+                    }
+
+                    batch.commit();
+                });
+    }
+
 
 
 

@@ -41,37 +41,47 @@
                     android:layout_marginBottom="32dp" />
 
                 <TextView
+                    android:id="@+id/name_display"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Name: {name}"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/name_display"/>
+                    android:layout_marginBottom="32dp" />
 
                 <TextView
+                    android:id="@+id/email_display"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Email: {email}"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/email_display"/>
+                    android:layout_marginBottom="32dp" />
 
                 <TextView
+                    android:id="@+id/phone_display"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Phone Number: {number}"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/phone_display"/>
+                    android:layout_marginBottom="32dp" />
 
+                <!-- existing button -->
                 <Button
                     android:id="@+id/edit_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Confirm Changes"
+                    android:textSize="16sp" />
+
+                <!-- NEW: notifications button -->
+                <Button
+                    android:id="@+id/notifications_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="View Notifications"
+                    android:layout_marginTop="12dp"
                     android:textSize="16sp" />
 
             </LinearLayout>
@@ -83,7 +93,6 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu">
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+        app:menu="@menu/bottom_nav_menu" />
 
 </LinearLayout>

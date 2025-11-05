@@ -8,23 +8,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.sulfurevents.databinding.ActivityMainBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.sulfurevents.databinding.ActivityMainBinding;
 
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button submitButton;
     private Button editButton;
+    private Button notificationsButton;
     private TextInputEditText nameInput;
     private TextInputEditText emailInput;
     private TextInputEditText phoneInput;
@@ -40,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView phoneDisplay;
     private FirebaseFirestore db;
     private String deviceId;
-    private User currentUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,54 +45,63 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         EdgeToEdge.enable(this);
 
-        //setContentView(R.layout.activity_main);
-
-        //ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.MainActivityView)
         ViewCompat.setOnApplyWindowInsetsListener(binding.MainActivityView, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-
-        //binding = ActivityMainBinding.inflate(getLayoutInflater());
-        //setContentView(binding.getRoot());
-
-        // database getting instance and Device ID
         db = FirebaseFirestore.getInstance();
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-
+        // bottom nav
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
 
-
-            // Bottom navigation to Organizer HomePage
-            if (item.getItemId() == R.id.organizer_navigation) {
-                Intent intent = new Intent(MainActivity.this, OrganizerActivity.class);
-                startActivity(intent);
+            if (id == R.id.organizer_navigation) {
+                startActivity(new Intent(MainActivity.this, OrganizerActivity.class));
                 return true;
             }
 
-            db.collection("Profiles").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            if (id == R.id.qr_scanner_navigation) {
+                // TODO: open QR screen
+                return true;
+            }
 
-                if (!documentSnapshot.exists()) {
-                    setContentView(R.layout.welcome_entrant);
-                    EdgeToEdge.enable(this);
-                    setupInsets(R.id.welcome);
-                    initializeNewUserViews();
-                    setupSubmitButton();
-                } else {
-                    setContentView(R.layout.returning_entrant);
-                    EdgeToEdge.enable(this);
-                    setupInsets(R.id.profile);
-                    initializeReturningUserViews();
-                }
-            });
-
+            // home / entrant
+            showEntrantScreen();
             return true;
-
         });
 
+        // show entrant screen on startup
+        showEntrantScreen();
+    }
+
+    private void showEntrantScreen() {
+        db.collection("Profiles").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            if (!documentSnapshot.exists()) {
+                // new user
+                setContentView(R.layout.welcome_entrant);
+                EdgeToEdge.enable(this);
+                setupInsets(R.id.welcome);
+                initializeNewUserViews();
+                setupSubmitButton();
+            } else {
+                // returning user
+                setContentView(R.layout.returning_entrant);
+                EdgeToEdge.enable(this);
+                setupInsets(R.id.profile);
+                initializeReturningUserViews();
+
+                String name = documentSnapshot.getString("name");
+                String email = documentSnapshot.getString("email");
+                String phone = documentSnapshot.getString("phone");
+
+                if (nameDisplay != null) nameDisplay.setText("Name: " + (name != null ? name : ""));
+                if (emailDisplay != null) emailDisplay.setText("Email: " + (email != null ? email : ""));
+                if (phoneDisplay != null) phoneDisplay.setText("Phone Number: " + (phone != null ? phone : ""));
+            }
+        });
     }
 
     private void initializeNewUserViews() {
@@ -113,58 +116,64 @@ public class MainActivity extends AppCompatActivity {
         nameDisplay = findViewById(R.id.name_display);
         emailDisplay = findViewById(R.id.email_display);
         phoneDisplay = findViewById(R.id.phone_display);
+        notificationsButton = findViewById(R.id.notifications_button);
+
+        if (notificationsButton != null) {
+            notificationsButton.setOnClickListener(v -> {
+                Intent i = new Intent(MainActivity.this, EntrantNotificationsActivity.class);
+                startActivity(i);
+            });
+        }
     }
 
     private void setupInsets(int viewId) {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(viewId), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        View root = findViewById(viewId);
+        if (root != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
     }
-
 
     private void setupSubmitButton() {
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = nameInput.getText().toString().trim();
-                String email = emailInput.getText().toString().trim();
-                String phone = phoneInput.getText().toString().trim();
+        submitButton.setOnClickListener(v -> {
+            String name = nameInput.getText().toString().trim();
+            String email = emailInput.getText().toString().trim();
+            String phone = phoneInput.getText().toString().trim();
 
-                if (name.isEmpty()) {
-                    nameInput.setError("Name is required");
-                    nameInput.requestFocus();
-                    return;
-                }
-
-                if (email.isEmpty()) {
-                    emailInput.setError("Email is required");
-                    emailInput.requestFocus();
-                    return;
-                }
-
-                if (phone.isEmpty()) {
-                    phone = "";
-                }
-
-                boolean isAdmin = false;
-
-                User newUser = new User(deviceId, name, email, phone, isAdmin);
-                addUser(newUser);
+            if (name.isEmpty()) {
+                nameInput.setError("Name is required");
+                nameInput.requestFocus();
+                return;
             }
+            if (email.isEmpty()) {
+                emailInput.setError("Email is required");
+                emailInput.requestFocus();
+                return;
+            }
+
+            // make user map like your User model
+            Map<String, Object> profile = new HashMap<>();
+            profile.put("deviceId", deviceId);
+            profile.put("name", name);
+            profile.put("email", email);
+            profile.put("phone", phone);
+            profile.put("userType", "entrant");
+
+            DocumentReference docRef = db.collection("Profiles").document(deviceId);
+            docRef.set(profile).addOnSuccessListener(unused -> {
+                // show returning screen
+                setContentView(R.layout.returning_entrant);
+                EdgeToEdge.enable(MainActivity.this);
+                setupInsets(R.id.profile);
+                initializeReturningUserViews();
+
+                if (nameDisplay != null) nameDisplay.setText("Name: " + name);
+                if (emailDisplay != null) emailDisplay.setText("Email: " + email);
+                if (phoneDisplay != null) phoneDisplay.setText("Phone Number: " + phone);
+            });
         });
-    }
-
-    public void addUser(User user){
-        DocumentReference docRef = db.collection("Profiles").document(user.getDeviceId());
-        docRef.set(user);
-    }
-
-    public void updateUser(User user, String name, String email, String phone){
-        user.setName(name);
-        user.setEmail(email);
-        user.setPhone(phone);
-        db.collection("Profiles").document(user.getDeviceId()).set(user);
     }
 }

@@ -18,7 +18,6 @@ public class User {
     public User() {
         this.isAdmin = false;
     }
-
     public String getDeviceId() {
         return deviceId;
     }
