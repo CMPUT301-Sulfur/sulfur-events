@@ -1,5 +1,6 @@
-// this file creates a custom list adapter for showing events in the admin panel
-// it shows event name, organizer email, status, and has a delete button
+// AdminEventsListAdapter
+// This file creates a custom list adapter for showing events in the admin panel
+// It shows event name, organizer email, status, and has a delete button
 
 package com.example.sulfurevents;
 
@@ -16,30 +17,41 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
+/**
+ * This class defines a custom list adapter for showing events in the admin panel.
+ * Each list item shows the event name, organizer email, and includes a delete button.
+ */
 public class AdminEventsListAdapter extends ArrayAdapter<EventModel> {
 
-    // constructor takes the app context and list of events
+    /**
+     * Constructor for creating a new AdminEventsListAdapter
+     * @param context The current context
+     * @param events The list of events to display
+     */
     public AdminEventsListAdapter(Context context, List<EventModel> events) {
         super(context, 0, events);
     }
 
+    /**
+     * Gets the view for a single event item in the list
+     * @param position The position of the event in the list
+     * @param convertView The recycled view to reuse
+     * @param parent The parent view group
+     * @return The completed list item view
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // check if the view is already created, if not inflate a new one
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_admin_event, parent, false);
         }
 
-        // get the current event object
         EventModel event = getItem(position);
 
-        // find the text views and button in the layout
         TextView tvName = convertView.findViewById(R.id.tvEventName);
         TextView tvEmail = convertView.findViewById(R.id.tvOrganizerEmail);
         Button btnDelete = convertView.findViewById(R.id.btnDeleteEvent);
 
-        // set the text for name, email, and status
         tvName.setText(event.getEventName());
         tvEmail.setText("Organizer: " + event.getOrganizerEmail());
 
@@ -49,7 +61,6 @@ public class AdminEventsListAdapter extends ArrayAdapter<EventModel> {
             }
         });
 
-        // return the completed view for display
         return convertView;
     }
 }

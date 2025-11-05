@@ -12,14 +12,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents" >
-        <activity android:name=".MainActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".OrganizerCreateEventActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".OrganizerActivity"
-            android:exported="true" />
+
+<!--         SWITCH LAUNCH ACTIVITY HERE -->
+
+        <!-- To launch MainActivity (default user screen): -->
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+
+
         <activity
             android:name=".AdminDashboardActivity"
             android:exported="true">
@@ -29,7 +36,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Other admin screens (no intent filter needed) -->
+
+        <!-- Other activities -->
         <activity android:name=".AdminEventsActivity" />
         <activity android:name=".AdminProfilesActivity" />
         <activity android:name=".AdminImagesActivity" />
@@ -38,10 +46,9 @@
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".UpdateProfileActivity"/>
 
-        <!-- Organizer and Main can stay for later use -->
-
+        <!-- Keep AdminDashboardActivity declared even when commented above -->
+<!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
 
     </application>
-
 
 </manifest>
