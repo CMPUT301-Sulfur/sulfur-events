@@ -22,6 +22,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 
@@ -143,12 +145,43 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
 
-        // need to change from finish() to PreviewEvent Activity screen
-        db.collection("Events").document(eventId)
-                .set(event)
-                .addOnSuccessListener(unused ->{
-                    finish();
+        // if the event poster is null just store null in the database for event poster
+        if(posterUri == null){
+            event.posterURL = null;
+            db.collection("Events").document(eventId)
+                    .set(event)
+                    .addOnSuccessListener(unused ->{
+                        finish();
+                    });
+        }else{
+            StorageReference storeref = FirebaseStorage.getInstance()
+                    .getReference("Event_Posters")
+                    .child(eventId + ".jpg");
+
+            storeref.putFile(posterUri).addOnSuccessListener(task ->{
+                storeref.getDownloadUrl().addOnSuccessListener(downloadURl ->{
+                    event.posterURL = downloadURl.toString();
+
+                    // need to change from finish() to PreviewEvent Activity screen
+                    db.collection("Events").document(eventId)
+                            .set(event)
+                            .addOnSuccessListener(unused ->{
+                                finish();
+                            });
                 });
+            }).addOnFailureListener(e ->{
+                Toast.makeText(this, "Poster Upload Failed:" + e.getMessage(), Toast.LENGTH_LONG)
+                        .show();
+            });
+        }
+
+
+//        // need to change from finish() to PreviewEvent Activity screen
+//        db.collection("Events").document(eventId)
+//                .set(event)
+//                .addOnSuccessListener(unused ->{
+//                    finish();
+//                });
     }
 
 
@@ -166,8 +199,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
 
         if(requestCode  == IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
-            Uri imgURI = data.getData();
-            eventposter.setImageURI(imgURI);
+            posterUri = data.getData();
+            eventposter.setImageURI(posterUri);
         }
     }
 
