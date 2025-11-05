@@ -10,6 +10,7 @@ public class EventModel {
     private String organizerEmail;
     private String status;
     private String imageUrl;
+    private String description;
 
     public EventModel() { } // Needed for Firestore
 
@@ -27,4 +28,7 @@ public class EventModel {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
