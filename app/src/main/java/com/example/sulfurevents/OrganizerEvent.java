@@ -42,10 +42,6 @@ public class OrganizerEvent {
         this.posterURL = posterURL;
     }
 
-//    public void addEventCardToMainPage(String EventTitle, String location, int Capacity, String link, String startDate) {
-//
-//        return true;
-//    }
 
     // Getters
     public String getEventId() {

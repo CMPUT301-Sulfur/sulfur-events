@@ -26,6 +26,7 @@ public class OrganizerActivity extends AppCompatActivity {
 
     ArrayList<OrganizerEvent> OrganizerEvent = new ArrayList<>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,18 +40,26 @@ public class OrganizerActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
 
-
-//        OrganizerEvent.add(new Event(
-//                "Test",
-//                "OCT, 2004",
-//                "Canada",
-//                15
-//        ));
-
         OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);
-
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        DeviceID = android.provider.Settings.Secure
+                .getString(getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID);
+
+
+        // we are displaying events
+        db = FirebaseFirestore.getInstance();
+
+        db.collection("Events").whereEqualTo("organizerId", DeviceID)
+                .get()
+                .addOnSuccessListener(q ->{
+                    OrganizerEvent.clear();
+                    OrganizerEvent.addAll(q.toObjects(OrganizerEvent.class));
+                    adapter.notifyDataSetChanged();
+                });
 
 
         // Back Button back into mainActivity
@@ -66,6 +75,7 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent intent = new Intent(OrganizerActivity.this, OrganizerCreateEventActivity.class);
             startActivity(intent);
         });
+
     }
 
 
