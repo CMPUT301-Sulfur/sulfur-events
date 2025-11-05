@@ -19,23 +19,26 @@ import java.util.List;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import javax.annotation.Nullable;
-
-
+/**
+ * This class defines the admin images screen.
+ * It lets administrators view events that have uploaded images.
+ */
 public class AdminImagesActivity extends AppCompatActivity {
 
     private EditText etSearchImageEvent;
     private ListView listViewImageEvents;
     private AdminImagesListAdapter adapter;
-    private List<EventModel> eventList = new ArrayList<>(); // ✅ Use EventModel here
+    private List<EventModel> eventList = new ArrayList<>();
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
 
+    /**
+     * Called when the activity is created.
+     * Sets up the list, search bar, and loads events with images.
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,14 +50,12 @@ public class AdminImagesActivity extends AppCompatActivity {
         etSearchImageEvent = findViewById(R.id.etSearchImageEvent);
         listViewImageEvents = findViewById(R.id.listViewImageEvents);
 
-        // ✅ Adapter must also use EventModel
         adapter = new AdminImagesListAdapter(this, eventList);
         listViewImageEvents.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("Events");
 
-        // search functionality
         etSearchImageEvent.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -66,6 +67,9 @@ public class AdminImagesActivity extends AppCompatActivity {
         loadEventsWithImages();
     }
 
+    /**
+     * Loads all events that have an image URL from Firestore.
+     */
     private void loadEventsWithImages() {
         eventsRef.addSnapshotListener((snapshots, e) -> {
             if (e != null) return;
@@ -84,6 +88,10 @@ public class AdminImagesActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Filters the event list by name.
+     * @param query The text entered in the search bar
+     */
     private void filterEvents(String query) {
         List<EventModel> filtered = new ArrayList<>();
         for (EventModel event : eventList) {
@@ -98,7 +106,10 @@ public class AdminImagesActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    // Called from adapter when "View/Delete Images" button is clicked
+    /**
+     * Opens the image detail screen for the selected event.
+     * @param event The selected event
+     */
     public void openEventImageDetail(EventModel event) {
         Intent intent = new Intent(this, EventImageDetailActivity.class);
         intent.putExtra("eventId", event.getEventId());

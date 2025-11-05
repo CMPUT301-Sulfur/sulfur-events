@@ -114,3 +114,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         });
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main

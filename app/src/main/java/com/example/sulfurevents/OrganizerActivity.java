@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -24,7 +25,9 @@ public class OrganizerActivity extends AppCompatActivity {
     private String DeviceID;
     private User CurrentUser;
 
+
     ArrayList<OrganizerEvent> OrganizerEvent = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,18 +42,29 @@ public class OrganizerActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
 
-
-//        OrganizerEvent.add(new Event(
-//                "Test",
-//                "OCT, 2004",
-//                "Canada",
-//                15
-//        ));
-
         OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);
-
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        DeviceID = Settings.Secure
+                .getString(getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+
+        // we are displaying events
+        db = FirebaseFirestore.getInstance();
+
+        db.collection("Events").whereEqualTo("organizerId", DeviceID)
+                .addSnapshotListener((value, error) ->{
+                    if(error != null || value == null){
+                        return;
+                    }else{
+                        OrganizerEvent.clear();
+                        OrganizerEvent.addAll(value.toObjects(OrganizerEvent.class));
+                        adapter.notifyDataSetChanged();
+                    }
+                });
 
 
         // Back Button back into mainActivity
@@ -66,6 +80,13 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent intent = new Intent(OrganizerActivity.this, OrganizerCreateEventActivity.class);
             startActivity(intent);
         });
+
+//        Button editEventButton = findViewById(R.id.EditEventButtonCard);
+//        editEventButton.setOnClickListener(view ->{
+//            Intent intent = new Intent(OrganizerActivity.this, OrganizerEditEventActivity.class);
+//            startActivity(intent);
+//        });
+
     }
 
 

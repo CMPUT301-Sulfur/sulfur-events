@@ -14,12 +14,28 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * This class defines a custom list adapter for showing user profiles.
+ * It is used in the admin profiles screen.
+ */
 public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
 
+    /**
+     * Constructor for creating a new AdminProfilesListAdapter
+     * @param context The current context
+     * @param list The list of profiles to display
+     */
     public AdminProfilesListAdapter(Context context, ArrayList<ProfileModel> list) {
         super(context, 0, list);
     }
 
+    /**
+     * Gets the view for a single profile item in the list
+     * @param position The position of the profile in the list
+     * @param convertView The recycled view to reuse
+     * @param parent The parent view group
+     * @return The completed list item view
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -38,8 +54,6 @@ public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
             tvPhone.setText("Phone: " + (profile.getPhone() == null || profile.getPhone().isEmpty() ? "—" : profile.getPhone()));
             tvDevice.setText("Device ID: " + (profile.getDeviceId() == null || profile.getDeviceId().isEmpty() ? "—" : profile.getDeviceId()));
             tvDevice.setText("Name: " + (profile.getName() == null || profile.getName().isEmpty() ? "—" : profile.getName()));
-
-
 
             btnDelete.setOnClickListener(v -> {
                 if (getContext() instanceof AdminProfilesActivity) {

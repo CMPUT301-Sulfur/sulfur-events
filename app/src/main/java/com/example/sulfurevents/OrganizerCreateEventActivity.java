@@ -1,13 +1,18 @@
 package com.example.sulfurevents;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,16 +22,24 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+
+// Image constant
 
 
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
+    private static final int IMAGE_REQUEST = 1;
+    private Uri posterUri = null;
 
     private FirebaseFirestore db;
     private String DeviceID;
     private User CurrentUser;
+
+
 
 
 
@@ -57,20 +70,26 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         // Generate Link and Add Event Button
-
         Button GenerateQRCodeEventButon = findViewById(R.id.GenerateEventButton);
         GenerateQRCodeEventButon.setOnClickListener(view ->{
             // CreateEvent(String Device ID, User CurrentUser,);
             CreateEvent();
         });
 
+        // listen for user to click on upload poster area
 
+        FrameLayout poster = findViewById(R.id.posterUploadArea);
+        poster.setOnClickListener(view ->{
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent,IMAGE_REQUEST);
+        });
 
     }
 
 
-    // Generating QR code
 
+    // Generating QR code
     private Bitmap generateQR(String value) throws Exception{
         com.journeyapps.barcodescanner.BarcodeEncoder encoder = new com.journeyapps.barcodescanner.BarcodeEncoder();
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
@@ -95,18 +114,24 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         Bitmap qrBitmap;
         String qrBase64;
+        String Link;
 
         try{
             // assign returned bitmap
             qrBitmap = generateQR(eventId);
             // convert to base 64
             qrBase64 = bitmaptobase64(qrBitmap);
-
         }catch (Exception e){
             // we should add a toast and say "cannot create event"
-
             return;
         }
+
+        if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
+        end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+            return; // Stop here, stay on this screen
+        }
+
 
         OrganizerEvent event = new OrganizerEvent();
         event.eventId = eventId;
@@ -120,12 +145,63 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
 
-        // need to change from finish() to PreviewEvent Activity screen
-        db.collection("Events").document(eventId)
-                .set(event)
-                .addOnSuccessListener(unused ->{
-                    finish();
+        // if the event poster is null just store null in the database for event poster
+        if(posterUri == null){
+            event.posterURL = null;
+            db.collection("Events").document(eventId)
+                    .set(event)
+                    .addOnSuccessListener(unused ->{
+                        finish();
+                    });
+        }else{
+            StorageReference storeref = FirebaseStorage.getInstance()
+                    .getReference("Event_Posters")
+                    .child(eventId + ".jpg");
+
+            storeref.putFile(posterUri).addOnSuccessListener(task ->{
+                storeref.getDownloadUrl().addOnSuccessListener(downloadURl ->{
+                    event.posterURL = downloadURl.toString();
+
+                    // need to change from finish() to PreviewEvent Activity screen
+                    db.collection("Events").document(eventId)
+                            .set(event)
+                            .addOnSuccessListener(unused ->{
+                                finish();
+                            });
                 });
+            }).addOnFailureListener(e ->{
+                Toast.makeText(this, "Poster Upload Failed:" + e.getMessage(), Toast.LENGTH_LONG)
+                        .show();
+            });
+        }
+
+
+//        // need to change from finish() to PreviewEvent Activity screen
+//        db.collection("Events").document(eventId)
+//                .set(event)
+//                .addOnSuccessListener(unused ->{
+//                    finish();
+//                });
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        ImageView eventposter = findViewById(R.id.eventPosterPreview);
+
+        if(requestCode == IMAGE_REQUEST && resultCode != RESULT_OK){
+            posterUri = null;
+            eventposter.setImageResource(R.drawable.upload); // back to default icon
+            return;
+        }
+
+
+        if(requestCode  == IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
+            posterUri = data.getData();
+            eventposter.setImageURI(posterUri);
+        }
     }
 
 }

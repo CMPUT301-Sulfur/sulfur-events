@@ -21,6 +21,7 @@
         <activity
             android:name=".OrganizerActivity"
             android:exported="true" />
+<<<<<<< HEAD
         <!--         SWITCH LAUNCH ACTIVITY HERE -->
 
         <!-- To launch MainActivity (default user screen): -->
@@ -32,6 +33,19 @@
         <!--                <category android:name="android.intent.category.LAUNCHER" />-->
         <!--            </intent-filter>-->
         <!--        </activity>-->
+=======
+<!--         SWITCH LAUNCH ACTIVITY HERE -->
+
+        <!-- To launch MainActivity (default user screen): -->
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+>>>>>>> origin/main
 
 
 
@@ -55,8 +69,16 @@
         <activity android:name=".UpdateProfileActivity"/>
 
         <!-- Keep AdminDashboardActivity declared even when commented above -->
+<<<<<<< HEAD
         <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
 
     </application>
 
 </manifest>
+=======
+<!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
+
+    </application>
+
+</manifest>
+>>>>>>> origin/main

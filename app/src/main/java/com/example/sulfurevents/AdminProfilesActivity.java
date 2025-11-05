@@ -21,6 +21,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * This class defines the admin profiles screen.
+ * It lets administrators view and delete user profiles from Firestore.
+ */
 public class AdminProfilesActivity extends AppCompatActivity {
 
     private ListView listViewProfiles;
@@ -29,6 +33,11 @@ public class AdminProfilesActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
 
+    /**
+     * Called when the activity is created.
+     * Sets up the list and loads profiles from Firestore.
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +57,10 @@ public class AdminProfilesActivity extends AppCompatActivity {
         loadProfilesFromFirestore();
     }
 
+    /**
+     * Loads all profiles from the Firestore "Profiles" collection.
+     * Updates the list automatically when data changes.
+     */
     private void loadProfilesFromFirestore() {
         profilesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -72,6 +85,10 @@ public class AdminProfilesActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Deletes a profile from Firestore.
+     * @param profileId The ID of the profile to delete
+     */
     public void deleteProfile(String profileId) {
         profilesRef.document(profileId).delete().addOnSuccessListener(aVoid ->
                 Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show());

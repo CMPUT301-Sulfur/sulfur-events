@@ -95,3 +95,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
