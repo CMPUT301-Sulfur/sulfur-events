@@ -21,6 +21,10 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+/**
+ * This class defines the admin events screen.
+ * It lets administrators view and delete events from Firestore.
+ */
 public class AdminEventsActivity extends AppCompatActivity {
 
     private ListView listViewEvents;
@@ -29,7 +33,11 @@ public class AdminEventsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
 
-
+    /**
+     * Called when the activity is created.
+     * Sets up the list and loads events from Firestore.
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +57,10 @@ public class AdminEventsActivity extends AppCompatActivity {
         loadEventsFromFirestore();
     }
 
+    /**
+     * Loads all events from the Firestore "Events" collection.
+     * Updates the list automatically when data changes.
+     */
     private void loadEventsFromFirestore() {
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -59,7 +71,7 @@ public class AdminEventsActivity extends AppCompatActivity {
                 for (DocumentSnapshot doc : snapshots) {
                     EventModel event = doc.toObject(EventModel.class);
                     if (event != null) {
-                        event.setEventId(doc.getId()); // store document ID
+                        event.setEventId(doc.getId());
                         eventList.add(event);
                     }
                 }
@@ -69,7 +81,10 @@ public class AdminEventsActivity extends AppCompatActivity {
         });
     }
 
-    // Delete event by document ID
+    /**
+     * Deletes an event from Firestore.
+     * @param eventId The ID of the event to delete
+     */
     public void deleteEvent(String eventId) {
         eventsRef.document(eventId).delete()
                 .addOnSuccessListener(aVoid -> Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show());

@@ -10,11 +10,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * This class defines the admin dashboard screen.
+ * It lets administrators manage events, profiles, and images.
+ */
 public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnManageEvents;
     private Button btnManageProfiles;
     private Button btnManageImages;
 
+    /**
+     * Called when the activity is created.
+     * Sets up the buttons and their click listeners.
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
