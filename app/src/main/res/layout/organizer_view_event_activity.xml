@@ -101,5 +101,39 @@
             android:textColor="@color/black"
             android:layout_marginBottom="8dp" />
 
+        <!-- 🔹 View Waiting List Button -->
+        <Button
+            android:id="@+id/btnViewWaitingList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Waiting List"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btnViewEnrolled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Enrolled"
+            android:textAllCaps="false"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btnViewInvited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Invited (Pending)"
+            android:textAllCaps="false"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+
+
+
     </LinearLayout>
 </ScrollView>

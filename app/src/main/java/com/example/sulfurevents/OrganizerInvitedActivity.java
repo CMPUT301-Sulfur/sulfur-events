@@ -1,0 +1,304 @@
+package com.example.sulfurevents;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * US 02.06.04 – Cancel entrants who didn’t sign up
+ * US 02.05.03 – Draw replacement (manual and auto after cancellations)
+ *
+ * <p>Organizer facing screen that lists all deviceIds in {@code invited_list} (pending sign-up)
+ * for a given event and lets the organizer multi-select and cancel any subset. Cancellation moves
+ * each selected deviceId from {@code invited_list} to {@code cancelled_list} using atomic
+ * {@link FieldValue#arrayRemove(Object...)} / {@link FieldValue#arrayUnion(Object...)} updates.
+ *
+ * <p>Notes:
+ * <ul>
+ *   <li>No notifications are sent here; this is intentionally Firestore-only so teammates can
+ *       build “receive”/UI reactions later without changing this screen.</li>
+ *   <li>Reuses {@link WaitlistAdapter} and the same row layout with a CheckBox for selection.</li>
+ * </ul>
+ *
+ * <p>Firestore usage:
+ * <ul>
+ *   <li>Events/{eventId}/invited_list   : List&lt;String&gt; of deviceIds currently invited</li>
+ *   <li>Events/{eventId}/cancelled_list : List&lt;String&gt; of deviceIds organizer cancelled</li>
+ *   <li>Profiles/{deviceId}             : optional profile document used to display name/email</li>
+ * </ul>
+ *
+ * <p>Author: sulfur (CMPUT 301-Part 3)</p>
+ */
+public class OrganizerInvitedActivity extends AppCompatActivity {
+
+    private FirebaseFirestore db;
+    private String eventId;
+
+    // UI
+    private RecyclerView recyclerView;
+    private ProgressBar progressBar;
+    private TextView emptyText;
+
+    // Adapter/data (parallel lists)
+    private WaitlistAdapter adapter;                 // provides multi-select via CheckBox
+    private final List<User> users = new ArrayList<>();
+    private final List<String> deviceIds = new ArrayList<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.organizer_invited_activity);
+
+        db = FirebaseFirestore.getInstance();
+        eventId = getIntent().getStringExtra("eventId");
+
+        // Back arrow
+        ImageButton back = findViewById(R.id.btnBack);
+        back.setOnClickListener(v -> finish());
+
+        recyclerView = findViewById(R.id.rvInvited);
+        progressBar = findViewById(R.id.progressBar);
+        emptyText = findViewById(R.id.tvEmpty);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new WaitlistAdapter(users, deviceIds);
+        recyclerView.setAdapter(adapter);
+
+        // action: cancel selected invited entrants
+        Button btnCancel = findViewById(R.id.btnCancelSelected);
+        btnCancel.setOnClickListener(v -> cancelSelected());
+
+        // US 02.05.03 draw replacment
+        Button btnDrawOne = findViewById(R.id.btnDrawOneReplacement);
+        btnDrawOne.setOnClickListener(v -> drawReplacements(1));
+
+
+        loadInvited();
+    }
+
+    /**
+     * Loads {@code invited_list} for this event and begins resolving each deviceId to a
+     * profile document for display. Shows a empty state if nothing is invited
+     */
+    private void loadInvited() {
+        progressBar.setVisibility(View.VISIBLE);
+        emptyText.setVisibility(View.GONE);
+        users.clear();
+        deviceIds.clear();
+        adapter.notifyDataSetChanged();
+
+        db.collection("Events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    List<String> invited = getStringList(doc, "invited_list", "invitedList");
+                    handleInvited(invited);
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    emptyText.setVisibility(View.VISIBLE);
+                    emptyText.setText("Failed to load invited list.");
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Best effort retrieval of a string list field that may appear under multiple keys,
+     * returning a non-null list when the field is missing or has an unexpected type.
+     *
+     * @param doc  Firestore document snapshot
+     * @param keys Fallback field names in priority order
+     * @return a non-null list instance
+     */
+    @SuppressWarnings("unchecked")
+    private List<String> getStringList(DocumentSnapshot doc, String... keys) {
+        for (String k : keys) {
+            Object v = doc.get(k);
+            if (v instanceof List) {
+                try {
+                    return (List<String>) v;
+                } catch (ClassCastException ignored) {
+                    // fall through to return empty list
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * After reading {@code invited_list}, resolve each deviceId to a profile (if present)
+     * and then render via the adapter
+     */
+    private void handleInvited(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            progressBar.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText("No invited entrants.");
+            return;
+        }
+
+        deviceIds.addAll(ids);
+
+        final int total = ids.size();
+        final int[] done = {0};
+
+        for (String id : ids) {
+            db.collection("Profiles").document(id).get()
+                    .addOnSuccessListener(profileDoc -> {
+                        users.add(extractUser(id, profileDoc));
+                        if (++done[0] == total) finishPopulate();
+                    })
+                    .addOnFailureListener(e -> {
+                        users.add(extractUser(id, null)); // fallback to placeholder row
+                        if (++done[0] == total) finishPopulate();
+                    });
+        }
+    }
+
+    /**
+     * Converts a profile document (if present) to a {@link User} for display.
+     * Falls back to a placeholder name if profile data is missing or invalid.
+     *
+     * @param id  deviceId key used in Profiles
+     * @param doc profile snapshot (may be null)
+     * @return a non-null {@code User} object
+     */
+    private User extractUser(String id, DocumentSnapshot doc) {
+        User u = new User();
+        if (doc != null && doc.exists()) {
+            try {
+                User fromDb = doc.toObject(User.class);
+                if (fromDb != null) u = fromDb;
+            } catch (Exception ignored) {
+                // keep default
+            }
+        }
+        if (u.getName() == null || u.getName().isEmpty()) {
+            u.setName("(Unnamed)");
+        }
+        return u;
+    }
+
+    /**
+     * Finalizes population by hiding progress, toggling empty state visibility,
+     * and notifying the adapter.
+     */
+    private void finishPopulate() {
+        progressBar.setVisibility(View.GONE);
+        if (users.isEmpty()) {
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText("No invited entrants.");
+        } else {
+            emptyText.setVisibility(View.GONE);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * US 02.06.04 — Cancels the currently selected invited entrants.
+     *
+     * <p>Moves selected deviceIds from {@code invited_list} to {@code cancelled_list}
+     * using a single update, Selection is cleared and the list is reloaded upon success.
+     * No notifications are emitted in this version yet
+     */
+    private void cancelSelected() {
+        Set<String> selected = adapter.getSelectedIds();
+        if (selected.isEmpty()) {
+            Toast.makeText(this, "Select at least one entrant.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Defensive copy and de-dupe in case the adapter selection had duplicates.
+        final List<String> chosen = new ArrayList<>(new HashSet<>(selected));
+
+        DocumentReference eventRef = db.collection("Events").document(eventId);
+        eventRef.update(
+                "invited_list", FieldValue.arrayRemove(chosen.toArray()),
+                "cancelled_list", FieldValue.arrayUnion(chosen.toArray())
+        ).addOnSuccessListener(aVoid -> {
+            Toast.makeText(this, "Cancelled " + chosen.size() + " entrant(s).", Toast.LENGTH_LONG).show();
+            adapter.clearSelection();
+            loadInvited(); // refresh to reflect removals
+        }).addOnFailureListener(e ->
+                Toast.makeText(this, "Failed to cancel: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+        );
+    }
+
+    /** US 02.05.03 – Invite the next waiting entrant (FIFO). */
+    private void drawReplacements(int count) {
+        if (count <= 0) return;
+
+        DocumentReference eventRef = db.collection("Events").document(eventId);
+        eventRef.get().addOnSuccessListener(doc -> {
+            if (!doc.exists()) {
+                Toast.makeText(this, "Event not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<String> waiting  = (List<String>) (doc.get("waiting_list") != null ? doc.get("waiting_list") : doc.get("waitingList"));
+            if (waiting == null) waiting = new ArrayList<>();
+            @SuppressWarnings("unchecked")
+            List<String> enrolled = (List<String>) (doc.get("enrolled_list") != null ? doc.get("enrolled_list") : doc.get("enrolledList"));
+            if (enrolled == null) enrolled = new ArrayList<>();
+            @SuppressWarnings("unchecked")
+            List<String> invited  = (List<String>) (doc.get("invited_list") != null ? doc.get("invited_list") : doc.get("invitedList"));
+            if (invited == null) invited = new ArrayList<>();
+
+            int capacity = 0;
+            Object cap = doc.get("capacity");
+            if (cap instanceof Number) capacity = ((Number) cap).intValue();
+            else if (cap instanceof String) try { capacity = Integer.parseInt((String) cap); } catch (Exception ignored) {}
+
+            int open = Math.max(0, capacity - enrolled.size() - invited.size());
+            if (open <= 0) {
+                Toast.makeText(this, "No open slots to fill.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Choose up to min(open, count) FIFO from waiting, skipping already invited/enrolled
+            List<String> chosen = new ArrayList<>();
+            for (String id : waiting) {
+                if (!invited.contains(id) && !enrolled.contains(id)) {
+                    chosen.add(id);
+                    if (chosen.size() == Math.min(open, count)) break;
+                }
+            }
+            if (chosen.isEmpty()) {
+                Toast.makeText(this, "No eligible replacements found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            eventRef.update(
+                    "waiting_list", FieldValue.arrayRemove(chosen.toArray()),
+                    "invited_list", FieldValue.arrayUnion(chosen.toArray())
+            ).addOnSuccessListener(aVoid ->
+                    Toast.makeText(this, "Invited " + chosen.size() + " replacement(s).", Toast.LENGTH_SHORT).show()
+            ).addOnFailureListener(e ->
+                    Toast.makeText(this, "Failed to invite replacements: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
+
+        }).addOnFailureListener(e ->
+                Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show()
+        );
+    }
+}
+
+
+
