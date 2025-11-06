@@ -37,6 +37,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".OrganizerWaitlistActivity"
+            android:exported="false" />
+
+
 
         <!-- Other activities -->
         <activity android:name=".AdminEventsActivity" />
