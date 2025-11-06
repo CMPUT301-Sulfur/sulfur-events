@@ -5,62 +5,117 @@
 package com.example.sulfurevents;
 
 /**
- * This class defines an event model.
- * An event has an ID, name, organizer email, status, and an image URL.
+ * Represents an event stored in Firestore.
+ * Each event has basic details like name, description, location,
+ * date range, capacity, organizer info, and optional poster image.
  */
 public class EventModel {
+
     private String eventId;
     private String eventName;
-    private String organizerEmail;
-    private String status;
-    private String posterURL;
     private String description;
+    private String organizerEmail;
+    private String organizerId;
+    private String startDate;
+    private String endDate;
+    private String location;
+    private String limitGuests; // capacity
+    private String status;      // "open", "closed", etc.
+    private String posterURL;
 
     /** Empty constructor required for Firestore */
     public EventModel() { }
 
-    /**
-     * Gets the event ID
-     * @return The event ID
-     */
-    public String getEventId() { return eventId; }
+    // -------------------- Getters --------------------
 
-    /**
-     * Sets the event ID
-     * @param eventId The event ID
-     */
-    public void setEventId(String eventId) { this.eventId = eventId; }
+    public String getEventId() {
+        return eventId;
+    }
 
-    /**
-     * Gets the event name
-     * @return The event name
-     */
     public String getEventName() {
         return eventName;
     }
 
-    /**
-     * Sets the event name
-     * @param eventName The event name
-     */
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public String getDescription() {
+        return description;
     }
 
-    /**
-     * Gets the organizer email
-     * @return The organizer email
-     */
     public String getOrganizerEmail() {
         return organizerEmail;
     }
 
+    public String getOrganizerId() {
+        return organizerId;
+    }
 
-    public String getPosterURL() { return posterURL; }
-    public void setPosterURL(String posterURL) { this.posterURL = posterURL; }
+    public String getStartDate() {
+        return startDate;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getEndDate() {
+        return endDate;
+    }
 
+    public String getLocation() {
+        return location;
+    }
 
+    public String getLimitGuests() {
+        return limitGuests;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getPosterURL() {
+        return posterURL;
+    }
+
+    // -------------------- Setters --------------------
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setOrganizerEmail(String organizerEmail) {
+        this.organizerEmail = organizerEmail;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setLimitGuests(String limitGuests) {
+        this.limitGuests = limitGuests;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setPosterURL(String posterURL) {
+        this.posterURL = posterURL;
+    }
 }
+
