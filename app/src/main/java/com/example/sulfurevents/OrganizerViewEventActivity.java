@@ -73,6 +73,22 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        Button btnViewEnrolled = findViewById(R.id.btnViewEnrolled);
+        btnViewEnrolled.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerEnrolledActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+        Button btnViewInvited = findViewById(R.id.btnViewInvited);
+        btnViewInvited.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerInvitedActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+
+
 
     }
 

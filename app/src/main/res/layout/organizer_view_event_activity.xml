@@ -112,6 +112,28 @@
             android:backgroundTint="#6B4EFF"
             android:textColor="@color/white"/>
 
+        <Button
+            android:id="@+id/btnViewEnrolled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Enrolled"
+            android:textAllCaps="false"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btnViewInvited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Invited (Pending)"
+            android:textAllCaps="false"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+
+
 
     </LinearLayout>
 </ScrollView>

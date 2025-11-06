@@ -6,16 +6,24 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Activity that allows an Organizer to view the current waiting list for a selected event.
@@ -27,7 +35,7 @@ import java.util.List;
  * <p>Firestore field/collection naming is handled in a tolerant way (supports both
  * "Events" / "events" and "waiting_list" / "waitingList" for backward compatibility).
  *
- * <p>Author: Daniel Minchenko (CMPUT 301 – Part 3)
+ * <p>Author: sulfur (CMPUT 301 – Part 3)
  */
 public class OrganizerWaitlistActivity extends AppCompatActivity {
 
@@ -68,6 +76,9 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new WaitlistAdapter(entrants, entrantIds);
         recyclerView.setAdapter(adapter);
+        Button btnSend = findViewById(R.id.btnSendSelectedInvites);
+        btnSend.setOnClickListener(v -> sendInvitesForSelected());
+
 
         // Back button simply finishes this Activity
         back.setOnClickListener(v -> finish());
@@ -185,4 +196,88 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
         }
         adapter.notifyDataSetChanged();
     }
+
+    /**
+     * Sends invites to the selected entrants by moving them from waiting_list → invited_list.
+     * No notification documents are written (ahan can add that later).
+     */
+    private void sendInvitesForSelected() {
+        Set<String> selected = adapter.getSelectedIds();
+        if (selected.isEmpty()) {
+            Toast.makeText(OrganizerWaitlistActivity.this, "Select at least one entrant.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference eventRef = db.collection("Events").document(eventId);
+
+        eventRef.get().addOnSuccessListener(doc -> {
+            if (!doc.exists()) {
+                Toast.makeText(OrganizerWaitlistActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String eventName = doc.getString("name");
+
+            Long capacityL = doc.getLong("capacity");
+            int capacity = capacityL == null ? 0 : capacityL.intValue();
+
+            @SuppressWarnings("unchecked")
+            List<String> waiting = (List<String>) (doc.get("waiting_list") != null ? doc.get("waiting_list") : doc.get("waitingList"));
+            if (waiting == null) waiting = new ArrayList<>();
+
+            @SuppressWarnings("unchecked")
+            List<String> enrolled = (List<String>) doc.get("enrolled_list");
+            if (enrolled == null) enrolled = new ArrayList<>();
+
+            @SuppressWarnings("unchecked")
+            List<String> invited = (List<String>) doc.get("invited_list");
+            if (invited == null) invited = new ArrayList<>();
+
+            // only keep IDs that are still in waiting_list
+            Set<String> validSelection = new HashSet<>();
+            for (String id : selected) if (waiting.contains(id)) validSelection.add(id);
+            if (validSelection.isEmpty()) {
+                Toast.makeText(OrganizerWaitlistActivity.this, "Selected entrants are no longer on the waiting list.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int available = capacity - enrolled.size() - invited.size();
+            if (available <= 0) {
+                Toast.makeText(OrganizerWaitlistActivity.this, "No available slots to invite.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            List<String> chosen = new ArrayList<>(validSelection);
+            if (chosen.size() > available) {
+                chosen = chosen.subList(0, available);
+                Toast.makeText(OrganizerWaitlistActivity.this,
+                        "Only " + available + " slot(s) available. Inviting a subset.",
+                        Toast.LENGTH_LONG).show();
+            }
+
+            final List<String> chosenFinal = new ArrayList<>(chosen); // effectively final for lambdas
+
+            // Move chosen: waiting_list → invited_list
+            eventRef.update(
+                    "waiting_list", FieldValue.arrayRemove(chosenFinal.toArray()),
+                    "invited_list", FieldValue.arrayUnion(chosenFinal.toArray())
+            ).addOnSuccessListener(aVoid -> {
+                Toast.makeText(OrganizerWaitlistActivity.this,
+                        "Invited " + chosenFinal.size() + " entrant(s)" + (eventName != null ? (" for " + eventName) : "") + ".",
+                        Toast.LENGTH_LONG).show();
+                adapter.clearSelection();
+                loadWaitlist(); // refresh UI to reflect removals
+            }).addOnFailureListener(e ->
+                    Toast.makeText(OrganizerWaitlistActivity.this, "Failed to update invites: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
+
+        }).addOnFailureListener(e ->
+                Toast.makeText(OrganizerWaitlistActivity.this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+        );
+    }
+
+
+
+
 }
