@@ -52,9 +52,6 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
-
-
-
     }
 
     @Override
@@ -69,7 +66,6 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         // Kinda like in the onCreate method
         TextView EventName, Date, Location;
         Button EditEventButton;
-
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
