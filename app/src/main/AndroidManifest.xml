@@ -41,6 +41,11 @@
             android:name=".OrganizerWaitlistActivity"
             android:exported="false" />
 
+        <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
+
+        <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+
+
 
 
         <!-- Other activities -->

@@ -48,4 +48,16 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
+    <Button
+        android:id="@+id/btnSendSelectedInvites"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Invites to Selected"
+        android:textAllCaps="false"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#6B4EFF"
+        android:textColor="@color/white"/>
+
+
+
 </LinearLayout>
