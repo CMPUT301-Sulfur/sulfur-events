@@ -19,9 +19,9 @@ import java.util.List;
 
 public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdapter.EventViewHolder> {
 
-    private Context context;
-    private List<EventModel> events;
-    private FirebaseFirestore db;
+    private final Context context;
+    private final List<EventModel> events;
+    private final FirebaseFirestore db;
 
     // still using a fixed doc name for now
     private static final String TEMP_DOC_ID = "tempUser";
@@ -44,9 +44,19 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         EventModel event = events.get(position);
 
+        // name
         holder.tvEventName.setText(event.getEventName());
-        holder.tvEventStatus.setText(event.getStatus());
-        holder.tvWaitingCount.setText("Entrants: ..."); // temporary while loading
+
+        // description
+        String desc = event.getDescription();
+        if (desc == null) desc = "";
+        holder.tvEventDescription.setText(desc);
+
+        // since EventModel has no getStatus(), just show a default
+        holder.tvEventStatus.setText("Status: N/A");
+
+        // waiting count placeholder
+        holder.tvWaitingCount.setText("Entrants: ...");
 
         String eventId = event.getEventId();
         if (eventId == null) {
@@ -56,14 +66,14 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
             return;
         }
 
-        // path to this user's doc
-        DocumentReference joinDoc = db.collection("events")
+        // NOTE: collection name "Events" to match Firestore
+        DocumentReference joinDoc = db.collection("Events")
                 .document(eventId)
                 .collection("waiting_list")
                 .document(TEMP_DOC_ID);
 
         // 1) load total entrants
-        db.collection("events")
+        db.collection("Events")
                 .document(eventId)
                 .collection("waiting_list")
                 .get()
@@ -71,11 +81,9 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                     int count = querySnapshot.size();
                     holder.tvWaitingCount.setText("Entrants: " + count);
                 })
-                .addOnFailureListener(e -> {
-                    holder.tvWaitingCount.setText("Entrants: 0");
-                });
+                .addOnFailureListener(e -> holder.tvWaitingCount.setText("Entrants: 0"));
 
-        // 2) check if THIS test user is in the list to set button visibility
+        // 2) check if THIS test user is in the list
         joinDoc.get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
                 holder.btnJoin.setVisibility(View.GONE);
@@ -95,14 +103,12 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                         holder.btnJoin.setVisibility(View.GONE);
                         holder.btnLeave.setVisibility(View.VISIBLE);
 
-                        // bump the number shown
                         String current = holder.tvWaitingCount.getText().toString(); // "Entrants: X"
                         int c = extractCount(current);
                         holder.tvWaitingCount.setText("Entrants: " + (c + 1));
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(context, "Join failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                    .addOnFailureListener(e -> Toast.makeText(context,
+                            "Join failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
 
         // 4) LEAVE
@@ -113,15 +119,13 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                         holder.btnLeave.setVisibility(View.GONE);
                         holder.btnJoin.setVisibility(View.VISIBLE);
 
-                        // lower the number shown (not below 0)
                         String current = holder.tvWaitingCount.getText().toString();
                         int c = extractCount(current);
                         if (c > 0) c--;
                         holder.tvWaitingCount.setText("Entrants: " + c);
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(context, "Could not leave: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                    .addOnFailureListener(e -> Toast.makeText(context,
+                            "Could not leave: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
     }
 
@@ -140,12 +144,13 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
     }
 
     public static class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView tvEventName, tvEventStatus, tvWaitingCount;
+        TextView tvEventName, tvEventDescription, tvEventStatus, tvWaitingCount;
         Button btnJoin, btnLeave;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvEventName = itemView.findViewById(R.id.tv_event_name);
+            tvEventDescription = itemView.findViewById(R.id.tv_event_description);
             tvEventStatus = itemView.findViewById(R.id.tv_event_status);
             tvWaitingCount = itemView.findViewById(R.id.tv_waiting_count);
             btnJoin = itemView.findViewById(R.id.btn_join_waiting_list);

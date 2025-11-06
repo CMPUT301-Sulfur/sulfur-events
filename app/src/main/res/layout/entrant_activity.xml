@@ -13,10 +13,9 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
         android:visibility="gone" />
 
     <TextView
@@ -25,12 +24,14 @@
         android:layout_height="wrap_content"
         android:text="No joinable events right now."
         android:visibility="gone"
-        android:padding="8dp" />
+        android:layout_marginTop="8dp" />
 
+    <!-- fills the rest, scrolls, and accepts focus -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 </LinearLayout>
