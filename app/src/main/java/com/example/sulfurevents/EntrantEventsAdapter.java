@@ -19,9 +19,9 @@ import java.util.List;
 
 public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdapter.EventViewHolder> {
 
-    private Context context;
-    private List<EventModel> events;
-    private FirebaseFirestore db;
+    private final Context context;
+    private final List<EventModel> events;
+    private final FirebaseFirestore db;
 
     // still using a fixed doc name for now
     private static final String TEMP_DOC_ID = "tempUser";
@@ -44,8 +44,25 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         EventModel event = events.get(position);
 
+        // name
         holder.tvEventName.setText(event.getEventName());
-        holder.tvEventStatus.setText(event.getStatus());
+
+        // NEW: description (may be null in model, so guard it)
+        String desc = null;
+        try {
+            // if you added getDescription() to EventModel
+            desc = event.getDescription();
+        } catch (Exception ignored) {}
+        if (desc == null) desc = "";
+        holder.tvEventDescription.setText(desc);
+
+        // status might not be in your Firestore yet
+        String status = event.getStatus();
+        if (status == null || status.isEmpty()) {
+            status = "Status: N/A";
+        }
+        holder.tvEventStatus.setText(status);
+
         holder.tvWaitingCount.setText("Entrants: ..."); // temporary while loading
 
         String eventId = event.getEventId();
@@ -56,14 +73,14 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
             return;
         }
 
-        // path to this user's doc
-        DocumentReference joinDoc = db.collection("events")
+        // NOTE: collection name fixed to "Events"
+        DocumentReference joinDoc = db.collection("Events")
                 .document(eventId)
                 .collection("waiting_list")
                 .document(TEMP_DOC_ID);
 
         // 1) load total entrants
-        db.collection("events")
+        db.collection("Events")
                 .document(eventId)
                 .collection("waiting_list")
                 .get()
@@ -71,9 +88,7 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                     int count = querySnapshot.size();
                     holder.tvWaitingCount.setText("Entrants: " + count);
                 })
-                .addOnFailureListener(e -> {
-                    holder.tvWaitingCount.setText("Entrants: 0");
-                });
+                .addOnFailureListener(e -> holder.tvWaitingCount.setText("Entrants: 0"));
 
         // 2) check if THIS test user is in the list to set button visibility
         joinDoc.get().addOnSuccessListener(snapshot -> {
@@ -140,12 +155,13 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
     }
 
     public static class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView tvEventName, tvEventStatus, tvWaitingCount;
+        TextView tvEventName, tvEventDescription, tvEventStatus, tvWaitingCount;
         Button btnJoin, btnLeave;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvEventName = itemView.findViewById(R.id.tv_event_name);
+            tvEventDescription = itemView.findViewById(R.id.tv_event_description);
             tvEventStatus = itemView.findViewById(R.id.tv_event_status);
             tvWaitingCount = itemView.findViewById(R.id.tv_waiting_count);
             btnJoin = itemView.findViewById(R.id.btn_join_waiting_list);
