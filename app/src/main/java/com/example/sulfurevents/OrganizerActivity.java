@@ -71,7 +71,7 @@ public class OrganizerActivity extends AppCompatActivity {
         // Back Button (returns to MainActivity)
         ImageButton backButton = findViewById(R.id.BackButtonOrganizerEvents);
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(OrganizerActivity.this, MainActivity.class);
+            Intent intent = new Intent(OrganizerActivity.this, OrganizerActivity.class);
             finish();
         });
 
