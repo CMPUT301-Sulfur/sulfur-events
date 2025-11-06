@@ -46,6 +46,8 @@
         <activity android:name=".WelcomeEntrantActivity"/>
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".UpdateProfileActivity"/>
+        <activity android:name=".EntrantActivity" />
+        <activity android:name=".OrganizerViewEventActivity" />
 
         <!-- Keep AdminDashboardActivity declared even when commented above -->
         <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->

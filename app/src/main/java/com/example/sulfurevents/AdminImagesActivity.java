@@ -78,7 +78,7 @@ public class AdminImagesActivity extends AppCompatActivity {
             if (snapshots != null) {
                 for (DocumentSnapshot doc : snapshots) {
                     EventModel event = doc.toObject(EventModel.class);
-                    if (event != null && event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
+                    if (event != null && event.getPosterURL() != null && !event.getPosterURL().isEmpty()) {
                         event.setEventId(doc.getId());
                         eventList.add(event);
                     }
@@ -115,7 +115,7 @@ public class AdminImagesActivity extends AppCompatActivity {
         intent.putExtra("eventId", event.getEventId());
         intent.putExtra("eventName", event.getEventName());
         intent.putExtra("organizerEmail", event.getOrganizerEmail());
-        intent.putExtra("imageUrl", event.getImageUrl());
+        intent.putExtra("posterURL", event.getPosterURL());
         startActivity(intent);
     }
 }

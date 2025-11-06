@@ -24,7 +24,7 @@ public class EventImageDetailActivity extends AppCompatActivity {
     private ImageView imgEvent;
     private TextView tvEventTitle, tvEventInfo;
     private Button btnBack, btnDelete;
-    private String eventId, eventName, organizerEmail, imageUrl;
+    private String eventId, eventName, organizerEmail, posterURL;
 
     /**
      * Called when the activity is created.
@@ -45,7 +45,7 @@ public class EventImageDetailActivity extends AppCompatActivity {
         eventId = getIntent().getStringExtra("eventId");
         eventName = getIntent().getStringExtra("eventName");
         organizerEmail = getIntent().getStringExtra("organizerEmail");
-        imageUrl = getIntent().getStringExtra("imageUrl");
+        posterURL = getIntent().getStringExtra("posterURL");
 
         if (eventName == null) eventName = "Unknown Event";
         if (organizerEmail == null) organizerEmail = "Unknown Organizer";
@@ -54,7 +54,7 @@ public class EventImageDetailActivity extends AppCompatActivity {
         tvEventInfo.setText("Organizer: " + organizerEmail);
 
         Glide.with(this)
-                .load(imageUrl)
+                .load(posterURL)
                 .placeholder(R.drawable.ic_launcher_background)
                 .into(imgEvent);
 
@@ -66,18 +66,18 @@ public class EventImageDetailActivity extends AppCompatActivity {
      * Deletes the event image from Firebase Storage and updates Firestore.
      */
     private void deleteImageFromFirebase() {
-        if (imageUrl == null || imageUrl.isEmpty()) {
+        if (posterURL == null || posterURL.isEmpty()) {
             Toast.makeText(this, "No image URL found.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+            StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(posterURL);
             photoRef.delete().addOnSuccessListener(aVoid -> {
                 FirebaseFirestore.getInstance()
                         .collection("Events")
                         .document(eventId)
-                        .update("imageUrl", "")
+                        .update("posterURL", "")
                         .addOnSuccessListener(a -> {
                             Toast.makeText(this, "Image deleted successfully", Toast.LENGTH_SHORT).show();
                             finish();

@@ -57,7 +57,7 @@ public class AdminImagesListAdapter extends ArrayAdapter<EventModel> {
             tvEmail.setText("Organizer: " + event.getOrganizerEmail());
 
             Glide.with(getContext())
-                    .load(event.getImageUrl())
+                    .load(event.getPosterURL())
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_background)
                     .into(imgThumbnail);

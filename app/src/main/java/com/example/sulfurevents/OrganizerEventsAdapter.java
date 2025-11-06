@@ -13,23 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+/**
+ * Adapter for displaying the organizer’s events in a RecyclerView.
+ * Each card shows event info and a button to view full details.
+ */
 public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEventsAdapter.MyViewHolder> {
 
-    Context context;
-    ArrayList<OrganizerEvent> OrganizerEvent;
+    private final Context context;
+    private final ArrayList<OrganizerEvent> organizerEvents;
 
-    public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvent> OrganizerEvent){
-
+    public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvent> organizerEvents) {
         this.context = context;
-        this.OrganizerEvent = OrganizerEvent;
-
+        this.organizerEvents = organizerEvents;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // This is where you inflate the layout (giving a look to our rows)
-
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.organizer_events_row, parent, false);
         return new MyViewHolder(view);
@@ -37,18 +37,23 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        // Assigning Values to the view we create in the recycler_view_row layout file
-        // based on the position of the recyclerView
-        OrganizerEvent event = OrganizerEvent.get(position);
+        OrganizerEvent event = organizerEvents.get(position);
 
-        holder.EventName.setText(OrganizerEvent.get(position).getEventTitle());
-        holder.Date.setText(OrganizerEvent.get(position).getStartDate());
-        //holder.CurrentCapacity.setText(OrganizerEvent.get(position).getCurrentCapacity()); // want capacity to be displayed
-        holder.Location.setText(OrganizerEvent.get(position).getLocation());
+        // ✅ Clean, readable event info
+        holder.EventName.setText(event.getEventTitle());
+        holder.Date.setText("Start date: " + event.getStartDate());
+        holder.Location.setText("Location: " + event.getLocation());
 
-        holder.EditEventButton.setOnClickListener(v -> {
-            //Intent intent = new Intent(OrganizerEditEventActivity.class, OrganizerEditEventActivity.class);
-            Intent intent = new Intent(context, OrganizerEditEventActivity.class);
+        String capacity = event.getLimitGuests();
+        holder.Capacity.setText(
+                (capacity == null || capacity.isEmpty())
+                        ? "Capacity: N/A"
+                        : "Capacity: " + capacity
+        );
+
+        // ✅ Button now opens OrganizerViewEventActivity
+        holder.ViewDetailsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OrganizerViewEventActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
@@ -56,24 +61,21 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
 
     @Override
     public int getItemCount() {
-        // The recycler view just wants to know the number of items you want displayed
-        return OrganizerEvent.size();
+        return organizerEvents.size();
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        // grabbing the views from our recycler_view_row layout file
-        // Kinda like in the onCreate method
-        TextView EventName, Date, Location;
-        Button EditEventButton;
+        TextView EventName, Date, Location, Capacity;
+        Button ViewDetailsButton;
+
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-
             EventName = itemView.findViewById(R.id.EventNameCard);
             Date = itemView.findViewById(R.id.DateDetailsCard);
             Location = itemView.findViewById(R.id.LocationDetailsCard);
-            EditEventButton = itemView.findViewById(R.id.EditEventButtonCard);
-
+            Capacity = itemView.findViewById(R.id.CapacityDetailsCard);
+            ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard); // same ID, but it's the "View Details" button
         }
     }
 }
