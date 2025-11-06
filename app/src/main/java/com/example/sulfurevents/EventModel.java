@@ -55,51 +55,12 @@ public class EventModel {
         return organizerEmail;
     }
 
-<<<<<<< HEAD
+
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-=======
-    /**
-     * Sets the organizer email
-     * @param organizerEmail The organizer email
-     */
-    public void setOrganizerEmail(String organizerEmail) {
-        this.organizerEmail = organizerEmail;
-    }
 
-    /**
-     * Gets the event status
-     * @return The event status
-     */
-    public String getStatus() {
-        return status;
-    }
 
-    /**
-     * Sets the event status
-     * @param status The event status
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    /**
-     * Gets the event image URL
-     * @return The image URL
-     */
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    /**
-     * Sets the event image URL
-     * @param imageUrl The image URL
-     */
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
->>>>>>> origin/main
 }
