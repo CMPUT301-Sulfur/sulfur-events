@@ -151,8 +151,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinLeaveButton.setEnabled(false);
 
 
-        db.collection("events").document(eventId)
-                .update("waitingList", FieldValue.arrayRemove(deviceID))
+        db.collection("Events").document(eventId)
+                .update("waiting_list", FieldValue.arrayRemove(deviceID))
                 .addOnSuccessListener(aVoid -> {
                     isOnWaitingList = false;
                     updateButtonState();
