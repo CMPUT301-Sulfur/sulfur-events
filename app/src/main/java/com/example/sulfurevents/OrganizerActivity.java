@@ -44,7 +44,7 @@ public class OrganizerActivity extends AppCompatActivity {
 
         TextView headerTitle = findViewById(R.id.HeaderTitle);
 
-        // ✅ Fetch and display the organizer’s name from Firestore
+        // Fetch and display the organizer’s name from Firestore
         db.collection("Profiles").document(DeviceID).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -60,7 +60,7 @@ public class OrganizerActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> headerTitle.setText("Welcome Organizer"));
 
-        // ✅ Setup RecyclerView for the organizer’s event list
+        // Setup RecyclerView for the organizer’s event list
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
         OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);
         recyclerView.setAdapter(adapter);
@@ -68,21 +68,21 @@ public class OrganizerActivity extends AppCompatActivity {
 
         loadEventsFromFirestore(adapter);
 
-        // 🔙 Back Button (returns to MainActivity)
+        // Back Button (returns to MainActivity)
         ImageButton backButton = findViewById(R.id.BackButtonOrganizerEvents);
         backButton.setOnClickListener(view -> {
             Intent intent = new Intent(OrganizerActivity.this, MainActivity.class);
             finish();
         });
 
-        // ➕ Create Event Button
+        // Create Event Button
         Button createEventButton = findViewById(R.id.CreateEventButton);
         createEventButton.setOnClickListener(view -> {
             Intent intent = new Intent(OrganizerActivity.this, OrganizerCreateEventActivity.class);
             startActivity(intent);
         });
 
-        // 🧭 Bottom navigation
+        // Bottom navigation
         com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView =
                 findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
