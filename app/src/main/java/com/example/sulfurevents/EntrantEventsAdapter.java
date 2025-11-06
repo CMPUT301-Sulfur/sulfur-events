@@ -47,23 +47,16 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
         // name
         holder.tvEventName.setText(event.getEventName());
 
-        // NEW: description (may be null in model, so guard it)
-        String desc = null;
-        try {
-            // if you added getDescription() to EventModel
-            desc = event.getDescription();
-        } catch (Exception ignored) {}
+        // description
+        String desc = event.getDescription();
         if (desc == null) desc = "";
         holder.tvEventDescription.setText(desc);
 
-        // status might not be in your Firestore yet
-        String status = event.getStatus();
-        if (status == null || status.isEmpty()) {
-            status = "Status: N/A";
-        }
-        holder.tvEventStatus.setText(status);
+        // since EventModel has no getStatus(), just show a default
+        holder.tvEventStatus.setText("Status: N/A");
 
-        holder.tvWaitingCount.setText("Entrants: ..."); // temporary while loading
+        // waiting count placeholder
+        holder.tvWaitingCount.setText("Entrants: ...");
 
         String eventId = event.getEventId();
         if (eventId == null) {
@@ -73,7 +66,7 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
             return;
         }
 
-        // NOTE: collection name fixed to "Events"
+        // NOTE: collection name "Events" to match Firestore
         DocumentReference joinDoc = db.collection("Events")
                 .document(eventId)
                 .collection("waiting_list")
@@ -90,7 +83,7 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                 })
                 .addOnFailureListener(e -> holder.tvWaitingCount.setText("Entrants: 0"));
 
-        // 2) check if THIS test user is in the list to set button visibility
+        // 2) check if THIS test user is in the list
         joinDoc.get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
                 holder.btnJoin.setVisibility(View.GONE);
@@ -110,14 +103,12 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                         holder.btnJoin.setVisibility(View.GONE);
                         holder.btnLeave.setVisibility(View.VISIBLE);
 
-                        // bump the number shown
                         String current = holder.tvWaitingCount.getText().toString(); // "Entrants: X"
                         int c = extractCount(current);
                         holder.tvWaitingCount.setText("Entrants: " + (c + 1));
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(context, "Join failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                    .addOnFailureListener(e -> Toast.makeText(context,
+                            "Join failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
 
         // 4) LEAVE
@@ -128,15 +119,13 @@ public class EntrantEventsAdapter extends RecyclerView.Adapter<EntrantEventsAdap
                         holder.btnLeave.setVisibility(View.GONE);
                         holder.btnJoin.setVisibility(View.VISIBLE);
 
-                        // lower the number shown (not below 0)
                         String current = holder.tvWaitingCount.getText().toString();
                         int c = extractCount(current);
                         if (c > 0) c--;
                         holder.tvWaitingCount.setText("Entrants: " + c);
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(context, "Could not leave: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                    .addOnFailureListener(e -> Toast.makeText(context,
+                            "Could not leave: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
     }
 
