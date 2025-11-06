@@ -93,7 +93,4 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
         });
     }
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/main
