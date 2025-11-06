@@ -5,11 +5,11 @@
 package com.example.sulfurevents;
 
 public class ProfileModel {
-    private String profileId;    // Firestore document ID
+    private String profileId; // Firestore document ID
     private String email;
     private String phone;
     private String deviceId;
-    private String userType;     // "entrant" or "organizer"
+    private String userType; // "entrant" or "organizer"
     private String name;
 
     public ProfileModel() { }

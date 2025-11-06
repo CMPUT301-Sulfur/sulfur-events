@@ -40,11 +40,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private User CurrentUser;
 
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
