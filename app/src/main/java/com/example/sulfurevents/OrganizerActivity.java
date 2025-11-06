@@ -40,18 +40,10 @@ public class OrganizerActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
 
 
-//        OrganizerEvent.add(new Event(
-//                "Test",
-//                "OCT, 2004",
-//                "Canada",
-//                15
-//        ));
-
         OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
 
         // Back Button back into mainActivity
         ImageButton BackButton = findViewById(R.id.BackButtonOrganizerEvents);
@@ -66,6 +58,9 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent intent = new Intent(OrganizerActivity.this, OrganizerCreateEventActivity.class);
             startActivity(intent);
         });
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
+
     }
 
 
