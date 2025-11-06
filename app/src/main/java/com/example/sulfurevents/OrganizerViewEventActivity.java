@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +62,34 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load event", Toast.LENGTH_SHORT).show();
                     finish();
                 });
+
+        /**
+         * Launches the OrganizerWaitlistActivity to display the current waiting list for this event.
+         */
+        Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
+        btnViewWaitingList.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerWaitlistActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+        Button btnViewEnrolled = findViewById(R.id.btnViewEnrolled);
+        btnViewEnrolled.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerEnrolledActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+        Button btnViewInvited = findViewById(R.id.btnViewInvited);
+        btnViewInvited.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerInvitedActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+
+
+
     }
 
     private void populateEvent(DocumentSnapshot doc) {

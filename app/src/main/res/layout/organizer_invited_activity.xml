@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#D3DEFF" android:padding="16dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <ImageButton
+            android:id="@+id/btnBack" android:layout_width="36dp" android:layout_height="36dp"
+            android:background="@android:color/transparent" android:src="@drawable/back_arrow"
+            android:contentDescription="Back" android:tint="@color/black"/>
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Invited (Pending Sign-up)" android:textStyle="bold" android:textSize="20sp"
+            android:textColor="@color/black" android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <ProgressBar android:id="@+id/progressBar"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" android:visibility="gone"/>
+
+    <TextView android:id="@+id/tvEmpty"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="No invited entrants." android:textColor="@color/black"
+        android:visibility="gone" android:layout_marginTop="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvInvited" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:scrollbars="vertical"/>
+
+    <!-- Cancel selected -->
+    <Button
+        android:id="@+id/btnCancelSelected"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Cancel Selected"
+        android:textAllCaps="false" android:layout_marginTop="8dp"
+        android:backgroundTint="#6B4EFF" android:textColor="@color/white"/>
+
+    <!-- Draw exactly one replacement from waiting_list -->
+    <Button
+        android:id="@+id/btnDrawOneReplacement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Draw Replacement"
+        android:textAllCaps="false"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#6B4EFF"
+        android:textColor="@color/white"/>
+
+</LinearLayout>

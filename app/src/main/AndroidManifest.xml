@@ -37,6 +37,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".OrganizerWaitlistActivity"
+            android:exported="false" />
+
+        <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
+
+        <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+
+
+
 
         <!-- Other activities -->
         <activity android:name=".AdminEventsActivity" />
@@ -48,8 +58,9 @@
         <activity android:name=".UpdateProfileActivity"/>
         <activity android:name=".EntrantActivity" />
         <activity android:name=".OrganizerViewEventActivity" />
-        <activity android:name=".LotteryGuidelinesActivity"/>
-        <activity android:name=".EventDetailsActivity"/>
+        <activity android:name=".LotteryGuidelinesActivity" />
+        <activity android:name=".EventDetailsActivity" />
+
 
         <!-- Keep AdminDashboardActivity declared even when commented above -->
         <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
