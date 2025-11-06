@@ -62,10 +62,4 @@ public class OrganizerActivity extends AppCompatActivity {
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
 
     }
-
-
-
-
-
-
 }

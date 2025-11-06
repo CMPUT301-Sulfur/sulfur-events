@@ -10,16 +10,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SulfurEvents">
+        android:theme="@style/Theme.SulfurEvents" >
 
-        <!-- ========================================================= -->
-        <!-- 🚀 LAUNCHER ACTIVITY (Entry Point of the App)             -->
-        <!-- ========================================================= -->
-        <!-- Currently launching AdminDashboardActivity -->
-        <!-- To switch the launcher, simply move the intent-filter -->
-        <!-- block to MainActivity instead. -->
         <activity
-            android:name=".WelcomeEntrantActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,28 +21,34 @@
             </intent-filter>
         </activity>
 
-        <!-- ========================================================= -->
-        <!-- 👥 USER & PROFILE FLOWS                                   -->
-        <!-- ========================================================= -->
-        <activity android:name=".MainActivity" android:exported="true" />
-<!--        <activity android:name=".WelcomeEntrantActivity" android:exported="true" />-->
-        <activity android:name=".ProfileActivity" android:exported="true" />
-        <activity android:name=".UpdateProfileActivity" android:exported="true" />
+        <activity
+            android:name=".OrganizerCreateEventActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".OrganizerActivity"
+            android:exported="true" />
 
-        <!-- ========================================================= -->
-        <!-- 🧩 ADMIN SECTION                                           -->
-        <!-- ========================================================= -->
-        <activity android:name=".AdminEventsActivity" android:exported="true" />
-        <activity android:name=".AdminProfilesActivity" android:exported="true" />
-        <activity android:name=".AdminImagesActivity" android:exported="true" />
-        <activity android:name=".EventImageDetailActivity" android:exported="true" />
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-        <!-- ========================================================= -->
-        <!-- 🎟️ ORGANIZER SECTION                                      -->
-        <!-- ========================================================= -->
-        <activity android:name=".OrganizerActivity" android:exported="true" />
-        <activity android:name=".OrganizerCreateEventActivity" android:exported="true" />
-        <activity android:name=".LotteryGuidelinesActivity" android:exported="true" />
+
+        <!-- Other activities -->
+        <activity android:name=".AdminEventsActivity" />
+        <activity android:name=".AdminProfilesActivity" />
+        <activity android:name=".AdminImagesActivity" />
+        <activity android:name=".EventImageDetailActivity" />
+        <activity android:name=".WelcomeEntrantActivity"/>
+        <activity android:name=".ProfileActivity"/>
+        <activity android:name=".UpdateProfileActivity"/>
+
+        <!-- Keep AdminDashboardActivity declared even when commented above -->
+        <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
 
     </application>
 
