@@ -1,34 +1,39 @@
 package com.example.sulfurevents;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class BottomNavigationHelper {
 
-    public static void setupBottomNavigation(BottomNavigationView bottomNavigationView, Activity currentActivity) {
+    public static void setupBottomNavigation(BottomNavigationView bottomNavigationView, Context context) {
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.home_navigation) {
-                if (!(currentActivity instanceof MainActivity)) {
-                    Intent intent = new Intent(currentActivity, MainActivity.class);
-                    currentActivity.startActivity(intent);
-                }
+                // Go to ProfileActivity
+                Intent intent = new Intent(context, ProfileActivity.class);
+                context.startActivity(intent);
                 return true;
 
 //            } else if (id == R.id.qr_scanner_navigation) {
-//                if (!(currentActivity instanceof QrScannerActivity)) {
-//                    Intent intent = new Intent(currentActivity, QrScannerActivity.class);
-//                    currentActivity.startActivity(intent);
-//                }
+//                // Go to QR scanner (if you have one)
+//                Intent intent = new Intent(context, QRScannerActivity.class);
+//                context.startActivity(intent);
 //                return true;
 
             } else if (id == R.id.organizer_navigation) {
-                if (!(currentActivity instanceof OrganizerActivity)) {
-                    Intent intent = new Intent(currentActivity, OrganizerActivity.class);
-                    currentActivity.startActivity(intent);
-                }
+                // Go to organizer’s events
+                Intent intent = new Intent(context, OrganizerActivity.class);
+                context.startActivity(intent);
+                return true;
+
+            } else if (id == R.id.entrant_events_navigation) {
+                // ✅ NEW: Go to EntrantActivity for joinable events
+                Intent intent = new Intent(context, EntrantActivity.class);
+                context.startActivity(intent);
                 return true;
             }
 

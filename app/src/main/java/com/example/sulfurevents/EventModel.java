@@ -13,7 +13,7 @@ public class EventModel {
     private String eventName;
     private String organizerEmail;
     private String status;
-    private String imageUrl;
+    private String posterURL;
     private String description;
 
     /** Empty constructor required for Firestore */
@@ -56,8 +56,8 @@ public class EventModel {
     }
 
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getPosterURL() { return posterURL; }
+    public void setPosterURL(String posterURL) { this.posterURL = posterURL; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

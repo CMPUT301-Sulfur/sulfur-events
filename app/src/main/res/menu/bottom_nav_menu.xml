@@ -23,5 +23,4 @@
         android:title="Joinable Events"
         android:icon="@drawable/ic_home" />  <!-- pick a better icon if you have one -->
 
-
 </menu>
