@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:layout_marginTop="100dp"
+                android:layout_marginBottom="50dp"
                 android:text="Lottery Text"/>
 
 
@@ -31,7 +31,6 @@
                 android:id="@+id/back_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="400dp"
                 android:text="Back" />
 
 

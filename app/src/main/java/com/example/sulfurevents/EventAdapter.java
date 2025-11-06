@@ -20,8 +20,8 @@ import java.util.List;
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
 
-    private List<EventModel> eventList;
-    private Context context;
+    private final List<EventModel> eventList;
+    private final Context context;
 
 
     public EventAdapter(List<EventModel> eventList, Context context) {
@@ -44,33 +44,54 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         EventModel event = eventList.get(position);
 
 
-        holder.eventName.setText(event.getEventName());
-        holder.eventDetails.setText("Details: " + (event.getDescription() != null ? event.getDescription() : "N/A"));
+        // ✅ Load real data from Firestore model instead of hardcoded values
+        holder.eventName.setText(event.getEventName() != null ? event.getEventName() : "Unnamed Event");
 
 
-        // You'll need to add these fields to EventModel or display what's available
-        holder.date.setText("Date: TBD");
-        holder.location.setText("Location: TBD");
-        holder.capacity.setText("Capacity: TBD");
+        String description = event.getDescription() != null ? event.getDescription() : "No description available";
+        holder.eventDetails.setText("Details: " + description);
 
 
+        // ✅ Real Firestore fields
+        String startDate = event.getStartDate() != null ? event.getStartDate() : "N/A";
+        String endDate = event.getEndDate() != null ? event.getEndDate() : "N/A";
+        holder.date.setText("Date: " + startDate + " → " + endDate);
+
+
+        String location = event.getLocation() != null ? event.getLocation() : "Not specified";
+        holder.location.setText("Location: " + location);
+
+
+        String capacity = event.getLimitGuests() != null ? event.getLimitGuests() : "Not set";
+        holder.capacity.setText("Capacity: " + capacity);
+
+
+        // ✅ Clicking “Join Waiting List” button
         holder.joinButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             intent.putExtra("eventName", event.getEventName());
             intent.putExtra("description", event.getDescription());
             intent.putExtra("organizerEmail", event.getOrganizerEmail());
+            intent.putExtra("location", event.getLocation());
+            intent.putExtra("startDate", event.getStartDate());
+            intent.putExtra("endDate", event.getEndDate());
+            intent.putExtra("capacity", event.getLimitGuests());
             context.startActivity(intent);
         });
 
 
-        // Make the entire card clickable
+        // ✅ Clicking the whole card
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             intent.putExtra("eventName", event.getEventName());
             intent.putExtra("description", event.getDescription());
             intent.putExtra("organizerEmail", event.getOrganizerEmail());
+            intent.putExtra("location", event.getLocation());
+            intent.putExtra("startDate", event.getStartDate());
+            intent.putExtra("endDate", event.getEndDate());
+            intent.putExtra("capacity", event.getLimitGuests());
             context.startActivity(intent);
         });
     }

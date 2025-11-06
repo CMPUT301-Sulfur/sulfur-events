@@ -94,11 +94,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinLeaveButton.setEnabled(false);
 
 
-        db.collection("events").document(eventId)
+        db.collection("Events").document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        List<String> waitingList = (List<String>) documentSnapshot.get("waitingList");
+                        List<String> waitingList = (List<String>) documentSnapshot.get("waiting_list");
 
 
                         if (waitingList != null) {
@@ -130,8 +130,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinLeaveButton.setEnabled(false);
 
 
-        db.collection("events").document(eventId)
-                .update("waitingList", FieldValue.arrayUnion(deviceID))
+        db.collection("Events").document(eventId)
+                .update("waiting_list", FieldValue.arrayUnion(deviceID))
                 .addOnSuccessListener(aVoid -> {
                     isOnWaitingList = true;
                     updateButtonState();
@@ -151,8 +151,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinLeaveButton.setEnabled(false);
 
 
-        db.collection("events").document(eventId)
-                .update("waitingList", FieldValue.arrayRemove(deviceID))
+        db.collection("Events").document(eventId)
+                .update("waiting_list", FieldValue.arrayRemove(deviceID))
                 .addOnSuccessListener(aVoid -> {
                     isOnWaitingList = false;
                     updateButtonState();
