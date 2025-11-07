@@ -60,7 +60,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     /**
      * Initializes the notifications screen, prepares the RecyclerView and starts
      * listening to Firestore for changes in the entrant's notification subcollection.
-     *
      * @param savedInstanceState previously saved state (unused here)
      */
     @Override
