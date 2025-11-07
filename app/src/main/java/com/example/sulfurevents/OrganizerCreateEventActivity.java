@@ -242,7 +242,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
-
         if(requestCode  == IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
             posterUri = data.getData();
             eventposter.setImageURI(posterUri);
