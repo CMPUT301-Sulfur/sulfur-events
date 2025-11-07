@@ -52,8 +52,7 @@ public class OrganizerEvent {
         return organizerId;
     }
 
-    public String getEventTitle() {
-        return eventName;
+    public String getEventTitle() {return eventName;
     }
 
     public String getDescription() {

@@ -121,11 +121,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
+
         if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
         end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
             Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
             return; // Stop here, stay on this screen
         }
+
 
 
         OrganizerEvent event = new OrganizerEvent();
@@ -169,14 +171,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         .show();
             });
         }
-
-
-//        // need to change from finish() to PreviewEvent Activity screen
-//        db.collection("Events").document(eventId)
-//                .set(event)
-//                .addOnSuccessListener(unused ->{
-//                    finish();
-//                });
     }
 
 

@@ -24,7 +24,10 @@ public class OrganizerActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String DeviceID;
     private User CurrentUser;
-    private ArrayList<OrganizerEvent> OrganizerEvent = new ArrayList<>();
+    private ArrayList<OrganizerEvent> organizerEvents = new ArrayList<>();
+    private OrganizerEventsAdapter adapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +65,7 @@ public class OrganizerActivity extends AppCompatActivity {
 
         // Setup RecyclerView for the organizer’s event list
         RecyclerView recyclerView = findViewById(R.id.CreatedEventsRecyclerView);
-        OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, OrganizerEvent);
+        OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(this, organizerEvents);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -97,11 +100,11 @@ public class OrganizerActivity extends AppCompatActivity {
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) return;
 
-                    OrganizerEvent.clear();
+                    organizerEvents.clear();
                     if (snapshots != null) {
                         for (var doc : snapshots.getDocuments()) {
                             OrganizerEvent event = doc.toObject(OrganizerEvent.class);
-                            if (event != null) OrganizerEvent.add(event);
+                            if (event != null) organizerEvents.add(event);
                         }
                     }
 
