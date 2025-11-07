@@ -34,30 +34,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="80dp" />
 
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/etSearchProfile"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Search by email"
-        android:padding="12dp"
-        android:background="@drawable/search_bar_bg"
-        android:inputType="textEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/tvProfilesTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="16dp" />
-
-    <!-- ListView -->
+    <!-- ListView (directly below title now) -->
     <ListView
         android:id="@+id/listViewProfiles"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/etSearchProfile"
+        app:layout_constraintTop_toBottomOf="@id/tvProfilesTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
