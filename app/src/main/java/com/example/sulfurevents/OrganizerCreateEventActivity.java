@@ -39,7 +39,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private String DeviceID;
     private User CurrentUser;
 
+    // Done for part 3
 
+    /**
+     * Initializes the Create Event screen.
+     * <p>
+     * Sets the layout, configures edge-to-edge UI insets, retrieves the device ID,
+     * initializes Firestore access, and sets up UI interactions:
+     * <ul>
+     *   <li>Back button closes the current screen</li>
+     *   <li>"Generate Event" button triggers event creation</li>
+     *   <li>Poster upload area opens an image picker</li>
+     * </ul>
+     *
+     * @param savedInstanceState State of the activity if being re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +71,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // getting the instance of device id and database access
         db = FirebaseFirestore.getInstance();
         DeviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-
 
         // Back Button to main organizer home page with list of events
         ImageButton backButton = findViewById(R.id.Back_Button);
@@ -83,19 +95,48 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Generates a QR code image from the given string value.
+     *
+     * @param value Text to encode into the QR code.
+     * @return A 500x500 Bitmap containing the generated QR code.
+     * @throws Exception If the encoding process fails.
+     */
     // Generating QR code
     private Bitmap generateQR(String value) throws Exception{
         com.journeyapps.barcodescanner.BarcodeEncoder encoder = new com.journeyapps.barcodescanner.BarcodeEncoder();
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
     }
 
+    /**
+     * Converts a Bitmap image into a Base64 encoded string.
+     *
+     * @param bitmap The Bitmap to convert.
+     * @return A Base64 string representation of the Bitmap.
+     */
+    // Convert from bitmap to base 64 so the user is able to see which image they have uploaded
     private String bitmaptobase64(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
 
+
+
+    /**
+     * Creates a new event using user input fields.
+     * <p>
+     * Steps:
+     * <ul>
+     *   <li>Reads event details from input fields</li>
+     *   <li>Generates a unique event ID and QR code</li>
+     *   <li>Validates required fields</li>
+     *   <li>Saves the event to Firestore</li>
+     *   <li>If a poster image was selected, uploads it to Firebase Storage
+     *       and stores its URL in the event record</li>
+     * </ul>
+     * The activity finishes after a successful save.
+     */
     private void CreateEvent(){
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
@@ -174,6 +215,19 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
 
+
+
+    /**
+     * Handles the result of the image picker activity.
+     *
+     * @param requestCode The request code used when starting the activity.
+     * @param resultCode  The result returned by the activity.
+     * @param data        The returned intent containing selected image data.
+     *
+     * Function behavior:
+     * - If the user cancels or fails to select an image, reset the poster preview to default.
+     * - If an image is successfully selected, store its URI and display it in the preview.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
