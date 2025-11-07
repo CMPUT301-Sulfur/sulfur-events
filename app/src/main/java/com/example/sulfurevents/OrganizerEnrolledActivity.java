@@ -17,34 +17,33 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-
-// Done for part 3 java docs
-
 /**
  * US 02.06.03 – View final enrolled list
  *
- * <p>Organizer facing screen that displays the final list of enrolled entrants for a given event.
+ * <p>Organizer-facing screen that displays the final list of enrolled entrants for a given event.
  * This reads the event's {@code enrolled_list} from Firestore, resolves each deviceId to an
- * optional profile document in {@code Profiles/{deviceId}}, and shows a simple read-only list.
+ * optional profile document in {@code Profiles/{deviceId}}, and shows a simple read-only list.</p>
  *
- * <p>Notes:
+ * <h3>Notes</h3>
  * <ul>
  *   <li>This screen is strictly read-only: no mutations occur here.</li>
  *   <li>It reuses the existing {@link OrganizerWaitlistAdapter} and the same row layout in order to
  *       keep code surface small. Any selection state in the adapter is ignored on this screen.</li>
  * </ul>
  *
- * <p>Firestore usage:
+ * <h3>Firestore</h3>
  * <ul>
- *   <li>Events/{eventId}/enrolled_list : List&lt;String&gt; of deviceIds</li>
- *   <li>Profiles/{deviceId}           : optional profile details (name/email) for display</li>
+ *   <li>{@code Events/{eventId}/enrolled_list} : List&lt;String&gt; of deviceIds</li>
+ *   <li>{@code Profiles/{deviceId}}           : optional profile details (name/email) for display</li>
  * </ul>
  *
  * <p>Author: sulfur — CMPUT 301 (Part 3)</p>
  */
 public class OrganizerEnrolledActivity extends AppCompatActivity {
 
+    /** Firestore client. */
     private FirebaseFirestore db;
+    /** Event document id whose enrolled list we show. */
     private String eventId;
 
     // UI
@@ -53,19 +52,14 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
     private TextView emptyText;
 
     // Data shown in the adapter (parallel lists)
-    private OrganizerWaitlistAdapter adapter;                 // reused, selection ignored here
+    private OrganizerWaitlistAdapter adapter; // reused, selection ignored here
     private final List<User> users = new ArrayList<>();
     private final List<String> deviceIds = new ArrayList<>();
 
-
     /**
-     * Initializes the enrolled-users screen for a specific event.
-     * <p>
-     * Sets the layout, retrieves the event ID passed from the previous screen,
-     * prepares UI components, sets up the RecyclerView with its adapter,
-     * and begins loading enrolled users from Firestore.
+     * Lifecycle entry: binds views, wires adapter, and triggers initial load.
      *
-     * @param savedInstanceState Activity state if restoring from a previous instance
+     * @param savedInstanceState standard Android saved state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +78,7 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
         emptyText = findViewById(R.id.tvEmpty);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // Reuse WaitlistAdapter, The row layout can be the same as waitlist.
+        // Reuse WaitlistAdapter; row layout is compatible and simpler to maintain.
         adapter = new OrganizerWaitlistAdapter(users, deviceIds);
         recyclerView.setAdapter(adapter);
 
@@ -94,17 +88,21 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
     /**
      * Loads the {@code enrolled_list} for this event and kicks off profile resolution.
      * Shows a simple empty state if nothing is enrolled yet.
+     * <p>
+     * Tolerates alternate field names (e.g., {@code enrolledList}, {@code final_list}, {@code finalList})
+     * to be robust against teammate variations.
+     * </p>
      */
     private void loadEnrolled() {
         progressBar.setVisibility(View.VISIBLE);
         emptyText.setVisibility(View.GONE);
         users.clear();
         deviceIds.clear();
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); // clear existing rows while loading
 
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
-                    // Tolerate alternate field names if teammates used camelCase
+                    // Tolerate alternate field names if teammates used camelCase or different keys
                     List<String> enrolled = getStringList(doc, "enrolled_list", "enrolledList", "final_list", "finalList");
                     handleEnrolled(enrolled);
                 })
@@ -116,14 +114,13 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                 });
     }
 
-
     /**
-     * Best effort retrieval of a string list field that may appear under multiple keys,
-     * returning a non-null list even when the field is absent or of an unexpected type.
+     * Best-effort retrieval of a string list field that may appear under multiple keys.
+     * Always returns a non-null list (empty when absent/unexpected type).
      *
      * @param doc  Firestore document snapshot
      * @param keys Fallback field names in priority order
-     * @return a non-null list instance
+     * @return non-null list instance
      */
     @SuppressWarnings("unchecked")
     private List<String> getStringList(DocumentSnapshot doc, String... keys) {
@@ -143,6 +140,8 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
     /**
      * After we have the {@code enrolled_list} of deviceIds, resolve each to a profile (if any)
      * and then update the adapter.
+     *
+     * @param ids list of device IDs currently enrolled for the event
      */
     private void handleEnrolled(List<String> ids) {
         if (ids == null || ids.isEmpty()) {
@@ -152,18 +151,12 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
             return;
         }
 
-
-
-
         deviceIds.addAll(ids);
 
         final int total = ids.size();
-        final int[] done = {0};
+        final int[] done = {0}; // async completion counter
 
-
-
-
-
+        // Resolve each profile independently; render when all loads complete.
         for (String id : ids) {
             db.collection("Profiles").document(id).get()
                     .addOnSuccessListener(profileDoc -> {
@@ -171,19 +164,20 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                         if (++done[0] == total) finishPopulate();
                     })
                     .addOnFailureListener(e -> {
-                        users.add(extractUser(id, null)); // fallback to placeholder
+                        // Even if profile fetch fails, show a placeholder entry for the deviceId.
+                        users.add(extractUser(id, null));
                         if (++done[0] == total) finishPopulate();
                     });
         }
     }
 
     /**
-     * Converts a profile document (if present) to a {@link User} for display.
-     * Falls back to a placeholder name if profile data is missing/invalid.
+     * Converts a profile document (if present) to a {@link User} for display and
+     * falls back to a placeholder name if profile data is missing/invalid.
      *
-     * @param id  deviceId key used in Profiles
-     * @param doc profile snapshot (may be null)
-     * @return a non-null {@code User} object
+     * @param id  deviceId key used in {@code Profiles}
+     * @param doc profile snapshot (may be null/absent)
+     * @return non-null {@code User} object suitable for display
      */
     private User extractUser(String id, DocumentSnapshot doc) {
         User u = new User();
@@ -192,18 +186,17 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                 User fromDb = doc.toObject(User.class);
                 if (fromDb != null) u = fromDb;
             } catch (Exception ignored) {
+                // Ignore mapping errors; fall back to default user
             }
         }
         if (u.getName() == null || u.getName().isEmpty()) {
             u.setName("(Unnamed)");
         }
-        // adapter will display them accordingly.
         return u;
     }
 
     /**
-     * Finalizes population: hide progress, set empty state visibility,
-     * and notify the adapter to render the rows
+     * Finalizes population: hide progress, toggle empty state, and refresh the adapter.
      */
     private void finishPopulate() {
         progressBar.setVisibility(View.GONE);
@@ -216,3 +209,4 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 }
+

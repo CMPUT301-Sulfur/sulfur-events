@@ -13,22 +13,42 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-
-// Done Java docs for Part 3
 /**
- * Adapter for displaying the organizer’s events in a RecyclerView.
- * Each card shows event info and a button to view full details.
+ * {@code OrganizerEventsAdapter}
+ * <p>
+ * RecyclerView adapter used by the organizer’s dashboard to display all events created by the organizer.
+ * Each event card includes essential information (name, date, location, capacity)
+ * and provides a button to view or manage detailed event data.
+ * </p>
+ *
+ * <h3>Responsibilities</h3>
+ * <ul>
+ *   <li>Inflates each event card layout from {@code organizer_events_row.xml}.</li>
+ *   <li>Binds event metadata such as name, start date, location, and capacity.</li>
+ *   <li>Handles click navigation to {@link OrganizerViewEventActivity} for event management.</li>
+ * </ul>
+ *
+ * <h3>Usage</h3>
+ * <pre>
+ * OrganizerEventsAdapter adapter = new OrganizerEventsAdapter(context, eventList);
+ * recyclerView.setAdapter(adapter);
+ * </pre>
+ *
+ * <p>Author: sulfur — CMPUT 301 (Part 3)</p>
  */
 public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEventsAdapter.MyViewHolder> {
 
+    /** Parent context for inflating layouts and launching new activities. */
     private final Context context;
+
+    /** List of organizer-created events displayed in the RecyclerView. */
     private final ArrayList<OrganizerEvent> organizerEvents;
 
     /**
-     * Constructs the adapter for displaying organizer events in a RecyclerView.
+     * Constructs an adapter for displaying organizer events.
      *
-     * @param context          The calling context.
-     * @param organizerEvents  The list of events to display.
+     * @param context          the parent context (typically an Activity)
+     * @param organizerEvents  the list of events to render
      */
     public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvent> organizerEvents) {
         this.context = context;
@@ -36,11 +56,11 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     }
 
     /**
-     * Inflates the layout for each event row and creates a ViewHolder to hold its views.
+     * Inflates a new event row from XML layout when needed.
      *
-     * @param parent   The parent ViewGroup into which the new view will be added.
-     * @param viewType The type of view (unused here).
-     * @return A new ViewHolder containing the inflated row layout.
+     * @param parent   parent ViewGroup
+     * @param viewType item view type (not used here)
+     * @return new ViewHolder instance for this event row
      */
     @NonNull
     @Override
@@ -50,21 +70,17 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         return new MyViewHolder(view);
     }
 
-
     /**
-     * Binds event data to the row UI elements at the specified position.
+     * Binds event details to the UI components within each card.
      *
-     * @param holder   The ViewHolder containing the row's views.
-     * @param position The position of the event in the list.
-     *
-     * Sets event name, date, location, and capacity. Also attaches a click listener
-     * to open the event detail screen.
+     * @param holder   the ViewHolder containing the row layout
+     * @param position the index of the current event in the dataset
      */
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         OrganizerEvent event = organizerEvents.get(position);
 
-        //  Clean, readable event info
+        // --- Populate basic event info ---
         holder.EventName.setText(event.getEventName());
         holder.Date.setText("Start date: " + event.getStartDate());
         holder.Location.setText("Location: " + event.getLocation());
@@ -76,7 +92,7 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
                         : "Capacity: " + capacity
         );
 
-        //  Button now opens OrganizerViewEventActivity
+        // --- Button click navigates to OrganizerViewEventActivity ---
         holder.ViewDetailsButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrganizerViewEventActivity.class);
             intent.putExtra("eventId", event.getEventId());
@@ -85,30 +101,31 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     }
 
     /**
-     * Returns the number of events in the list.
+     * Returns the total number of events displayed.
      *
-     * @return Total count of organizer events.
+     * @return number of organizer events
      */
     @Override
     public int getItemCount() {
         return organizerEvents.size();
     }
 
-
     /**
-     * ViewHolder class that holds references to the UI elements in a single event row.
-     * Used to efficiently bind data to RecyclerView rows.
+     * {@code MyViewHolder}
+     * <p>
+     * Inner static ViewHolder class that caches references to TextViews and the View Details button.
+     * Reduces unnecessary {@code findViewById()} calls for smoother RecyclerView scrolling.
+     * </p>
      */
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView EventName, Date, Location, Capacity;
         Button ViewDetailsButton;
 
-
         /**
-         * Initializes view references for the row layout.
+         * Binds all UI elements of a single event card.
          *
-         * @param itemView The root view of the row layout.
+         * @param itemView the inflated card view
          */
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -116,7 +133,8 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
             Date = itemView.findViewById(R.id.DateDetailsCard);
             Location = itemView.findViewById(R.id.LocationDetailsCard);
             Capacity = itemView.findViewById(R.id.CapacityDetailsCard);
-            ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard); // same ID, but it's the "View Details" button
+            // The button shares the "EditEventButtonCard" ID but acts as "View Details"
+            ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard);
         }
     }
 }
