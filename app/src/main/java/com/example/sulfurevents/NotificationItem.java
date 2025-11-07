@@ -20,6 +20,7 @@ package com.example.sulfurevents;
  * </ul>
  * It provides a static factory method {@link #fromDoc(com.google.firebase.firestore.DocumentSnapshot)}
  * for converting Firestore documents into model instances.
+  * <p>Author: sulfur (CMPUT 301-Part 3)</p>
  */
 public class NotificationItem {
 
