@@ -34,26 +34,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="80dp" />
 
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/etSearchImageEvent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Search event by name"
-        android:padding="12dp"
-        android:background="@drawable/search_bar_bg"
-        app:layout_constraintTop_toBottomOf="@id/tvImagesTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="16dp" />
-
-    <!-- ListView -->
     <ListView
         android:id="@+id/listViewImageEvents"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/etSearchImageEvent"
+        app:layout_constraintTop_toBottomOf="@id/tvImagesTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -16,6 +16,12 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * This class defines the profile screen for returning entrants.
+ * It displays the user's profile information and allows editing.
+ * Acts as the main "Home" screen in the bottom navigation.
+ */
+
 public class ProfileActivity extends AppCompatActivity {
     private Button editButton;
     private TextView nameDisplay, emailDisplay, phoneDisplay;
@@ -23,6 +29,11 @@ public class ProfileActivity extends AppCompatActivity {
     private String deviceId;
     private User currentUser;
 
+    /**
+     * Called when the activity is created.
+     * Loads the user's profile from Firestore and sets up the UI.
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +83,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Initializes all view components on the screen.
+     */
     private void initializeViews() {
         editButton = findViewById(R.id.edit_button);
         nameDisplay = findViewById(R.id.name_display);
@@ -79,6 +93,9 @@ public class ProfileActivity extends AppCompatActivity {
         phoneDisplay = findViewById(R.id.phone_display);
     }
 
+    /**
+     * Displays the current user's profile information in the UI.
+     */
     private void displayInfo() {
         if (currentUser != null) {
             nameDisplay.setText("Name: " + currentUser.getName());
@@ -88,6 +105,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up the edit button to open the profile editing screen.
+     */
     private void setupEditButton() {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override

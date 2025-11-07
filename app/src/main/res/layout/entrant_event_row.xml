@@ -17,7 +17,6 @@
         app:cardElevation="8dp"
         app:cardUseCompatPadding="true"
 
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -103,7 +102,7 @@
                 android:layout_marginTop="75dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="16dp"
-                android:text="Join Waiting List"
+                android:text="View Event Details"
                 android:textAlignment="center"
                 android:textColor="#050505"
                 android:textSize="12dp"

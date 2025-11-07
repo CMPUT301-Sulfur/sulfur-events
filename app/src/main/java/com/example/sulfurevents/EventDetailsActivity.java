@@ -24,14 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class EventDetailsActivity extends AppCompatActivity {
-
 
     private FirebaseFirestore db;
     private String deviceID;
     private String eventId;
-
 
     private TextView eventNameText, descriptionText, organizerText, totalEntrantsText;
     private Button joinLeaveButton;
@@ -155,8 +152,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
                 });
     }
-
-
     private void leaveWaitingList() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -346,6 +341,4 @@ public class EventDetailsActivity extends AppCompatActivity {
                             .update("waiting_list", new ArrayList<String>());
                 });
     }
-
-
 }
