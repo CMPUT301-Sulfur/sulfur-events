@@ -46,6 +46,7 @@ import java.util.Map;
  * {@link NotificationsAdapter}. For invitation-type notifications, the activity updates the
  * event document to move the entrant from {@code invited_list} to the appropriate list
  * ({@code enrolled_list} or {@code cancelled_list}), and may trigger a replacement draw.
+ * <p>Author: sulfur (CMPUT 301-Part 3)</p>
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationsAdapter.NotificationActionListener {
 
