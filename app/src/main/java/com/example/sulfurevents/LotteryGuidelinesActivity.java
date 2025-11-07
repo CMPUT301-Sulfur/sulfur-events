@@ -11,7 +11,11 @@ public class LotteryGuidelinesActivity extends AppCompatActivity {
     private TextView lotteryText;
     private Button backButton;
 
-
+    /**
+     * Initializes the view and sets the static guidelines text.
+     *
+     * @param savedInstanceState previously saved instance state, if any
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

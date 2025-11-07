@@ -44,7 +44,17 @@ public class EntrantActivity extends AppCompatActivity {
     private EventAdapter eventAdapter;
     private List<EventModel> eventList;
 
-
+    /**
+     * Sets up the entrant event list screen:
+     * <ul>
+     *     <li>initializes Firestore and device id</li>
+     *     <li>configures views and RecyclerView</li>
+     *     <li>checks for unread notifications</li>
+     *     <li>loads the events list</li>
+     * </ul>
+     *
+     * @param savedInstanceState previous state, if any
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +105,11 @@ public class EntrantActivity extends AppCompatActivity {
         loadJoinableEvents();
     }
 
+    /**
+     * Checks the current user’s notifications subcollection and, if there are unread
+     * notifications, shows a quick toast to let them know something changed in a lottery.
+     *
+     */
     private void checkForNotifications() {
         db.collection("Profiles")
                 .document(deviceID)
@@ -107,6 +122,13 @@ public class EntrantActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * Loads all events from the {@code Events} collection and displays them.
+     *
+     * <p>Current version just loads all docs (no date/status filtering). If the collection
+     * is empty, an “empty” label is shown instead of the list.
+     */
     private void loadJoinableEvents() {
         progressBar.setVisibility(View.VISIBLE);
         tvEmpty.setVisibility(View.GONE);
@@ -145,7 +167,10 @@ public class EntrantActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Lifecycle hook — right now nothing extra happens here,
+     * but this is where you could refresh the list when returning from details.
+     */
     @Override
     protected void onResume() {
         super.onResume();
