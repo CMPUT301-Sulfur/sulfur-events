@@ -52,10 +52,9 @@ public class OrganizerEvent {
         return organizerId;
     }
 
-    public String getEventTitle() {
+    public String getEventName() {
         return eventName;
     }
-
     public String getDescription() {
         return description;
     }
@@ -99,8 +98,8 @@ public class OrganizerEvent {
         this.organizerId = organizerId;
     }
 
-    public void setEventTitle(String eventTitle) {
-        this.eventName = eventTitle;
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
     public void setDescription(String description) {

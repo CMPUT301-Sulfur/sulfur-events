@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_invited_entrant"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="@android:color/white"
-    android:layout_marginBottom="10dp">
+    android:gravity="center_vertical"
+    android:background="@android:color/white">
+
+    <CheckBox
+        android:id="@+id/cbSelect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -16,27 +22,28 @@
 
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="(Name)"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:textColor="@color/black"/>
 
         <TextView
             android:id="@+id/tvEmail"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email: (no email)"
+            android:text="Email:"
             android:textColor="@color/black"
-            android:layout_marginTop="4dp"/>
+            android:textSize="13sp"/>
 
         <TextView
             android:id="@+id/tvDeviceId"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Device: xxxx"
+            android:text="Device:"
             android:textColor="@color/black"
-            android:layout_marginTop="2dp"/>
+            android:textSize="13sp"/>
+
     </LinearLayout>
+
 </LinearLayout>
