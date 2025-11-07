@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -14,12 +15,17 @@ import static org.junit.Assert.fail;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 
 
-
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.media.metrics.Event;
+import android.net.Uri;
 import android.os.SystemClock;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -27,12 +33,14 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +49,11 @@ public class OrganizerCreateEventTest {
     @Rule
     public ActivityScenarioRule<OrganizerActivity> scenario = new
             ActivityScenarioRule<>(OrganizerActivity.class);
+
+    @Rule
+    public IntentsTestRule<OrganizerActivity> intentsRule =
+            new IntentsTestRule<>(OrganizerActivity.class);
+
 
 
 
@@ -61,8 +74,68 @@ public class OrganizerCreateEventTest {
     }
 
 
+    @Test
+    public void TestSampleEntrants() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // 1. Create test event ID
+        String eventId = "testEvent_sampling";
 
+        // 2. Generate fake entrants
+        int totalEntrants = 10;
+        for (int i = 0; i < totalEntrants; i++) {
+            String id = "DEV_" + i;
 
+            User u = new User();
+            u.setName("User " + i);
+            u.setEmail("u" + i + "@mail.com");
+            db.collection("Profiles").document(id).set(u);
+        }
+
+        // 3. Set event data
+        Map<String, Object> eventData = new java.util.HashMap<>();
+        eventData.put("eventName", "Sampling Test Event");
+        eventData.put("description", "desc");
+        eventData.put("startDate", "now");
+        eventData.put("endDate", "later");
+        eventData.put("location", "Edmonton");
+        eventData.put("limitGuests", "2");
+        eventData.put("organizerEmail", "test@mail.com");
+        eventData.put("waiting_list", java.util.Arrays.asList(
+                "DEV_0","DEV_1","DEV_2","DEV_3","DEV_4","DEV_5","DEV_6","DEV_7","DEV_8","DEV_9"
+        ));
+        eventData.put("invited_list", new java.util.ArrayList<>());
+        eventData.put("enrolled_list", new java.util.ArrayList<>());
+        eventData.put("cancelled_list", new java.util.ArrayList<>());
+
+        // Wait for write completion
+        com.google.android.gms.tasks.Tasks.await(
+                db.collection("Events").document(eventId).set(eventData)
+        );
+
+        // 4. Launch Activity
+        Intent intent = new Intent(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                OrganizerInvitedActivity.class);
+        intent.putExtra("eventId", eventId);
+
+        ActivityScenario<OrganizerInvitedActivity> scenario = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+
+        SystemClock.sleep(1500);
+
+        // 5. Click sample button
+        onView(withId(R.id.btnDrawOneReplacement)).perform(click());
+
+        SystemClock.sleep(1000);
+
+        // 6. Check Firestore state *synchronously*
+        DocumentSnapshot doc = com.google.android.gms.tasks.Tasks.await(
+                db.collection("Events").document(eventId).get()
+        );
+
+        java.util.List<String> invited = (java.util.List<String>) doc.get("invited_list");
+        assertTrue(invited != null && invited.size() >= 1);
+    }
 
 }
