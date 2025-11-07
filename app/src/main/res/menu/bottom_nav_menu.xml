@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <!-- existing -->
     <item
         android:id="@+id/home_navigation"
@@ -17,16 +16,15 @@
         android:title="Your Events"
         android:icon="@drawable/create_event" />
 
-    <!-- NEW: entrant joinable events list -->
+    <!-- Joinable events list -->
     <item
         android:id="@+id/entrant_events_navigation"
         android:title="Joinable Events"
-        android:icon="@drawable/ic_home" />  <!-- pick a better icon if you have one -->
-    <!-- NEW: notifications -->
+        android:icon="@android:drawable/ic_menu_view" />
+
+    <!-- Notifications -->
     <item
         android:id="@+id/notifications_navigation"
         android:title="Notifications"
         android:icon="@drawable/ic_notifications" />
-
-
 </menu>

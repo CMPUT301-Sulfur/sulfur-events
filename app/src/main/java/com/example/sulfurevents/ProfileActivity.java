@@ -48,7 +48,6 @@ public class ProfileActivity extends AppCompatActivity {
         db.collection("Profiles").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        // profile was deleted or never made, send to welcome
                         Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
                         intent.putExtra("deviceId", deviceId);
                         startActivity(intent);
@@ -61,13 +60,12 @@ public class ProfileActivity extends AppCompatActivity {
                     setupEditButton();
                 })
                 .addOnFailureListener(e -> {
-                    // if failure, you could show a message or send to welcome
                     Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
                     intent.putExtra("deviceId", deviceId);
                     startActivity(intent);
                     finish();
                 });
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
 
     }
