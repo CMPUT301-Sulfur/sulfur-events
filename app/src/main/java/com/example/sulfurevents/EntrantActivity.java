@@ -35,15 +35,12 @@ public class EntrantActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String deviceID;
-
-
     private Button viewGuidelines;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private TextView eventLabel;
     private BottomNavigationView bottomNavigationView;
-
 
     private EventAdapter eventAdapter;
     private List<EventModel> eventList;
@@ -66,7 +63,6 @@ public class EntrantActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();

@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 
 // Image constant
 
-
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private static final int IMAGE_REQUEST = 1;
@@ -38,7 +37,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String DeviceID;
     private User CurrentUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
