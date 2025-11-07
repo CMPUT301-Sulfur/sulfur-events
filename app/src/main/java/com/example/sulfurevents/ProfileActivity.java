@@ -16,13 +16,38 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * ProfileActivity
+ * This activity displays the user's profile information including name, email, and phone number.
+ * It retrieves the user data from Firestore based on the device ID.
+ * If no profile exists for the device, the user is redirected to WelcomeEntrantActivity to create one.
+ * Users can navigate to UpdateProfileActivity to edit their profile information.
+ * Includes bottom navigation for app-wide navigation.
+ */
 public class ProfileActivity extends AppCompatActivity {
+    /** Button to navigate to the profile editing screen */
     private Button editButton;
+
+    /** TextViews for displaying user profile information */
     private TextView nameDisplay, emailDisplay, phoneDisplay;
+
+    /** Firestore database instance */
     private FirebaseFirestore db;
+
+    /** Unique device identifier used to retrieve the user's profile */
     private String deviceId;
+
+    /** The current user object loaded from Firestore */
     private User currentUser;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the UI, retrieves the device ID, loads the user profile from Firestore,
+     * and displays the profile information. Sets up bottom navigation for app-wide navigation.
+     * If the profile doesn't exist, redirects to WelcomeEntrantActivity to create a new profile.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +95,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Initializes all view components by finding them in the layout.
+     * This includes the edit button, display TextViews, and bottom navigation view.
+     */
     private void initializeViews() {
         editButton = findViewById(R.id.edit_button);
         nameDisplay = findViewById(R.id.name_display);
@@ -77,6 +106,11 @@ public class ProfileActivity extends AppCompatActivity {
         phoneDisplay = findViewById(R.id.phone_display);
     }
 
+    /**
+     * Displays the user's profile information in the TextViews.
+     * Shows the user's name, email, and phone number.
+     * If phone number is not available, displays "Not provided".
+     */
     private void displayInfo() {
         if (currentUser != null) {
             nameDisplay.setText("Name: " + currentUser.getName());
@@ -86,6 +120,11 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up the edit button with a click listener.
+     * When clicked, navigates to UpdateProfileActivity where the user can modify their profile.
+     * Passes the device ID to the next activity for profile retrieval.
+     */
     private void setupEditButton() {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,4 +136,3 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 }
-
