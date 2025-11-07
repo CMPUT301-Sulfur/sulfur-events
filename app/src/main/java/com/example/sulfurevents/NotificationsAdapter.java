@@ -31,6 +31,7 @@ import java.util.List;
  *     <li>US 01.05.02 – allow entrant to accept an invitation</li>
  *     <li>US 01.05.03 – allow entrant to decline an invitation</li>
  * </ul>
+  * <p>Author: sulfur (CMPUT 301-Part 3)</p>
  */
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.NotifVH> {
 
