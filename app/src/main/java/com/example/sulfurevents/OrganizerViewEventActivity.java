@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
+// Java docs for part 3 finished 
 /**
  * Displays detailed information about a specific event.
  * Includes a back button to return to the "Your Events" list.
@@ -22,6 +24,22 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
     private TextView tvEventName, tvDescription, tvStartDate, tvEndDate, tvLocation, tvCapacity, tvEmail;
     private ImageButton backButton;
 
+
+    /**
+     * Displays the details of a selected event and provides navigation
+     * to view waitlisted, enrolled, and invited user lists.
+     *
+     * @param savedInstanceState Previous activity state if being restored.
+     *
+     * Steps:
+     * <ul>
+     *   <li>Retrieves the event ID passed from the previous screen</li>
+     *   <li>Initializes and binds UI components</li>
+     *   <li>Loads event details from Firestore and displays them</li>
+     *   <li>Configures navigation to Waitlist, Enrolled, and Invited screens</li>
+     *   <li>Back button returns the user to the Organizer home screen</li>
+     * </ul>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +81,6 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
                     finish();
                 });
 
-        /**
-         * Launches the OrganizerWaitlistActivity to display the current waiting list for this event.
-         */
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
         btnViewWaitingList.setOnClickListener(v -> {
             Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerWaitlistActivity.class);
@@ -87,11 +102,17 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-
-
-
     }
 
+
+    /**
+     * Populates the event details screen using data from the retrieved Firestore document.
+     *
+     * @param doc The Firestore document containing event data.
+     *
+     * If the document does not exist, the activity closes. Otherwise, the event fields
+     * are mapped and displayed in the corresponding TextViews.
+     */
     private void populateEvent(DocumentSnapshot doc) {
         if (!doc.exists()) {
             Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();

@@ -52,9 +52,21 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
+    testImplementation(libs.ext.junit)
+    testImplementation(libs.rules)
+    testImplementation(libs.rules)
+    testImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
 
 
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
