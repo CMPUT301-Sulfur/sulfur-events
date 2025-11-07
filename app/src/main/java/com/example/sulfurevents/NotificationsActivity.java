@@ -1,4 +1,4 @@
-package com.example.sulfurevents; // use your actual package
+package com.example.sulfurevents;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,8 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.sulfurevents.EventDetailsActivity;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,6 +24,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * {@code NotificationsActivity} presents the list of system notifications that are
+ * addressed to the currently identified entrant. This screen enables the entrant to
+ * view lottery outcomes and to react to invitation notifications by accepting or
+ * declining them.
+ * <p>
+ * This activity contributes directly to the implementation of the following user stories:
+ * <ul>
+ *     <li><b>US 01.04.01</b> – “As an entrant, I want to receive notification when I am chosen
+ *     to participate from the waiting list (when I ‘win’ the lottery).”</li>
+ *     <li><b>US 01.04.02</b> – “As an entrant, I want to receive notification when I am not
+ *     chosen on the app (when I ‘lose’ the lottery).”</li>
+ *     <li><b>US 01.05.02</b> – “As an entrant, I want to be able to accept the invitation to
+ *     register/sign up when chosen to participate in an event.”</li>
+ *     <li><b>US 01.05.03</b> – “As an entrant, I want to be able to decline an invitation when
+ *     chosen to participate in an event.”</li>
+ * </ul>
+ * The activity retrieves notification documents from Firestore under
+ * {@code Profiles/<deviceId>/notifications} and binds them to a {@link RecyclerView} through
+ * {@link NotificationsAdapter}. For invitation-type notifications, the activity updates the
+ * event document to move the entrant from {@code invited_list} to the appropriate list
+ * ({@code enrolled_list} or {@code cancelled_list}), and may trigger a replacement draw.
+  * <p>Author: sulfur (CMPUT 301-Part 3)</p>
+ */
 public class NotificationsActivity extends AppCompatActivity implements NotificationsAdapter.NotificationActionListener {
 
     private RecyclerView rvNotifications;
@@ -35,6 +57,12 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     private NotificationsAdapter adapter;
     private List<NotificationItem> notifications = new ArrayList<>();
 
+    /**
+     * Initializes the notifications screen, prepares the RecyclerView and starts
+     * listening to Firestore for changes in the entrant's notification subcollection.
+     *
+     * @param savedInstanceState previously saved state (unused here)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +87,11 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         listenForNotifications();
     }
 
+    /**
+     * Subscribes to Firestore updates on the current entrant's notification collection.
+     * The list is kept in reverse chronological order (latest first). When no notifications
+     * are present, an empty-state text view is shown.
+     */
     private void listenForNotifications() {
         db.collection("Profiles")
                 .document(deviceId)
@@ -82,6 +115,17 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     // ====== Callbacks from adapter ======
+
+    /**
+     * Handles the entrant's acceptance of an invitation notification.
+     * This updates the corresponding event document so that the entrant is
+     * removed from {@code invited_list} and added to {@code enrolled_list}.
+     * A confirmation dialog is shown, and the method also evaluates whether the
+     * event has become full so that remaining entrants can be informed they were
+     * not selected.
+     *
+     * @param item the notification representing the invitation
+     */
     @Override
     public void onAccept(NotificationItem item) {
         db.collection("Events").document(item.eventId)
@@ -108,6 +152,14 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 );
     }
 
+    /**
+     * Handles the entrant's decline of an invitation notification.
+     * This updates the event to move the entrant from {@code invited_list} to
+     * {@code cancelled_list}, shows a confirmation dialog, and then attempts to
+     * draw a replacement entrant from the waiting list.
+     *
+     * @param item the notification representing the invitation to decline
+     */
     @Override
     public void onDecline(NotificationItem item) {
         db.collection("Events").document(item.eventId)
@@ -118,7 +170,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 .addOnSuccessListener(aVoid -> {
                     markNotificationRead(item);
 
-                    // ✅ Popup to confirm decline
                     new AlertDialog.Builder(NotificationsActivity.this)
                             .setTitle("Invitation declined")
                             .setMessage("You declined the invitation" +
@@ -126,7 +177,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                             .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                             .show();
 
-                    // ✅ Immediately draw a replacement and notify the next user
                     drawReplacementAndNotify(item.eventId);
                 })
                 .addOnFailureListener(e ->
@@ -138,6 +188,13 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 );
     }
 
+    /**
+     * Handles the entrant's request to view details for the event related to
+     * the selected notification. This starts {@link EventDetailsActivity} with
+     * the event identifier passed as an extra. The notification is also marked read.
+     *
+     * @param item the notification whose event should be opened
+     */
     @Override
     public void onViewEvent(NotificationItem item) {
         if (item.eventId == null || item.eventId.isEmpty()) {
@@ -147,16 +204,30 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         Intent i = new Intent(this, EventDetailsActivity.class);
         i.putExtra("EVENT_ID", item.eventId);
         startActivity(i);
-        // optional: mark as read
         markNotificationRead(item);
     }
+
+    /**
+     * Utility dialog method used to present immediate feedback to the entrant,
+     * e.g., after accepting or declining an invitation.
+     *
+     * @param title   dialog title
+     * @param message dialog message
+     */
     private void showResultDialog(String title, String message) {
         new androidx.appcompat.app.AlertDialog.Builder(NotificationsActivity.this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
-}
+    }
+
+    /**
+     * Marks the given notification as read in Firestore so that it no longer
+     * appears as an unread item in the UI.
+     *
+     * @param item the notification item to mark as read
+     */
     private void markNotificationRead(NotificationItem item) {
         if (item.docId == null) return;
         db.collection("Profiles")
@@ -166,6 +237,15 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 .update("read", true);
     }
 
+    /**
+     * Attempts to draw a replacement entrant from the event's waiting list after
+     * a previously invited entrant declined. The drawn entrant is moved to
+     * {@code invited_list} and receives an "INVITED" notification. If the waiting
+     * list is empty, the method falls back to checking whether the event is full
+     * and, if so, notifies the remaining waiting entrants that they were not selected.
+     *
+     * @param eventId identifier of the event for which a replacement should be drawn
+     */
     private void drawReplacementAndNotify(String eventId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Events").document(eventId)
@@ -209,6 +289,16 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                             });
                 });
     }
+
+    /**
+     * Variant of the “not selected” check that operates on an already-fetched
+     * {@link DocumentSnapshot}. This is used in the branch where we already have
+     * the event document (e.g., in {@link #drawReplacementAndNotify(String)}).
+     *
+     * @param eventDoc  the already-retrieved event document
+     * @param eventId   identifier of the event
+     * @param eventName human-readable name of the event
+     */
     private void checkAndNotifyNotSelectedIfFull(DocumentSnapshot eventDoc,
                                                  String eventId,
                                                  String eventName) {
@@ -268,6 +358,14 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     eventName + " (full=" + isFull + ", deadline=" + deadlinePassed + ")");
         }
     }
+
+    /**
+     * Convenience overload that fetches the event document first and then delegates
+     * to {@link #checkAndNotifyNotSelectedIfFull(DocumentSnapshot, String, String)}.
+     * This is used in places where we only have the eventId.
+     *
+     * @param eventId identifier of the event to evaluate for “not selected” notifications
+     */
     private void checkAndNotifyNotSelectedIfFull(String eventId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Events").document(eventId)
@@ -344,6 +442,4 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                             .update("waiting_list", new ArrayList<String>());
                 });
     }
-
-
 }

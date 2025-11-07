@@ -1,5 +1,4 @@
 package com.example.sulfurevents;
-
 public class OrganizerEvent {
 
     public String eventId;
@@ -17,11 +16,32 @@ public class OrganizerEvent {
     public String posterURL;
 
 
-    //empty constructor because the organizer adds
+    // Done java docs for Part 3
 
+    /**
+     * Default constructor required for Firestore data mapping.
+     */
+    //empty constructor because the organizer adds
     public OrganizerEvent() {
     }
 
+
+    /**
+     * Creates a fully-initialized OrganizerEvent object.
+     *
+     * @param eventId        Unique ID of the event.
+     * @param organizerId    ID of the organizer who created the event.
+     * @param EventTitle     Name/title of the event.
+     * @param description    Description or details about the event.
+     * @param startDate      Event start date.
+     * @param endDate        Event end date.
+     * @param location       Location where the event will take place.
+     * @param limitGuests    Maximum number of allowed attendees.
+     * @param link           Optional link associated with the event.
+     * @param qrCode         Base64-encoded QR code used for event check-in.
+     * @param organizerEmail Organizer's contact email.
+     * @param posterURL      URL of the uploaded event poster image (nullable).
+     */
     public OrganizerEvent(String eventId, String organizerId,
                           String EventTitle, String description,
                           String startDate, String endDate,

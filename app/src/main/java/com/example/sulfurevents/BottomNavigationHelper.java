@@ -5,20 +5,31 @@ import android.content.Intent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
- * This helper class centralizes setup for the bottom navigation bar.
- * It follows a utility design pattern to reduce repeated navigation logic
- * across multiple activities in the SulfurEvents app.
+ * Helper class for managing bottom navigation functionality across activities.
+ * <p>
+ * This class provides a centralized method to configure the bottom navigation bar,
+ * ensuring consistent behavior and navigation logic throughout the application.
+ * </p>
  */
 public class BottomNavigationHelper {
-    /**
-     * Sets up navigation actions for the bottom navigation bar.
-     * Handles switching between main sections of the app such as
-     * Home, Organizer, Entrant, and Notifications.
-     *
-     * @param bottomNavigationView The BottomNavigationView to configure
-     * @param context The current activity context
-     */
 
+    /**
+     * Sets up the bottom navigation view with navigation handlers and selected item highlighting.
+     * <p>
+     * This method configures the bottom navigation bar to:
+     * <ul>
+     *     <li>Highlight the appropriate menu item based on the current activity</li>
+     *     <li>Handle navigation between different activities when menu items are selected</li>
+     *     <li>Prevent redundant activity launches when already on the target screen</li>
+     * </ul>
+     * </p>
+     *
+     * @param bottomNavigationView The BottomNavigationView instance to configure
+     * @param context The context of the calling activity, used to determine the current
+     *                screen and to launch new activities. Should be an instance of one
+     *                of the supported activities
+     *
+     */
     public static void setupBottomNavigation(BottomNavigationView bottomNavigationView, Context context) {
 
         bottomNavigationView.setOnItemSelectedListener(null);

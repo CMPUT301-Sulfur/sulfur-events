@@ -17,22 +17,36 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * This class defines the profile screen for returning entrants.
- * It displays the user's profile information and allows editing.
- * Acts as the main "Home" screen in the bottom navigation.
+ * ProfileActivity
+ * This activity displays the user's profile information including name, email, and phone number.
+ * It retrieves the user data from Firestore based on the device ID.
+ * If no profile exists for the device, the user is redirected to WelcomeEntrantActivity to create one.
+ * Users can navigate to UpdateProfileActivity to edit their profile information.
+ * Includes bottom navigation for app-wide navigation.
  */
-
 public class ProfileActivity extends AppCompatActivity {
+    /** Button to navigate to the profile editing screen */
     private Button editButton;
+
+    /** TextViews for displaying user profile information */
     private TextView nameDisplay, emailDisplay, phoneDisplay;
+
+    /** Firestore database instance */
     private FirebaseFirestore db;
+
+    /** Unique device identifier used to retrieve the user's profile */
     private String deviceId;
+
+    /** The current user object loaded from Firestore */
     private User currentUser;
 
     /**
-     * Called when the activity is created.
-     * Loads the user's profile from Firestore and sets up the UI.
-     * @param savedInstanceState The saved instance state bundle
+     * Called when the activity is first created.
+     * Initializes the UI, retrieves the device ID, loads the user profile from Firestore,
+     * and displays the profile information. Sets up bottom navigation for app-wide navigation.
+     * If the profile doesn't exist, redirects to WelcomeEntrantActivity to create a new profile.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +73,6 @@ public class ProfileActivity extends AppCompatActivity {
         db.collection("Profiles").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        // profile was deleted or never made, send to welcome
                         Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
                         intent.putExtra("deviceId", deviceId);
                         startActivity(intent);
@@ -72,19 +85,19 @@ public class ProfileActivity extends AppCompatActivity {
                     setupEditButton();
                 })
                 .addOnFailureListener(e -> {
-                    // if failure, you could show a message or send to welcome
                     Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
                     intent.putExtra("deviceId", deviceId);
                     startActivity(intent);
                     finish();
                 });
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
 
     }
 
     /**
-     * Initializes all view components on the screen.
+     * Initializes all view components by finding them in the layout.
+     * This includes the edit button, display TextViews, and bottom navigation view.
      */
     private void initializeViews() {
         editButton = findViewById(R.id.edit_button);
@@ -94,7 +107,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Displays the current user's profile information in the UI.
+     * Displays the user's profile information in the TextViews.
+     * Shows the user's name, email, and phone number.
+     * If phone number is not available, displays "Not provided".
      */
     private void displayInfo() {
         if (currentUser != null) {
@@ -106,7 +121,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets up the edit button to open the profile editing screen.
+     * Sets up the edit button with a click listener.
+     * When clicked, navigates to UpdateProfileActivity where the user can modify their profile.
+     * Passes the device ID to the next activity for profile retrieval.
      */
     private void setupEditButton() {
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -119,4 +136,3 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 }
-
