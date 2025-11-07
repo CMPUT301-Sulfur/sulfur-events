@@ -15,13 +15,37 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * UpdateProfileActivity
+ * This activity allows existing users to edit their profile information.
+ * It retrieves the current user data from Firestore, pre-fills the input fields,
+ * and allows the user to update their name, email, and phone number.
+ * After successful update, the user is redirected back to ProfileActivity.
+ */
 public class UpdateProfileActivity extends AppCompatActivity {
+    /** Button to confirm and save profile changes */
     private Button confirmButton;
+
+    /** Input fields for editing user information */
     private TextInputEditText nameInput, emailInput, phoneInput;
+
+    /** Firestore database instance */
     private FirebaseFirestore db;
+
+    /** Unique device identifier used to locate the user's profile */
     private String deviceId;
+
+    /** The current user object loaded from Firestore */
     private User currentUser;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the UI, retrieves the device ID, loads the existing user profile from Firestore,
+     * and pre-fills the input fields with current values.
+     * If the profile doesn't exist, redirects to WelcomeEntrantActivity.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +97,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Initializes all view components by finding them in the layout.
+     * This includes the confirm button and all input fields.
+     */
     private void initializeViews() {
         confirmButton = findViewById(R.id.confirm_button);
         nameInput = findViewById(R.id.name_input);
@@ -80,6 +108,13 @@ public class UpdateProfileActivity extends AppCompatActivity {
         phoneInput = findViewById(R.id.phone_input);
     }
 
+    /**
+     * Sets up the confirm button with a click listener.
+     * When clicked, reads the values from input fields and updates the user profile in Firestore.
+     * If any field is left blank, the original value is retained.
+     * On successful update, navigates back to ProfileActivity.
+     * On failure, displays an error message.
+     */
     private void setupConfirmButton() {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override

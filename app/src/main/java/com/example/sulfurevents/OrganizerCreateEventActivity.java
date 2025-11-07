@@ -27,17 +27,47 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 
-// Image constant
-
+/**
+ * The {@code OrganizerCreateEventActivity} class allows organizers to create new events
+ * in the SulfurEvents application.
+ * <p>
+ * This screen lets the user:
+ * <ul>
+ *     <li>Enter event details (name, description, date, etc.)</li>
+ *     <li>Upload an event poster image</li>
+ *     <li>Automatically generate a QR code for the event</li>
+ * </ul>
+ *
+ * The new event is stored in the Firestore "Events" collection.
+ *
+ * <p>Associated layout: {@code create_event_activity.xml}
+ */
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
+    /** Request code for selecting an image from the gallery. */
     private static final int IMAGE_REQUEST = 1;
+
+    /** URI of the uploaded event poster image. */
     private Uri posterUri = null;
 
+    /** Firestore database instance. */
     private FirebaseFirestore db;
+
+    /** Device ID used as the organizer’s unique identifier. */
     private String DeviceID;
+
+    /** The currently logged-in user (if available). */
     private User CurrentUser;
 
+
+    /**
+     * Called when the activity is first created.
+     * <p>
+     * Sets up UI elements, initializes Firebase, and configures button click listeners
+     * for creating events and uploading poster images.
+     *
+     * @param savedInstanceState The saved instance state bundle, if any.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,18 +112,37 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
 
 
-    // Generating QR code
+    /**
+     * Generates a QR code bitmap for the given value.
+     *
+     * @param value The text or ID to encode in the QR code.
+     * @return A Bitmap containing the generated QR code.
+     * @throws Exception If QR code generation fails.
+     */
     private Bitmap generateQR(String value) throws Exception{
         com.journeyapps.barcodescanner.BarcodeEncoder encoder = new com.journeyapps.barcodescanner.BarcodeEncoder();
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
     }
 
+    /**
+     * Converts a Bitmap image to a Base64-encoded string.
+     *
+     * @param bitmap The bitmap to convert.
+     * @return A Base64 string representing the bitmap.
+     */
     private String bitmaptobase64(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
 
+    /**
+     * Creates a new event and uploads its data to Firestore.
+     * <p>
+     * If an image is selected, it uploads the event poster to Firebase Storage
+     * and stores the download URL in the event document.
+     * A unique event ID is generated for each event.
+     */
     private void CreateEvent(){
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
@@ -171,7 +220,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Handles the result from the image picker intent.
+     * <p>
+     * Displays a preview of the selected event poster or resets to default
+     * if no image is chosen.
+     *
+     * @param requestCode The request code used when starting the activity.
+     * @param resultCode  The result code returned by the activity.
+     * @param data        The intent data containing the selected image URI.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
