@@ -16,12 +16,32 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * WelcomeEntrantActivity
+ * This activity is displayed when a new user first opens the app.
+ * It collects the user's name, email, and phone number, then saves
+ * this information to Firestore under the "Profiles" collection.
+ * After successful registration, the user is redirected to ProfileActivity.
+ */
 public class WelcomeEntrantActivity extends AppCompatActivity {
+    /** Button to submit the registration form */
     private Button submitButton;
+
+    /** Input fields for user information */
     private TextInputEditText nameInput, emailInput, phoneInput;
+
+    /** Firestore database instance */
     private FirebaseFirestore db;
+
+    /** Unique device identifier used as the user's profile ID */
     private String deviceId;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the UI, retrieves the device ID, and sets up the submit button.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,8 +54,6 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-
-        // prefer passed-in id, fallback to android id
         String passedId = getIntent().getStringExtra("deviceId");
         if (passedId != null && !passedId.isEmpty()) {
             deviceId = passedId;
@@ -47,6 +65,10 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
         setupSubmitButton();
     }
 
+    /**
+     * Initializes all view components by finding them in the layout.
+     * This includes the submit button and all input fields.
+     */
     private void initializeViews() {
         submitButton = findViewById(R.id.submit_button);
         nameInput = findViewById(R.id.name_input);
@@ -54,6 +76,13 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
         phoneInput = findViewById(R.id.phone_input);
     }
 
+    /**
+     * Sets up the submit button with a click listener.
+     * When clicked, validates the input fields and saves the user profile to Firestore.
+     * Required fields are name and email; phone is optional.
+     * On successful save, navigates to ProfileActivity.
+     * On failure, displays an error message.
+     */
     private void setupSubmitButton() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
