@@ -78,10 +78,10 @@ public class OrganizerCreateEventTest {
     public void TestSampleEntrants() throws Exception {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // 1. Create test event ID
+
         String eventId = "testEvent_sampling";
 
-        // 2. Generate fake entrants
+
         int totalEntrants = 10;
         for (int i = 0; i < totalEntrants; i++) {
             String id = "DEV_" + i;
@@ -92,7 +92,7 @@ public class OrganizerCreateEventTest {
             db.collection("Profiles").document(id).set(u);
         }
 
-        // 3. Set event data
+
         Map<String, Object> eventData = new java.util.HashMap<>();
         eventData.put("eventName", "Sampling Test Event");
         eventData.put("description", "desc");
@@ -108,12 +108,12 @@ public class OrganizerCreateEventTest {
         eventData.put("enrolled_list", new java.util.ArrayList<>());
         eventData.put("cancelled_list", new java.util.ArrayList<>());
 
-        // Wait for write completion
+
         com.google.android.gms.tasks.Tasks.await(
                 db.collection("Events").document(eventId).set(eventData)
         );
 
-        // 4. Launch Activity
+
         Intent intent = new Intent(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 OrganizerInvitedActivity.class);
@@ -124,12 +124,12 @@ public class OrganizerCreateEventTest {
 
         SystemClock.sleep(1500);
 
-        // 5. Click sample button
+
         onView(withId(R.id.btnDrawOneReplacement)).perform(click());
 
         SystemClock.sleep(1000);
 
-        // 6. Check Firestore state *synchronously*
+
         DocumentSnapshot doc = com.google.android.gms.tasks.Tasks.await(
                 db.collection("Events").document(eventId).get()
         );
