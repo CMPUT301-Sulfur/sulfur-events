@@ -22,5 +22,11 @@
         android:id="@+id/entrant_events_navigation"
         android:title="Joinable Events"
         android:icon="@drawable/ic_home" />  <!-- pick a better icon if you have one -->
+    <!-- NEW: notifications -->
+    <item
+        android:id="@+id/notifications_navigation"
+        android:title="Notifications"
+        android:icon="@drawable/ic_notifications" />
+
 
 </menu>

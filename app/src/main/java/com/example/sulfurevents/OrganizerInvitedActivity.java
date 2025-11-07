@@ -18,8 +18,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -51,6 +53,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String eventId;
+    private String eventName;
 
     // UI
     private RecyclerView recyclerView;
@@ -69,6 +72,12 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
+        db.collection("Events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        eventName = doc.getString("eventName");
+                    }
+                });
 
         // Back arrow
         ImageButton back = findViewById(R.id.btnBack);
@@ -235,6 +244,20 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
             Toast.makeText(this, "Cancelled " + chosen.size() + " entrant(s).", Toast.LENGTH_LONG).show();
             adapter.clearSelection();
             loadInvited(); // refresh to reflect removals
+            for (String cancelledId : chosen) {
+                Map<String, Object> notif = new HashMap<>();
+                notif.put("eventId", eventId);
+                notif.put("eventName", eventName != null ? eventName : "Event");
+                notif.put("message", "You were not selected for " +
+                        (eventName != null ? eventName : "this event") + ".");
+                notif.put("timestamp", System.currentTimeMillis());
+                notif.put("read", false);
+
+                db.collection("Profiles")
+                        .document(cancelledId)
+                        .collection("notifications")
+                        .add(notif);
+            }
         }).addOnFailureListener(e ->
                 Toast.makeText(this, "Failed to cancel: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );

@@ -31,11 +31,16 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private TextView eventNameText, descriptionText, organizerText, totalEntrantsText;
     private Button joinLeaveButton;
+    private Button acceptInviteButton;
+    private Button declineInviteButton;
     private ProgressBar progressBar;
     private ImageButton backButton;
 
 
     private boolean isOnWaitingList = false;
+    private boolean isInvited = false;
+    private boolean isEnrolled = false;
+    private boolean isCancelled = false;
 
 
     @Override
@@ -63,6 +68,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinLeaveButton = findViewById(R.id.join_leave_button);
         progressBar = findViewById(R.id.progressBar);
         backButton = findViewById(R.id.back_button_details);
+        acceptInviteButton = findViewById(R.id.accept_invite_button);
+        declineInviteButton = findViewById(R.id.decline_invite_button);
 
 
         // Set event details
@@ -167,6 +174,40 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void updateButtonState() {
+        // default: show join/leave
+        joinLeaveButton.setVisibility(View.VISIBLE);
+        acceptInviteButton.setVisibility(View.GONE);
+        declineInviteButton.setVisibility(View.GONE);
+
+        if (isInvited) {
+            // entrant has been chosen → show accept/decline
+            joinLeaveButton.setVisibility(View.GONE);
+            acceptInviteButton.setVisibility(View.VISIBLE);
+            declineInviteButton.setVisibility(View.VISIBLE);
+
+            acceptInviteButton.setOnClickListener(v -> acceptInvitation());
+            declineInviteButton.setOnClickListener(v -> declineInvitation());
+            return;
+        }
+
+        if (isEnrolled) {
+            // lock it
+            joinLeaveButton.setText("You are enrolled");
+            joinLeaveButton.setEnabled(false);
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_green_light)
+            );
+            return;
+        }
+
+        if (isCancelled) {
+            joinLeaveButton.setText("You were not selected");
+            joinLeaveButton.setEnabled(false);
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_red_light)
+            );
+            return;
+        }
         if (isOnWaitingList) {
             joinLeaveButton.setText("Leave Waiting List");
             joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light));
@@ -175,4 +216,52 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_green_light));
         }
     }
+    private void acceptInvitation() {
+        progressBar.setVisibility(View.VISIBLE);
+        db.collection("Events").document(eventId)
+                .update(
+                        "invited_list", com.google.firebase.firestore.FieldValue.arrayRemove(deviceID),
+                        "enrolled_list", com.google.firebase.firestore.FieldValue.arrayUnion(deviceID)
+                )
+                .addOnSuccessListener(aVoid -> {
+                    progressBar.setVisibility(View.GONE);
+                    isInvited = false;
+                    isEnrolled = true;
+                    updateButtonState();
+                    showResultDialog("Invitation accepted", "You are now enrolled for this event.");
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    showResultDialog("Error", "Couldn't accept: " + e.getMessage());
+                });
+    }
+
+    private void declineInvitation() {
+        progressBar.setVisibility(View.VISIBLE);
+        db.collection("Events").document(eventId)
+                .update(
+                        "invited_list", com.google.firebase.firestore.FieldValue.arrayRemove(deviceID),
+                        "cancelled_list", com.google.firebase.firestore.FieldValue.arrayUnion(deviceID)
+                )
+                .addOnSuccessListener(aVoid -> {
+                    progressBar.setVisibility(View.GONE);
+                    isInvited = false;
+                    isCancelled = true;
+                    updateButtonState();
+                    showResultDialog("Invitation declined", "You declined the invitation for this event.");
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    showResultDialog("Error", "Couldn't decline: " + e.getMessage());
+                });
+    }
+
+    private void showResultDialog(String title, String message) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", (d, w) -> d.dismiss())
+                .show();
+    }
+
 }
