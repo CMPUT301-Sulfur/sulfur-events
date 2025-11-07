@@ -35,7 +35,7 @@ import java.util.Set;
  * <ul>
  *   <li>No notifications are sent here; this is intentionally Firestore-only so teammates can
  *       build “receive”/UI reactions later without changing this screen.</li>
- *   <li>Reuses {@link WaitlistAdapter} and the same row layout with a CheckBox for selection.</li>
+ *   <li>Reuses {@link OrganizerWaitlistAdapter} and the same row layout with a CheckBox for selection.</li>
  * </ul>
  *
  * <p>Firestore usage:
@@ -58,7 +58,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
     private TextView emptyText;
 
     // Adapter/data (parallel lists)
-    private WaitlistAdapter adapter;                 // provides multi-select via CheckBox
+    private OrganizerInvitedAdapter adapter;                 // provides multi-select via CheckBox
     private final List<User> users = new ArrayList<>();
     private final List<String> deviceIds = new ArrayList<>();
 
@@ -79,7 +79,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         emptyText = findViewById(R.id.tvEmpty);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new WaitlistAdapter(users, deviceIds);
+        adapter = new OrganizerInvitedAdapter(users, deviceIds);
         recyclerView.setAdapter(adapter);
 
         // action: cancel selected invited entrants
@@ -261,10 +261,17 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
             List<String> invited  = (List<String>) (doc.get("invited_list") != null ? doc.get("invited_list") : doc.get("invitedList"));
             if (invited == null) invited = new ArrayList<>();
 
+//            int capacity = 0;
+//            Object cap = doc.get("capacity");
+//            if (cap instanceof Number) capacity = ((Number) cap).intValue();
+//            else if (cap instanceof String) try { capacity = Integer.parseInt((String) cap); } catch (Exception ignored) {}
+
+
+            String capStr = doc.getString("limitGuests");
             int capacity = 0;
-            Object cap = doc.get("capacity");
-            if (cap instanceof Number) capacity = ((Number) cap).intValue();
-            else if (cap instanceof String) try { capacity = Integer.parseInt((String) cap); } catch (Exception ignored) {}
+            try {
+                capacity = Integer.parseInt(capStr);
+            } catch (Exception ignored) {}
 
             int open = Math.max(0, capacity - enrolled.size() - invited.size());
             if (open <= 0) {

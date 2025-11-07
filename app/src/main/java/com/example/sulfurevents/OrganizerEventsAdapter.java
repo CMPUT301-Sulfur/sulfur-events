@@ -39,19 +39,19 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         OrganizerEvent event = organizerEvents.get(position);
 
-        // ✅ Clean, readable event info
+        //  Clean, readable event info
         holder.EventName.setText(event.getEventTitle());
         holder.Date.setText("Start date: " + event.getStartDate());
         holder.Location.setText("Location: " + event.getLocation());
 
         String capacity = event.getLimitGuests();
         holder.Capacity.setText(
-                (capacity == null || capacity.isEmpty())
+                (capacity == null || capacity.isBlank() || capacity.isEmpty())
                         ? "Capacity: N/A"
                         : "Capacity: " + capacity
         );
 
-        // ✅ Button now opens OrganizerViewEventActivity
+        //  Button now opens OrganizerViewEventActivity
         holder.ViewDetailsButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrganizerViewEventActivity.class);
             intent.putExtra("eventId", event.getEventId());

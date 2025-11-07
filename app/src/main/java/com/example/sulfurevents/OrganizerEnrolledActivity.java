@@ -27,7 +27,7 @@ import java.util.List;
  * <p>Notes:
  * <ul>
  *   <li>This screen is strictly read-only: no mutations occur here.</li>
- *   <li>It reuses the existing {@link WaitlistAdapter} and the same row layout in order to
+ *   <li>It reuses the existing {@link OrganizerWaitlistAdapter} and the same row layout in order to
  *       keep code surface small. Any selection state in the adapter is ignored on this screen.</li>
  * </ul>
  *
@@ -50,7 +50,7 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
     private TextView emptyText;
 
     // Data shown in the adapter (parallel lists)
-    private WaitlistAdapter adapter;                 // reused, selection ignored here
+    private OrganizerWaitlistAdapter adapter;                 // reused, selection ignored here
     private final List<User> users = new ArrayList<>();
     private final List<String> deviceIds = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Reuse WaitlistAdapter, The row layout can be the same as waitlist.
-        adapter = new WaitlistAdapter(users, deviceIds);
+        adapter = new OrganizerWaitlistAdapter(users, deviceIds);
         recyclerView.setAdapter(adapter);
 
         loadEnrolled();
@@ -93,6 +93,17 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     // Tolerate alternate field names if teammates used camelCase
                     List<String> enrolled = getStringList(doc, "enrolled_list", "enrolledList", "final_list", "finalList");
+
+//                    // checking capacity
+//                    Long cap = Long.valueOf(doc.getString("limitGuests"));
+//                    int capacity = 0;
+//                    try{
+//                        capacity = Integer.parseInt(String.valueOf(cap));
+//                    } catch (Exception Ignored){
+//                        return;
+//                    }
+
+
                     handleEnrolled(enrolled);
                 })
                 .addOnFailureListener(e -> {
@@ -138,10 +149,17 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
             return;
         }
 
+
+
+
         deviceIds.addAll(ids);
 
         final int total = ids.size();
         final int[] done = {0};
+
+
+
+
 
         for (String id : ids) {
             db.collection("Profiles").document(id).get()

@@ -1,6 +1,9 @@
 package com.example.sulfurevents;
 
 import android.util.Log;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -13,6 +16,11 @@ public class SampleEntrants {
     private final FirebaseFirestore db;
     private final String eventId;
     private final Integer limit;
+
+
+    // which event to operate on
+    // how many users to select
+    // if limit is null or <= 0 it selects everyone in waiting list
 
     public SampleEntrants(String eventId, Integer limit) {
         this.db = FirebaseFirestore.getInstance();
@@ -48,23 +56,44 @@ public class SampleEntrants {
                         selectedUsers = new ArrayList<>(entrants);
                         Log.d("SampleEntrants", "No limit set — selecting all entrants.");
                     } else {
+                        // randomly sample from the waitlist
                         Collections.shuffle(entrants);
                         int numToSelect = Math.min(limit, entrants.size());
                         selectedUsers = entrants.subList(0, numToSelect);
                         Log.d("SampleEntrants", "Selecting " + numToSelect + " entrants out of " + entrants.size());
                     }
 
-                    for (String userId : selectedUsers) {
-                        db.collection("Events")
-                                .document(eventId)
-                                .collection("selected_users")
-                                .document(userId)
-                                .set(new SelectedUser(userId))
-                                .addOnFailureListener(e ->
-                                        Log.e("Firestore", "Failed to add selected user: " + userId, e));
+//                    for (String userId : selectedUsers) {
+//                        db.collection("Events")
+//                                .document(eventId)
+//                                .collection("selected_users")
+//                                .document(userId)
+//                                .set(new SelectedUser(userId))
+//                                .addOnFailureListener(e ->
+//                                        Log.e("Firestore", "Failed to add selected user: " + userId, e));
+//                    }
+
+
+                    List<Task<Void>> tasks = new ArrayList<>();
+                    for(String userId: selectedUsers){
+                        tasks.add(
+                                db.collection("Events")
+                                        .document(eventId)
+                                        .collection("selected_users")
+                                        .document(userId)
+                                        .set(new SelectedUser(userId))
+                                        .addOnFailureListener(e ->{
+                                            Log.e("Firestore", "Failed to add selected user: " + userId, e);
+                                        })
+                        );
                     }
 
-                    listener.onSelectionComplete(selectedUsers);
+                    Tasks.whenAllComplete(tasks)
+                                    .addOnSuccessListener(done -> listener.onSelectionComplete(selectedUsers))
+                            .addOnFailureListener(listener::onError);
+
+
+                    //listener.onSelectionComplete(selectedUsers);
                 })
                 .addOnFailureListener(listener::onError);
     }

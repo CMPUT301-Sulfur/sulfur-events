@@ -35,7 +35,6 @@ public class BottomNavigationHelper {
                 return true;
             }
 
-
             return false;
         });
     }
