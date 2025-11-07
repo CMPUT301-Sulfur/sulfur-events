@@ -62,6 +62,7 @@ public class EntrantActivity extends AppCompatActivity {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        checkForNotifications();
 
 
         // Initialize views
@@ -94,7 +95,18 @@ public class EntrantActivity extends AppCompatActivity {
         loadJoinableEvents();
     }
 
-
+    private void checkForNotifications() {
+        db.collection("Profiles")
+                .document(deviceID)
+                .collection("notifications")
+                .whereEqualTo("read", false)
+                .get()
+                .addOnSuccessListener(q -> {
+                    if (!q.isEmpty()) {
+                        Toast.makeText(this, "You have " + q.size() + " lottery update(s). Open the event to respond.", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
     private void loadJoinableEvents() {
         progressBar.setVisibility(View.VISIBLE);
         tvEmpty.setVisibility(View.GONE);

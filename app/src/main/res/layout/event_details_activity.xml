@@ -138,6 +138,32 @@
                 android:padding="16dp"
                 android:layout_marginTop="8dp" />
 
+            <Button
+                android:id="@+id/accept_invite_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Accept Invitation"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:backgroundTint="#67E084"
+                android:padding="16dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/decline_invite_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Decline Invitation"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:backgroundTint="#FF8A80"
+                android:padding="16dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
 
         </LinearLayout>
 

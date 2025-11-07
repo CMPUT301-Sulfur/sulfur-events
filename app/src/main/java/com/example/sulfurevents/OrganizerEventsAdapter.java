@@ -40,7 +40,7 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         OrganizerEvent event = organizerEvents.get(position);
 
         //  Clean, readable event info
-        holder.EventName.setText(event.getEventTitle());
+        holder.EventName.setText(event.getEventName());
         holder.Date.setText("Start date: " + event.getStartDate());
         holder.Location.setText("Location: " + event.getLocation());
 

@@ -33,9 +33,17 @@ public class BottomNavigationHelper {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
                 return true;
-            }
 
-            return false;
+
+            } else if (id == R.id.notifications_navigation && !(context instanceof NotificationsActivity)) {
+                Intent intent = new Intent(context, NotificationsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                context.startActivity(intent);
+                return true;
+        }
+
+
+        return false;
         });
     }
 }

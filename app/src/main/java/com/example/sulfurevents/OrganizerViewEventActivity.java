@@ -103,7 +103,7 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
         if (event == null) return;
 
         // fill text views with event data
-        tvEventName.setText(event.getEventTitle());
+        tvEventName.setText(event.getEventName());
         tvDescription.setText(event.getDescription());
         tvStartDate.setText("Start Date: " + event.getStartDate());
         tvEndDate.setText("End Date: " + event.getEndDate());

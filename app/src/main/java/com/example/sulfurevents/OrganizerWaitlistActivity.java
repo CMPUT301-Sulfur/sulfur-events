@@ -20,8 +20,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 
@@ -67,7 +69,12 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
-
+        db.collection("Events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String eventName = doc.getString("eventName"); // or whatever your field is called
+                    }
+                });
         // --- UI setup ---
         ImageButton back = findViewById(R.id.btnBack);
         recyclerView = findViewById(R.id.rvWaitlist);
@@ -220,7 +227,7 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                 return;
             }
 
-            String eventName = doc.getString("name");
+            String eventName = doc.getString("eventName");
 
 //            Long capacityL = doc.getLong("capacity");
 //            int capacity = capacityL == null ? 0 : capacityL.intValue();
@@ -299,10 +306,24 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
 //            }).addOnFailureListener(e ->
 //                    Toast.makeText(OrganizerWaitlistActivity.this, "Failed to update invites: " + e.getMessage(), Toast.LENGTH_SHORT).show()
 //            );
+            for (String invitedId : chosen) {
+                Map<String, Object> notif = new HashMap<>();
+                notif.put("eventId", eventId);
+                notif.put("eventName", eventName != null ? eventName : "Event");
+                notif.put("type", "INVITED");
+                notif.put("message", "You were selected for " + eventName + ". Tap the event to accept or decline.");
+                notif.put("timestamp", System.currentTimeMillis());
+                notif.put("read", false);
 
+                db.collection("Profiles")
+                        .document(invitedId)
+                        .collection("notifications")
+                        .add(notif);
+            }
         }).addOnFailureListener(e ->
                 Toast.makeText(OrganizerWaitlistActivity.this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
+
     }
 
 
