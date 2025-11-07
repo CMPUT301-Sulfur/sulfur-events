@@ -83,8 +83,7 @@ public class OrganizerActivity extends AppCompatActivity {
         });
 
         // Bottom navigation
-        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView =
-                findViewById(R.id.bottomNavigationView);
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
     }
 
