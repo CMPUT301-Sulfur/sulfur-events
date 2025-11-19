@@ -192,11 +192,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         if(!isDateValid(start, end)){
             Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
-            return; // Stop year, stay on this screen
+            return; // Stop here, stay on this screen
         }
-
-
-
 
         OrganizerEvent event = new OrganizerEvent();
         event.eventId = eventId;
@@ -268,8 +265,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             eventposter.setImageURI(posterUri);
         }
     }
-
-
 
     private void setdate(EditText editText){
         editText.setOnClickListener(v ->{
