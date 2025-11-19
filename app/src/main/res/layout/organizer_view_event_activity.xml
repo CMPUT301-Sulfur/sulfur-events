@@ -132,6 +132,16 @@
             android:backgroundTint="#6B4EFF"
             android:textColor="@color/white"/>
 
+        <Button
+            android:id="@+id/btnExportFinalListCSV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#6B4EFF"
+            android:text="Export Final List (CSV)"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
 
     </LinearLayout>
 </ScrollView>

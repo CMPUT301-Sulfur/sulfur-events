@@ -102,6 +102,16 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        // Export Final list in CSV format file
+        Button btnExportFinalListCSV = findViewById(R.id.btnExportFinalListCSV);
+        btnExportFinalListCSV.setOnClickListener(v ->{
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerExportFinalListCSV.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+
+
     }
 
 
