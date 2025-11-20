@@ -171,49 +171,11 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
 
     }
 
-//    private void saveCSVToDownloads(String fileName, String csvData) {
-//        try {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                // Android 10 and above - use MediaStore
-//                ContentValues values = new ContentValues();
-//                values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-//                values.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
-//                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-//
-//                android.net.Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-//                if (uri != null) {
-//                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
-//                    if (outputStream != null) {
-//                        outputStream.write(csvData.getBytes());
-//                        outputStream.close();
-//                        Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
-//                    }
-//                }
-//            } else {
-//                // Android 9 and below - use legacy storage
-//                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-//                File file = new File(downloadsDir, fileName);
-//
-//                FileWriter writer = new FileWriter(file);
-//                writer.write(csvData);
-//                writer.close();
-//
-//                Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
-//                finish();
-//            }
-//        } catch (Exception e) {
-//            Toast.makeText(this, "Error saving CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
-//            e.printStackTrace();
-//        }
-//
-//
-//    }
 
 
     private void saveCSVToDownloads(String fileName, String csvData) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Android 10 and above - use MediaStore
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
                 values.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
@@ -227,12 +189,11 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
                         outputStream.close();
                         Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
 
-                        // Offer to open/share the file
+                        // Offering to user to  open/share the file
                         offerToOpenFile(uri, fileName);
                     }
                 }
             } else {
-                // Android 9 and below - use legacy storage
                 File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 File file = new File(downloadsDir, fileName);
 
