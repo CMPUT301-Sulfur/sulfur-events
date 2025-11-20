@@ -65,7 +65,7 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
         tvCapacity = findViewById(R.id.tvCapacity);
         tvEmail = findViewById(R.id.tvEmail);
 
-        // 🔹 Back button logic
+        //  Back button logic
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(OrganizerViewEventActivity.this, OrganizerActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
