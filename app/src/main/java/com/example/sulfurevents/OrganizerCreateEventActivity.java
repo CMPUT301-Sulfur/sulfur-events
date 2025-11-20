@@ -102,7 +102,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
 
         // listen for user to click on upload poster area
-
         FrameLayout poster = findViewById(R.id.posterUploadArea);
         poster.setOnClickListener(view ->{
             Intent intent = new Intent(Intent.ACTION_PICK);
