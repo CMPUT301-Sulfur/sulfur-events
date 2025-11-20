@@ -103,7 +103,7 @@
 
             <!-- Description Input -->
             <EditText
-                android:id="@+id/etDescription2"
+                android:id="@+id/etExportDescription"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:layout_marginTop="12dp"
@@ -122,18 +122,18 @@
             <!-- Export Button -->
             <Button
                 android:id="@+id/btnExportCSV"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="97dp"
+                android:layout_marginTop="96dp"
+                android:layout_marginEnd="115dp"
                 android:text="EXPORT EVENT CSV"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
-                app:layout_constraintTop_toBottomOf="@+id/etDescription2"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/etExportDescription" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
