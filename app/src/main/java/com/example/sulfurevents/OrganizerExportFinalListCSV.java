@@ -94,23 +94,23 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
 
     private void ExportFinalList(String Description, String EventTitle){
         // Fetch the enrolled list
-        db.collection("Events").document(eventId)
-                .collection("enrolled_list").get()
-                .addOnSuccessListener(querySnapshot ->{
-                    if(querySnapshot.isEmpty()){
+        db.collection("Events").document(eventId).get()
+                .addOnSuccessListener(document ->{
+                    if(!document.exists()){
                         Toast.makeText(this, "No participants in final list", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
 
                     // Collect all device ids
-                    java.util.List<String> deviceIds = new java.util.ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshot){
-                        String deviceId = doc.getString("deviceId");
-                        deviceIds.add(deviceId);
-                    }
+                    java.util.List<String> deviceIds = (java.util.List<String>) document.get("enrolled_list");
 
-                    // fetch profiles
+                    if(deviceIds == null || deviceIds.isEmpty()){
+                        Toast.makeText(this, "No participants in final list", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    android.util.Log.d("CSV_DEBUG", "Device IDs found: " + deviceIds.size());
+
                     fetchProfiles(deviceIds,Description, EventTitle);
 
                 })
@@ -171,6 +171,45 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
 
     }
 
+//    private void saveCSVToDownloads(String fileName, String csvData) {
+//        try {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                // Android 10 and above - use MediaStore
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+//                values.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
+//                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+//
+//                android.net.Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+//                if (uri != null) {
+//                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
+//                    if (outputStream != null) {
+//                        outputStream.write(csvData.getBytes());
+//                        outputStream.close();
+//                        Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
+//                    }
+//                }
+//            } else {
+//                // Android 9 and below - use legacy storage
+//                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//                File file = new File(downloadsDir, fileName);
+//
+//                FileWriter writer = new FileWriter(file);
+//                writer.write(csvData);
+//                writer.close();
+//
+//                Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
+//                finish();
+//            }
+//        } catch (Exception e) {
+//            Toast.makeText(this, "Error saving CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
+
+
     private void saveCSVToDownloads(String fileName, String csvData) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -187,6 +226,9 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
                         outputStream.write(csvData.getBytes());
                         outputStream.close();
                         Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
+
+                        // Offer to open/share the file
+                        offerToOpenFile(uri, fileName);
                     }
                 }
             } else {
@@ -199,14 +241,63 @@ public class OrganizerExportFinalListCSV extends AppCompatActivity {
                 writer.close();
 
                 Toast.makeText(this, "CSV saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
-                finish();
+
+                // For older Android versions, create URI using FileProvider
+                android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                        this,
+                        getPackageName() + ".provider",
+                        file
+                );
+                offerToOpenFile(uri, fileName);
             }
         } catch (Exception e) {
             Toast.makeText(this, "Error saving CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
-
-
     }
+
+    private void offerToOpenFile(android.net.Uri uri, String fileName) {
+        // Create dialog to ask user what they want to do
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("CSV Exported Successfully")
+                .setMessage("File saved as: " + fileName + "\n\nWhat would you like to do?")
+                .setPositiveButton("Open", (dialog, which) -> {
+                    openFile(uri);
+                })
+                .setNegativeButton("Share", (dialog, which) -> {
+                    shareFile(uri, fileName);
+                })
+                .setNeutralButton("Done", (dialog, which) -> {
+                    finish();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void openFile(android.net.Uri uri) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "text/csv");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Open CSV with..."));
+        } catch (Exception e) {
+            Toast.makeText(this, "No app found to open CSV files. Try sharing instead.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void shareFile(android.net.Uri uri, String fileName) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/csv");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_SUBJECT, fileName);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Share CSV via..."));
+        } catch (Exception e) {
+            Toast.makeText(this, "Error sharing file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 }
 
