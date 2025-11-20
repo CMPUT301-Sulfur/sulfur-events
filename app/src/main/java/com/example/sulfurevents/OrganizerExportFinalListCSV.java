@@ -1,4 +1,10 @@
 package com.example.sulfurevents;
 
-public class OrganizerExportFinalListCSV {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class OrganizerExportFinalListCSV extends AppCompatActivity {
+
+
+
+
 }

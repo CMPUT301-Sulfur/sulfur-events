@@ -110,8 +110,6 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-
-
     }
 
 
