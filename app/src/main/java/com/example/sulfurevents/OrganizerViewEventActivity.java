@@ -249,7 +249,8 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
     private String formatCSV(QuerySnapshot querySnapshot){
         StringBuilder csv = new StringBuilder();
 
-        // Header Row
+
+        // Format Row
         csv.append("Name, Email, Phone Number\n");
 
         // Data rows
@@ -262,7 +263,6 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
                     .append(email).append(",")
                     .append(phone).append("\n");
         }
-
 
         return csv.toString();
 

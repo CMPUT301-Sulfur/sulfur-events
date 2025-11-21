@@ -80,7 +80,6 @@
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
         <activity android:name=".EventDetailsActivity" />
-        <activity android:name=".OrganizerExportFinalListCSV"/>
 
 
 
