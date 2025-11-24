@@ -96,6 +96,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             intent.putExtra("startDate", event.getStartDate());
             intent.putExtra("endDate", event.getEndDate());
             intent.putExtra("capacity", event.getLimitGuests());
+            intent.putExtra("posterURL", event.getPosterURL());
             context.startActivity(intent);
         });
 
@@ -110,6 +111,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             intent.putExtra("startDate", event.getStartDate());
             intent.putExtra("endDate", event.getEndDate());
             intent.putExtra("capacity", event.getLimitGuests());
+            intent.putExtra("posterURL", event.getPosterURL());
             context.startActivity(intent);
         });
 

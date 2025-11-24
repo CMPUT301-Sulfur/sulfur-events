@@ -118,7 +118,7 @@
             android:layout_height="wrap_content"
             android:text="View Enrolled"
             android:textAllCaps="false"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:backgroundTint="#6B4EFF"
             android:textColor="@color/white"/>
 
@@ -128,7 +128,7 @@
             android:layout_height="wrap_content"
             android:text="View Invited (Pending)"
             android:textAllCaps="false"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:backgroundTint="#6B4EFF"
             android:textColor="@color/white"/>
 
@@ -136,7 +136,7 @@
             android:id="@+id/btnExportFinalListCSV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:backgroundTint="#6B4EFF"
             android:text="Export Final List (CSV)"
             android:textAllCaps="false"
@@ -146,10 +146,11 @@
             android:id="@+id/EditEventButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit Event"
+            android:layout_marginTop="16dp"
             android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white"/>
-
+            android:text="Edit Event"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
 
 
     </LinearLayout>
