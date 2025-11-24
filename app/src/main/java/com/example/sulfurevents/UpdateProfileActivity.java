@@ -95,6 +95,13 @@ public class UpdateProfileActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 });
+
+        BottomNavigationHelper.setupNotificationFab(
+                this,
+                R.id.fab_notifications,
+                R.id.bottomNavigationView
+        );
+
     }
 
     /**

@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.firebase.auth)
-    implementation(libs.camera.core)
+//    implementation(libs.camera.core)
     testImplementation(libs.junit)
     testImplementation(libs.ext.junit)
     testImplementation(libs.rules)

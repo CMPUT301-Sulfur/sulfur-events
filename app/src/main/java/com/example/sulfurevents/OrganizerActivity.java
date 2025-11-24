@@ -102,6 +102,8 @@ public class OrganizerActivity extends AppCompatActivity {
         // Bottom navigation
         com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
+
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
     }
 
 
