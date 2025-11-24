@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -170,6 +171,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
+        DocumentReference newEventRef = db.collection("Events").document();
+        String eventId = newEventRef.getId();
+
 
         // Generate deep link + QR
         Bitmap qrBitmap;
@@ -205,8 +209,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         if (posterUri == null) {
             event.posterURL = null;
 
-            db.collection("Events").document(eventId)
-                    .set(event)
+            newEventRef.set(event)
                     .addOnSuccessListener(unused -> {
 
                         // SAVE QR TO GALLERY HERE
@@ -225,8 +228,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 storeref.getDownloadUrl().addOnSuccessListener(downloadURl -> {
                     event.posterURL = downloadURl.toString();
 
-                    db.collection("Events").document(eventId)
-                            .set(event)
+                    newEventRef.set(event)
                             .addOnSuccessListener(unused -> {
 
                                 // SAVE QR TO GALLERY HERE
