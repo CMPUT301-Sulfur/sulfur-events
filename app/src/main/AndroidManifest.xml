@@ -64,6 +64,8 @@
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
 
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+        <activity android:name=".ImageActivity" />
+
 
 
 

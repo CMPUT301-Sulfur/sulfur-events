@@ -107,6 +107,8 @@ public class OrganizerEvent {
         return organizerEmail;
     }
 
+    public String getPosterURL(){ return posterURL;};
+
 
     //Setters
 

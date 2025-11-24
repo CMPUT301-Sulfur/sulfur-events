@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -48,6 +51,7 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.organizer_events_row, parent, false);
         return new MyViewHolder(view);
+
     }
 
 
@@ -63,6 +67,11 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         OrganizerEvent event = organizerEvents.get(position);
+
+        // get the image from the database and places it in the imageView portion of the
+        // event card
+        String imgUrl = event.getPosterURL();
+        Glide.with(context).load(imgUrl).into(holder.EventImage);
 
         //  Clean, readable event info
         holder.EventName.setText(event.getEventName());
@@ -82,6 +91,15 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
+
+        // Button now will preview Event image
+        holder.EventImage.setOnClickListener(v ->{
+            Intent intent = new Intent(context, ImageActivity.class);
+            intent.putExtra("imageUrl", imgUrl);
+            context.startActivity(intent);
+
+        });
+
     }
 
     /**
@@ -104,6 +122,8 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         TextView EventName, Date, Location, Capacity;
         Button ViewDetailsButton;
 
+        ImageView EventImage;
+
 
         /**
          * Initializes view references for the row layout.
@@ -117,6 +137,9 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
             Location = itemView.findViewById(R.id.LocationDetailsCard);
             Capacity = itemView.findViewById(R.id.CapacityDetailsCard);
             ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard); // same ID, but it's the "View Details" button
+            EventImage = itemView.findViewById(R.id.EventImageCard);
+
+
         }
     }
 }
