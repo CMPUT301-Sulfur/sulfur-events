@@ -16,6 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
  * redirects to the correct screen (Admin, Entrant Profile, or New User).
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = "MainActivity";
     private FirebaseFirestore db;
     private String deviceId;
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "Device ID: " + deviceId);
 
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+
         checkUserProfile();
     }
 
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d(TAG, "Document data: " + document.getData());
 
-                        Boolean isAdmin = document.getBoolean("isAdmin");
+                        Boolean isAdmin = document.getBoolean("admin");
                         Log.d(TAG, "Admin flag = " + isAdmin);
 
                         if (Boolean.TRUE.equals(isAdmin)) {

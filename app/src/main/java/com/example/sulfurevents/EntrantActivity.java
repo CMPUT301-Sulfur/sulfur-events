@@ -96,6 +96,8 @@ public class EntrantActivity extends AppCompatActivity {
             startActivity(new Intent(EntrantActivity.this, LotteryGuidelinesActivity.class));
         });
 
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+
         // Load available events
         loadJoinableEvents();
     }
