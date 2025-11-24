@@ -24,7 +24,7 @@ import java.io.FileWriter;
 import java.io.OutputStream;
 
 
-// Java docs for part 3 finished
+// Java docs for part 3 finished 
 /**
  * Displays detailed information about a specific event.
  * Includes a back button to return to the "Your Events" list.
