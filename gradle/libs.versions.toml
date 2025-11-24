@@ -11,6 +11,7 @@ navigationFragment = "2.9.5"
 navigationUi = "2.9.5"
 rules = "1.5.0"
 firebaseAuth = "24.0.1"
+cameraCore = "1.5.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -27,6 +28,7 @@ zxing-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", v
 zxing-core = { group = "com.google.zxing", name = "core", version = "3.5.1" }
 rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,8 @@
 package com.example.sulfurevents;
 
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -49,19 +51,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details_activity);
 
-
         db = FirebaseFirestore.getInstance();
         deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-
-        // Get intent extras
-        eventId = getIntent().getStringExtra("eventId");
-        String eventName = getIntent().getStringExtra("eventName");
-        String description = getIntent().getStringExtra("description");
-        String organizer = getIntent().getStringExtra("organizerEmail");
-
-
-        // Initialize views
+        // 1️⃣ Initialize all UI views FIRST
         eventNameText = findViewById(R.id.event_name_detail);
         descriptionText = findViewById(R.id.event_description);
         organizerText = findViewById(R.id.event_organizer);
@@ -72,20 +65,33 @@ public class EventDetailsActivity extends AppCompatActivity {
         acceptInviteButton = findViewById(R.id.accept_invite_button);
         declineInviteButton = findViewById(R.id.decline_invite_button);
 
+        // Back button
+        backButton.setOnClickListener(v -> finish());
 
-        // Set event details
+        // 2️⃣ Handle deep link (QR scan)
+        Intent intent = getIntent();
+
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();  // sulfurevents://event/<eventId>
+            if (uri != null) {
+                eventId = uri.getLastPathSegment();  // extract eventId
+                loadEventDetailsFromFirestore();     // VALID now (views exist)
+                return;
+            }
+        }
+
+        // 3️⃣ Normal navigation (coming from list)
+        eventId = intent.getStringExtra("eventId");
+        String eventName = intent.getStringExtra("eventName");
+        String description = intent.getStringExtra("description");
+        String organizer = intent.getStringExtra("organizerEmail");
+
         eventNameText.setText(eventName);
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
 
-
-        // Back button
-        backButton.setOnClickListener(v -> finish());
-
-
-        // Check if user is on waiting list and load entrant count
+        // 4️⃣ Continue with rest of logic
         checkWaitingListStatus();
-
 
         joinLeaveButton.setOnClickListener(v -> {
             if (isOnWaitingList) {
@@ -341,4 +347,31 @@ public class EventDetailsActivity extends AppCompatActivity {
                             .update("waiting_list", new ArrayList<String>());
                 });
     }
+
+    private void loadEventDetailsFromFirestore() {
+        // load event directly from Firestore using the eventId from the QR code
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String eventName = doc.getString("eventName");
+                    String description = doc.getString("description");
+                    String organizerEmail = doc.getString("organizerEmail");
+
+                    eventNameText.setText(eventName);
+                    descriptionText.setText(description);
+                    organizerText.setText("Organizer: " + organizerEmail);
+
+                    // Continue loading entrants etc.
+                    checkWaitingListStatus();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error loading event.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
 }
