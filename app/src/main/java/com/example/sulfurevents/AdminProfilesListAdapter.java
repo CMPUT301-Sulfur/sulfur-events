@@ -44,16 +44,24 @@ public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
         }
 
         ProfileModel profile = getItem(position);
+
         TextView tvEmail = convertView.findViewById(R.id.tvProfileEmail);
         TextView tvPhone = convertView.findViewById(R.id.tvProfilePhone);
         TextView tvDevice = convertView.findViewById(R.id.tvProfileDeviceId);
+        TextView tvName = convertView.findViewById(R.id.tvProfileName); // FIXED
+        TextView tvEntrant = convertView.findViewById(R.id.tvProfileIsEntrant);
+        TextView tvOrganizer = convertView.findViewById(R.id.tvProfileIsOrganizer);
+        TextView tvAdmin = convertView.findViewById(R.id.tvProfileIsAdmin);
         Button btnDelete = convertView.findViewById(R.id.btnDeleteProfile);
 
         if (profile != null) {
-            tvEmail.setText("Email: " + (profile.getEmail() == null || profile.getEmail().isEmpty() ? "—" : profile.getEmail()));
-            tvPhone.setText("Phone: " + (profile.getPhone() == null || profile.getPhone().isEmpty() ? "—" : profile.getPhone()));
-            tvDevice.setText("Device ID: " + (profile.getDeviceId() == null || profile.getDeviceId().isEmpty() ? "—" : profile.getDeviceId()));
-            tvDevice.setText("Name: " + (profile.getName() == null || profile.getName().isEmpty() ? "—" : profile.getName()));
+            tvEmail.setText("Email: " + (profile.getEmail() == null ? "—" : profile.getEmail()));
+            tvPhone.setText("Phone: " + (profile.getPhone() == null ? "—" : profile.getPhone()));
+            tvDevice.setText("Device ID: " + (profile.getDeviceId() == null ? "—" : profile.getDeviceId()));
+            tvName.setText("Name: " + (profile.getName() == null ? "—" : profile.getName()));
+            tvEntrant.setText("Entrant: " + (profile.getIsEntrant() ? "Yes" : "No"));
+            tvOrganizer.setText("Organizer: " + (profile.getIsOrganizer() ? "Yes" : "No"));
+            tvAdmin.setText("Admin: " + (profile.getIsAdmin() ? "Yes" : "No"));
 
             btnDelete.setOnClickListener(v -> {
                 if (getContext() instanceof AdminProfilesActivity) {
@@ -64,4 +72,5 @@ public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
 
         return convertView;
     }
+
 }

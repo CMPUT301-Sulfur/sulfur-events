@@ -16,7 +16,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
  * redirects to the correct screen (Admin, Entrant Profile, or New User).
  */
 public class MainActivity extends AppCompatActivity {
-
     private static final String TAG = "MainActivity";
     private FirebaseFirestore db;
     private String deviceId;
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d(TAG, "Document data: " + document.getData());
 
-                        Boolean isAdmin = document.getBoolean("admin");
+                        Boolean isAdmin = document.getBoolean("isAdmin");
                         Log.d(TAG, "Admin flag = " + isAdmin);
 
                         if (Boolean.TRUE.equals(isAdmin)) {

@@ -90,7 +90,36 @@ public class AdminProfilesActivity extends AppCompatActivity {
      * @param profileId The ID of the profile to delete
      */
     public void deleteProfile(String profileId) {
-        profilesRef.document(profileId).delete().addOnSuccessListener(aVoid ->
-                Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1. Delete all events created by this profile
+        db.collection("Events")
+                .whereEqualTo("organizerId", profileId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+
+                    for (DocumentSnapshot doc : querySnapshot) {
+                        doc.getReference().delete();
+                    }
+
+                    // 2. Now delete the profile itself
+                    profilesRef.document(profileId)
+                            .delete()
+                            .addOnSuccessListener(aVoid ->
+                                    Toast.makeText(this,
+                                            "Profile and all related events deleted",
+                                            Toast.LENGTH_SHORT).show()
+                            )
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this,
+                                            "Failed to delete profile: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
+                            );
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this,
+                                "Failed to delete profile's events: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
     }
 }
