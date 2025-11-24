@@ -1,10 +1,14 @@
 package com.example.sulfurevents;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
@@ -22,11 +26,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 
 /**
@@ -151,7 +159,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      * and stores the download URL in the event document.
      * A unique event ID is generated for each event.
      */
-    private void CreateEvent(){
+    private void CreateEvent() {
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
 
@@ -163,35 +171,26 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
+        DocumentReference newEventRef = db.collection("Events").document();
+        String eventId = newEventRef.getId();
 
-        // store under the Events tab in the data base
-        String eventId = db.collection("Events").document().getId();
-        // QR-code variables
+
+        // Generate deep link + QR
         Bitmap qrBitmap;
         String qrBase64;
-        String Link;
-
-
-        try{
-            // assign returned bitmap
-            qrBitmap = generateQR(eventId);
-            // convert to base 64
+        try {
+            String deepLink = "sulfurevents://event/" + eventId;
+            qrBitmap = generateQR(deepLink);
             qrBase64 = bitmaptobase64(qrBitmap);
-        }catch (Exception e){
-            // we should add a toast and say "cannot create event"
+        } catch (Exception e) {
+            Toast.makeText(this, "QR creation failed.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
-                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
-            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
-            return; // Stop here, stay on this screen
-        }
-
-        if(!isDateValid(start, end)){
-            Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
-            return; // Stop here, stay on this screen
+        if (title.isBlank() || description.isBlank() || start.isBlank() ||
+                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()) {
+            Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         OrganizerEvent event = new OrganizerEvent();
@@ -206,36 +205,86 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
 
-        // if the event poster is null just store null in the database for event poster
-        if(posterUri == null){
+        // Save poster
+        if (posterUri == null) {
             event.posterURL = null;
-            db.collection("Events").document(eventId)
-                    .set(event)
-                    .addOnSuccessListener(unused ->{
+
+            newEventRef.set(event)
+                    .addOnSuccessListener(unused -> {
+
+                        // SAVE QR TO GALLERY HERE
+                        saveQRToGallery(qrBitmap, eventId);
+
+                        // FINISH BACK TO ORGANIZER HOME
                         finish();
                     });
-        }else{
+
+        } else {
             StorageReference storeref = FirebaseStorage.getInstance()
                     .getReference("Event_Posters")
                     .child(eventId + ".jpg");
 
-            storeref.putFile(posterUri).addOnSuccessListener(task ->{
-                storeref.getDownloadUrl().addOnSuccessListener(downloadURl ->{
+            storeref.putFile(posterUri).addOnSuccessListener(task -> {
+                storeref.getDownloadUrl().addOnSuccessListener(downloadURl -> {
                     event.posterURL = downloadURl.toString();
 
-                    // need to change from finish() to PreviewEvent Activity screen
-                    db.collection("Events").document(eventId)
-                            .set(event)
-                            .addOnSuccessListener(unused ->{
+                    newEventRef.set(event)
+                            .addOnSuccessListener(unused -> {
+
+                                // SAVE QR TO GALLERY HERE
+                                saveQRToGallery(qrBitmap, eventId);
+
+                                // FINISH BACK TO ORGANIZER HOME
                                 finish();
                             });
                 });
-            }).addOnFailureListener(e ->{
-                Toast.makeText(this, "Poster Upload Failed:" + e.getMessage(), Toast.LENGTH_LONG)
-                        .show();
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Poster Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             });
         }
     }
+
+    private void saveQRToGallery(Bitmap bitmap, String eventId) {
+        OutputStream fos;
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                ContentResolver resolver = getContentResolver();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "event_qr_" + eventId + ".png");
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/SulfurEvents");
+
+                Uri imageUri = resolver.insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues
+                );
+                fos = resolver.openOutputStream(imageUri);
+            } else {
+                String imagesDir =
+                        Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_PICTURES
+                        ).toString() + "/SulfurEvents";
+
+                File dir = new File(imagesDir);
+                if (!dir.exists()) dir.mkdirs();
+
+                File image = new File(dir, "event_qr_" + eventId + ".png");
+                fos = new FileOutputStream(image);
+            }
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+
+            Toast.makeText(this, "QR saved to gallery!", Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to save QR", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     /**
      * Handles the result from the image picker intent.

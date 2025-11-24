@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,6 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents" >
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -21,35 +33,20 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".OrganizerCreateEventActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".OrganizerActivity"
-            android:exported="true" />
+        <activity android:name=".OrganizerCreateEventActivity" android:exported="true"/>
+        <activity android:name=".OrganizerActivity" android:exported="true" />
 
-        <activity
-            android:name=".AdminDashboardActivity"
-            android:exported="true">
+        <activity android:name=".AdminDashboardActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".OrganizerWaitlistActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NotificationsActivity"
-            android:exported="false" />
-
+        <activity android:name=".OrganizerWaitlistActivity" android:exported="false" />
+        <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
-
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
-
-
-
 
         <!-- Other activities -->
         <activity android:name=".AdminEventsActivity" />
@@ -59,15 +56,30 @@
         <activity android:name=".WelcomeEntrantActivity"/>
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".UpdateProfileActivity"/>
+        <activity android:name=".OrganizerPreviewEventActivity" android:exported="true" />
         <activity android:name=".EntrantActivity" />
-        <activity android:name=".EntrantHistoryActivity" />
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
-        <activity android:name=".EventDetailsActivity" />
+        <activity android:name=".SuccessfulDeleteActivity" />
 
 
-        <!-- Keep AdminDashboardActivity declared even when commented above -->
-        <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
+        <!-- ⭐ Deep Link MUST go here -->
+        <activity
+            android:name=".EventDetailsActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- deep link: sulfurevents://event/<eventId> -->
+                <data
+                    android:scheme="sulfurevents"
+                    android:host="event" />
+            </intent-filter>
+
+        </activity>
 
     </application>
 

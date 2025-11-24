@@ -19,6 +19,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnManageProfiles;
     private Button btnManageImages;
 
+    private Button btnViewLogs;
+
     /**
      * Called when the activity is created.
      * Sets up the buttons and their click listeners.
@@ -59,5 +61,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
 }
