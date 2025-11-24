@@ -137,7 +137,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView eventName, eventDetails, date, location, capacity;
         Button joinButton;
-
         ImageView EventImage;
 
         public EventViewHolder(@NonNull View itemView) {
