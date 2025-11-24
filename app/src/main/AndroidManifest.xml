@@ -64,7 +64,7 @@
         <activity android:name=".SuccessfulDeleteActivity" />
 
 
-        <!--Deep Link MUST go here -->
+        <!-- ⭐ Deep Link MUST go here -->
         <activity
             android:name=".EventDetailsActivity"
             android:exported="true">
