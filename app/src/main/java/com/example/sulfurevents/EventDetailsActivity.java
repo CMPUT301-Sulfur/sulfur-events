@@ -24,7 +24,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Displays the details of a single event and lets the entrant:
+ * <ul>
+ *     <li>join or leave the waiting list</li>
+ *     <li>accept an invitation (move to enrolled_list)</li>
+ *     <li>decline an invitation (move to cancelled_list)</li>
+ * </ul>
+ *
+ * <p>The screen reads the current event document from Firestore and
+ * decides what buttons to show based on the device ID.</p>
+ */
 public class EventDetailsActivity extends AppCompatActivity {
 
 
@@ -46,6 +56,13 @@ public class EventDetailsActivity extends AppCompatActivity {
     private boolean isEnrolled = false;
     private boolean isCancelled = false;
 
+    /**
+     * Called when the detail screen is created.
+     * Sets up views, shows the event info from the Intent, and loads the user’s status
+     * for this event from Firestore.
+     *
+     * @param savedInstanceState saved UI state
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +116,14 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Reads the event document to see:
+     * <ul>
+     *     <li>if this device is in {@code waiting_list}</li>
+     *     <li>how many entrants are in the list</li>
+     * </ul>
+     * Then updates the UI appropriately.
+     */
     private void checkWaitingListStatus() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -135,6 +159,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Adds the current deviceId to {@code waiting_list} in Firestore.
+     * On success updates the UI and re-reads the list to refresh the count.
+     */
 
     private void joinWaitingList() {
         progressBar.setVisibility(View.VISIBLE);
@@ -156,7 +184,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Removes the current deviceId from {@code waiting_list}.
+     * On success updates the UI and re-reads the list.
+     */
     private void leaveWaitingList() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -177,6 +208,16 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Decides which buttons to show based on the user’s current state
+     * (waiting, invited, enrolled, cancelled).
+     *
+     * <p>Priority is:
+     * invited → show accept/decline
+     * enrolled → disabled “enrolled” button
+     * cancelled → disabled “not selected” button
+     * else → join/leave
+     */
     private void updateButtonState() {
         // default: show join/leave
         joinLeaveButton.setVisibility(View.VISIBLE);
@@ -220,6 +261,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_green_light));
         }
     }
+
+    /**
+     * Handles the “Accept invitation” path:
+     * removes the user from {@code invited_list} and adds them to {@code enrolled_list}.
+     * Then checks if the event is full and, if so, notifies the remaining waitlist users.
+     */
     private void acceptInvitation() {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("Events").document(eventId)
@@ -243,6 +290,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Handles the “Decline invitation” path:
+     * removes the user from {@code invited_list} and adds them to {@code cancelled_list}.
+     */
     private void declineInvitation() {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("Events").document(eventId)
@@ -263,6 +314,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Small helper to pop up a one-button dialog.
+     *
+     * @param title   dialog title
+     * @param message dialog message
+     */
     private void showResultDialog(String title, String message) {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle(title)
@@ -270,6 +327,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .setPositiveButton("OK", (d, w) -> d.dismiss())
                 .show();
     }
+
+    /**
+     * After an entrant accepts (or after some other path), this checks whether the event
+     * is now full based on {@code enrolled_list + invited_list} versus {@code limitGuests}.
+     * If it’s full, everyone still in {@code waiting_list} (and not already invited/enrolled)
+     * gets a “NOT_SELECTED” notification under their profile document.
+     *
+     * @param eventId id of the event we just updated
+     */
     private void checkAndNotifyNotSelectedIfFull(String eventId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Events").document(eventId)

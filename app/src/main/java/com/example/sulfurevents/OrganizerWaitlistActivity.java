@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 
-
+// Java docs done for part 3
 /**
  * Activity that allows an Organizer to view the current waiting list for a selected event.
  *
@@ -62,6 +62,22 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
     private static final String WAITING = "waiting_list";
     private static final String ALT_WAITING = "waitingList";
 
+
+    /**
+     * Initializes the waitlist screen for the selected event.
+     *
+     * @param savedInstanceState Previous activity state if restored.
+     *
+     * Steps:
+     * <ul>
+     *   <li>Retrieves the event ID from the intent</li>
+     *   <li>Initializes Firestore and loads basic event info</li>
+     *   <li>Sets up UI elements and RecyclerView with its adapter</li>
+     *   <li>Configures the button to send invitations to selected users</li>
+     *   <li>Loads the waitlist data from Firestore</li>
+     *   <li>Back button closes the activity</li>
+     * </ul>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,13 +227,6 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
      */
     private void sendInvitesForSelected() {
 
-        // we dont need to select the entrant
-        //Set<String> selected = adapter.getSelectedIds();
-//        if (selected.isEmpty()) {
-//            Toast.makeText(OrganizerWaitlistActivity.this, "Select at least one entrant.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference eventRef = db.collection("Events").document(eventId);
 
@@ -227,10 +236,7 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                 return;
             }
 
-            String eventName = doc.getString("eventName");
-
-//            Long capacityL = doc.getLong("capacity");
-//            int capacity = capacityL == null ? 0 : capacityL.intValue();
+//            String eventName = doc.getString("eventName");
 
             String capStr = doc.getString("limitGuests");
             int capacity = 0;
@@ -250,14 +256,6 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
             @SuppressWarnings("unchecked")
             List<String> invited = (List<String>) doc.get("invited_list");
             if (invited == null) invited = new ArrayList<>();
-
-//            // only keep IDs that are still in waiting_list
-//            Set<String> validSelection = new HashSet<>();
-//            for (String id : selected) if (waiting.contains(id)) validSelection.add(id);
-//            if (validSelection.isEmpty()) {
-//                Toast.makeText(OrganizerWaitlistActivity.this, "Selected entrants are no longer on the waiting list.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
 
 
             int available = capacity - enrolled.size() - invited.size();
@@ -282,30 +280,7 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
             );
 
 
-//            if (chosen.size() > available) {
-//                chosen = chosen.subList(0, available);
-//                Toast.makeText(OrganizerWaitlistActivity.this,
-//                        "Only " + available + " slot(s) available. Inviting a subset.",
-//                        Toast.LENGTH_LONG).show();
-//            }
-
-            //final List<String> chosenFinal = new ArrayList<>(chosen); // effectively final for lambdas
-
-
-
-            // Move chosen: waiting_list → invited_list
-//            eventRef.update(
-//                    "waiting_list", FieldValue.arrayRemove(chosenFinal.toArray()),
-//                    "invited_list", FieldValue.arrayUnion(chosenFinal.toArray())
-//            ).addOnSuccessListener(aVoid -> {
-//                Toast.makeText(OrganizerWaitlistActivity.this,
-//                        "Invited " + chosenFinal.size() + " entrant(s)" + (eventName != null ? (" for " + eventName) : "") + ".",
-//                        Toast.LENGTH_LONG).show();
-//                adapter.clearSelection();
-//                loadWaitlist(); // refresh UI to reflect removals
-//            }).addOnFailureListener(e ->
-//                    Toast.makeText(OrganizerWaitlistActivity.this, "Failed to update invites: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-//            );
+            String eventName = doc.getString("eventName");
             for (String invitedId : chosen) {
                 Map<String, Object> notif = new HashMap<>();
                 notif.put("eventId", eventId);

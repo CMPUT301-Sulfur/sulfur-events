@@ -45,6 +45,10 @@ dependencies {
     implementation(libs.zxing.embedded)
     implementation(libs.zxing.core)
 
+    // to autosend email
+    //implementation("com.sun.mail:android-mail:1.6.7")
+    //implementation("com.sun.mail:android-activation:1.6.7")
+
 
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -52,9 +56,21 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
+    testImplementation(libs.ext.junit)
+    testImplementation(libs.rules)
+    testImplementation(libs.rules)
+    testImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
 
 
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
@@ -69,5 +85,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-
+    //implementation(files("/Users/bader/Library/Android/sdk/platforms/android-36/android.jar"))
 }

@@ -6,12 +6,28 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * Simple screen that shows the entrant how the lottery system works.
+ *
+ * <p>This activity:
+ * <ul>
+ *     <li>Inflates {@code activity_lottery_guidelines}</li>
+ *     <li>Fills a {@link TextView} with static help text</li>
+ *     <li>Closes itself when the back button is pressed</li>
+ * </ul>
+ *
+ * It does not read or write to Firestore – it’s just informational.
+ */
 public class LotteryGuidelinesActivity extends AppCompatActivity {
 
     private TextView lotteryText;
     private Button backButton;
 
-
+    /**
+     * Initializes the view and sets the static guidelines text.
+     *
+     * @param savedInstanceState previously saved instance state, if any
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

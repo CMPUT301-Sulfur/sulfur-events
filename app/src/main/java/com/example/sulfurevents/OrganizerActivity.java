@@ -27,8 +27,22 @@ public class OrganizerActivity extends AppCompatActivity {
     private ArrayList<OrganizerEvent> organizerEvents = new ArrayList<>();
     private OrganizerEventsAdapter adapter;
 
-
-
+    // Done for part 3
+    /**
+     * Activity for organizers to view and manage their created events.
+     * <p>
+     * On creation:
+     * <ul>
+     *   <li>Enables edge-to-edge layout</li>
+     *   <li>Initializes Firestore and retrieves the device ID</li>
+     *   <li>Fetches the organizer's profile and updates the welcome header</li>
+     *   <li>Sets up the RecyclerView to display events created by this organizer</li>
+     *   <li>Starts a real-time listener to load organizer events from Firestore</li>
+     *   <li>Configures navigation buttons and bottom navigation bar</li>
+     * </ul>
+     *
+     * @param savedInstanceState Previous state if the activity is being restored
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,13 +100,25 @@ public class OrganizerActivity extends AppCompatActivity {
         });
 
         // Bottom navigation
-        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView =
-                findViewById(R.id.bottomNavigationView);
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
     }
 
+
+
     /**
-     * Loads only the events created by this organizer (based on DeviceID)
+     * Loads events from the Firestore "Events" collection that match the current organizer's ID.
+     * This method attaches a real-time listener, so any changes in the database will automatically
+     * update the provided adapter and refresh the event list in the UI.
+     *
+     * @param adapter The RecyclerView adapter responsible for displaying the list of organizer events.
+     *                Once the Firestore query completes or updates, this adapter will be notified
+     *                so the UI reflects the latest data.
+     * Firestore Query Behavior:
+     *                Filters documents where the "organizerId" field matches the current device's ID.
+     *                Clears the existing event list before repopulating to avoid duplicates.
+     *                Converts each matching Firestore document into an {@link OrganizerEvent} object.
+     *                Triggers UI update through {@code adapter.notifyDataSetChanged()} after data refresh.
      */
     private void loadEventsFromFirestore(OrganizerEventsAdapter adapter) {
         db.collection("Events")
