@@ -21,6 +21,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,6 +77,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.create_event_activity);
 
+
+        Intent intent = getIntent();
+        boolean isEdit = intent.getBooleanExtra("isEdit", false);
+        if (isEdit) {
+            enableEditMode(intent);
+        }
+
+
         View root = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.GenerateEventButton), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -104,9 +113,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // listen for user to click on upload poster area
         FrameLayout poster = findViewById(R.id.posterUploadArea);
         poster.setOnClickListener(view ->{
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            startActivityForResult(intent,IMAGE_REQUEST);
+            Intent pickintent = new Intent(Intent.ACTION_PICK);
+            pickintent.setType("image/*");
+            startActivityForResult(pickintent,IMAGE_REQUEST);
         });
 
         // listen for user to click the date section on the date buttons
@@ -154,15 +163,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private void CreateEvent(){
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
-
         String start = ((EditText)findViewById(R.id.etStartDate)).getText().toString();
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
-
-
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
+
+        if (getIntent().getBooleanExtra("isEdit", false)) {
+            String eventId = getIntent().getStringExtra("eventId");
+            EditEvent(eventId, title, description, start, end, location, limit, OGEmail);
+            return;
+        }
 
         // store under the Events tab in the data base
         String eventId = db.collection("Events").document().getId();
@@ -170,7 +182,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         Bitmap qrBitmap;
         String qrBase64;
         String Link;
-
 
         try{
             // assign returned bitmap
@@ -328,6 +339,119 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         // compare day
         return Eday >= Sday;
+    }
+
+
+    private void enableEditMode(Intent intent){
+        // Pre-fill fields
+        ((EditText)findViewById(R.id.etEventName))
+                .setText(intent.getStringExtra("eventName"));
+
+        ((EditText)findViewById(R.id.etDescription))
+                .setText(intent.getStringExtra("description"));
+
+        ((EditText)findViewById(R.id.etStartDate))
+                .setText(intent.getStringExtra("startDate"));
+
+        ((EditText)findViewById(R.id.etEndDate))
+                .setText(intent.getStringExtra("endDate"));
+
+        ((EditText)findViewById(R.id.etLocation))
+                .setText(intent.getStringExtra("location"));
+
+        ((EditText)findViewById(R.id.etLimitGuests))
+                .setText(intent.getStringExtra("capacity"));
+
+
+        ((EditText)findViewById(R.id.organizerEmail))
+                .setText(intent.getStringExtra("organizerEmail"));
+
+        // Change button text
+        Button btn = findViewById(R.id.GenerateEventButton);
+        btn.setText("Save Changes");
+
+        String posterURL = intent.getStringExtra("posterURL");
+        ImageView preview = findViewById(R.id.eventPosterPreview);
+
+        if (posterURL != null && !posterURL.isEmpty()) {
+            Glide.with(this).load(posterURL).into(preview);
+            posterUri = Uri.parse(posterURL);
+        }
+
+
+
+    }
+
+    private void EditEvent(String eventId, String title, String description,
+                           String start, String end, String location,
+                           String limit, String OGEmail){
+
+
+        // Checking if the event is of edit type
+        if (getIntent().getBooleanExtra("isEdit", false)) {
+
+            //String eventId = getIntent().getStringExtra("eventId");
+
+            // Validate fields in edit mode too
+            if(title.isBlank() || description.isBlank() || start.isBlank() ||
+                    end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+                Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(!isDateValid(start, end)){
+                Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            db.collection("Events").document(eventId)
+                    .update(
+                            "eventName", title,
+                            "description", description,
+                            "startDate", start,
+                            "endDate", end,
+                            "location", location,
+                            "limitGuests", limit,
+                            "organizerEmail", OGEmail
+                    )
+                    .addOnSuccessListener(unused -> {
+                        Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+
+            if (posterUri != null) {
+                StorageReference storeref = FirebaseStorage.getInstance()
+                        .getReference("Event_Posters")
+                        .child(eventId + ".jpg");
+
+                storeref.putFile(posterUri).addOnSuccessListener(task -> {
+                    storeref.getDownloadUrl().addOnSuccessListener(downloadURL -> {
+                        db.collection("Events").document(eventId)
+                                .update(
+                                        "eventName", title,
+                                        "description", description,
+                                        "startDate", start,
+                                        "endDate", end,
+                                        "location", location,
+                                        "limitGuests", limit,
+                                        "organizerEmail", OGEmail,
+                                        "posterURL", downloadURL.toString()
+                                )
+                                .addOnSuccessListener(unused -> {
+                                    Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                });
+                    });
+                });
+                return;
+            }
+
+
+            return;
+        }
+
+
     }
 
 }

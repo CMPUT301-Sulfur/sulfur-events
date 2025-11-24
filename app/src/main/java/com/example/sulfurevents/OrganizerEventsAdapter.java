@@ -94,6 +94,10 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
 
         // Button now will preview Event image
         holder.EventImage.setOnClickListener(v ->{
+            // Do nothing if no image exists
+            if (imgUrl == null || imgUrl.trim().isEmpty()) {
+                return;
+            }
             Intent intent = new Intent(context, ImageActivity.class);
             intent.putExtra("imageUrl", imgUrl);
             context.startActivity(intent);
@@ -121,7 +125,6 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
 
         TextView EventName, Date, Location, Capacity;
         Button ViewDetailsButton;
-
         ImageView EventImage;
 
 
