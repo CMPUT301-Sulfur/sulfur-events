@@ -103,7 +103,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .load(posterURL)
                     .into(EventPoster);
         } else {
-            EventPoster.setImageResource(R.drawable.upload);
+            EventPoster.setImageResource(R.drawable.outline_ad_off_24);
         }
 
 
