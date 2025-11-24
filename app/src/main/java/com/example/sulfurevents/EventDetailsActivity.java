@@ -1,4 +1,3 @@
-//EventDetailsActivity
 package com.example.sulfurevents;
 
 

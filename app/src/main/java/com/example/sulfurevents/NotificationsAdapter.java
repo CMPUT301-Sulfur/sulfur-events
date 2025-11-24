@@ -9,23 +9,69 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.sulfurevents.NotificationItem;
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * RecyclerView adapter responsible for displaying entrant-facing notifications
+ * such as “you were selected” and “you were not selected”.
+ * <p>
+ * This adapter binds {@link NotificationItem} instances to the
+ * {@code item_notification} layout and exposes user actions (accept/decline/view)
+ * through the {@link NotificationActionListener} interface so that the hosting
+ * activity (e.g. {@code NotificationsActivity}) can perform the corresponding
+ * Firestore updates.
+ *
+ * <p>
+ * It directly supports the UI portion of:
+ * <ul>
+ *     <li>US 01.04.01 – show a notification when entrant is chosen</li>
+ *     <li>US 01.04.02 – show a notification when entrant is not chosen</li>
+ *     <li>US 01.05.02 – allow entrant to accept an invitation</li>
+ *     <li>US 01.05.03 – allow entrant to decline an invitation</li>
+ * </ul>
+ * <p>Author: sulfur (CMPUT 301-Part 3)</p>
+ */
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.NotifVH> {
 
+    /**
+     * Listener used by the hosting component to react to user actions on a
+     * specific notification item (accept, decline, or view details).
+     */
     public interface NotificationActionListener {
+        /**
+         * Called when the user taps the “Accept” button on an invitation notification.
+         *
+         * @param item the notification that was accepted
+         */
         void onAccept(NotificationItem item);
+
+        /**
+         * Called when the user taps the “Decline” button on an invitation notification.
+         *
+         * @param item the notification that was declined
+         */
         void onDecline(NotificationItem item);
+
+        /**
+         * Called when the user requests to view details for the event referenced
+         * by this notification.
+         *
+         * @param item the notification whose event should be shown
+         */
         void onViewEvent(NotificationItem item);
     }
 
     private final List<NotificationItem> data;
     private final NotificationActionListener listener;
 
+    /**
+     * Constructs a new adapter for displaying notifications.
+     *
+     * @param data     list of notifications to display, typically loaded from Firestore
+     * @param listener callback that will handle user actions on each row
+     */
     public NotificationsAdapter(List<NotificationItem> data, NotificationActionListener listener) {
         this.data = data;
         this.listener = listener;
@@ -93,10 +139,20 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         return data.size();
     }
 
+    /**
+     * ViewHolder that holds references to the notification item views.
+     * Each instance corresponds to one row in the notifications list.
+     */
     static class NotifVH extends RecyclerView.ViewHolder {
         TextView tvEventName, tvMessage, tvTimestamp;
         Button btnAccept, btnDecline;
 
+        /**
+         * Creates a new ViewHolder and binds the subviews that will be populated
+         * by {@link #onBindViewHolder(NotifVH, int)}.
+         *
+         * @param itemView the inflated row view
+         */
         public NotifVH(@NonNull View itemView) {
             super(itemView);
             tvEventName = itemView.findViewById(R.id.tvEventName);

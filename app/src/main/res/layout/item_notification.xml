@@ -58,14 +58,14 @@
                 android:layout_marginStart="8dp"
                 android:visibility="gone"/>
 
-<!--            <Button-->
-<!--                android:id="@+id/btnView"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="View"-->
-<!--                android:layout_marginStart="8dp"-->
-<!--                android:backgroundTint="#C0C4DB"-->
-<!--                android:textColor="@color/black"/>-->
+            <!--            <Button-->
+            <!--                android:id="@+id/btnView"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:text="View"-->
+            <!--                android:layout_marginStart="8dp"-->
+            <!--                android:backgroundTint="#C0C4DB"-->
+            <!--                android:textColor="@color/black"/>-->
         </LinearLayout>
 
         <TextView

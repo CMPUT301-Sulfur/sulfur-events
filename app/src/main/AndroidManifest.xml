@@ -60,6 +60,7 @@
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".UpdateProfileActivity"/>
         <activity android:name=".EntrantActivity" />
+        <activity android:name=".EntrantHistoryActivity" />
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
         <activity android:name=".EventDetailsActivity" />

@@ -1,4 +1,3 @@
-//EventAdapter
 package com.example.sulfurevents;
 
 import android.content.Context;

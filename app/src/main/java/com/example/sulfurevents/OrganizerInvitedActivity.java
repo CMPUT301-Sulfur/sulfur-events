@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+// Done for Part 3
 /**
  * US 02.06.04 – Cancel entrants who didn’t sign up
  * US 02.05.03 – Draw replacement (manual and auto after cancellations)
@@ -65,6 +65,16 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
     private final List<User> users = new ArrayList<>();
     private final List<String> deviceIds = new ArrayList<>();
 
+
+    /**
+     * Initializes the screen that shows users who have been invited to an event.
+     * <p>
+     * Loads the event ID, retrieves the event name, prepares UI elements, sets up the
+     * RecyclerView with its adapter, and attaches actions for canceling invitations
+     * and drawing replacement invitees. Finally, it loads the invited-user list.
+     *
+     * @param savedInstanceState State of the activity if restored from a previous instance.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -263,7 +273,14 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         );
     }
 
-    /** US 02.05.03 – Invite the next waiting entrant (FIFO). */
+    /** US 02.05.03 – Invite the next waiting entrant (FIFO).
+     * Attempts to invite a specified number of users from the events waiting list
+     * to fill open guests slots. Only Users that are not enrolled or previously invited
+     * are not considered.
+     *
+     * @param count the maximum number of replacements to attempt to invite if {@code count <= 0}
+     *              no action is taken
+     * */
     private void drawReplacements(int count) {
         if (count <= 0) return;
 
@@ -284,10 +301,6 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
             List<String> invited  = (List<String>) (doc.get("invited_list") != null ? doc.get("invited_list") : doc.get("invitedList"));
             if (invited == null) invited = new ArrayList<>();
 
-//            int capacity = 0;
-//            Object cap = doc.get("capacity");
-//            if (cap instanceof Number) capacity = ((Number) cap).intValue();
-//            else if (cap instanceof String) try { capacity = Integer.parseInt((String) cap); } catch (Exception ignored) {}
 
 
             String capStr = doc.getString("limitGuests");
@@ -329,6 +342,5 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         );
     }
 }
-
 
 

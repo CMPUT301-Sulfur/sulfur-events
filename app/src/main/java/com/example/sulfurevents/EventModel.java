@@ -20,7 +20,6 @@ public class EventModel {
     private String endDate;
     private String location;
     private String limitGuests; // capacity
-    private String status;      // "open", "closed", etc.
     private String posterURL;
 
     /** Empty constructor required for Firestore */
@@ -62,10 +61,6 @@ public class EventModel {
 
     public String getLimitGuests() {
         return limitGuests;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public String getPosterURL() {
@@ -110,12 +105,8 @@ public class EventModel {
         this.limitGuests = limitGuests;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public void setPosterURL(String posterURL) {
         this.posterURL = posterURL;
     }
 }
-

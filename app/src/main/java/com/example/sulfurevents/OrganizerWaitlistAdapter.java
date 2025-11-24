@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+// Java docs for part 3 done
 
 /**
  * RecyclerView adapter for displaying entrants on an event's waiting list.
@@ -42,6 +43,14 @@ public class OrganizerWaitlistAdapter extends RecyclerView.Adapter<OrganizerWait
         this.deviceIds = deviceIds;
     }
 
+
+    /**
+     * Creates a new ViewHolder by inflating the waitlist row layout.
+     *
+     * @param parent   The parent ViewGroup that hosts the row.
+     * @param viewType The view type (unused here).
+     * @return A Holder containing the inflated row view.
+     */
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -50,6 +59,15 @@ public class OrganizerWaitlistAdapter extends RecyclerView.Adapter<OrganizerWait
         return new Holder(v);
     }
 
+
+    /**
+     * Binds waitlisted user data to the row UI at the given position.
+     *
+     * @param h         The ViewHolder for the row.
+     * @param position  The index of the user in the list.
+     *
+     * Displays the user's name, email, and device ID.
+     */
     @Override
     public void onBindViewHolder(@NonNull Holder h, int position) {
         User u = users.get(position);
@@ -59,33 +77,18 @@ public class OrganizerWaitlistAdapter extends RecyclerView.Adapter<OrganizerWait
         String email = (u.getEmail() != null && !u.getEmail().isEmpty()) ? u.getEmail() : "(no email)";
         h.email.setText("Email: " + email);
         h.deviceId.setText("Device: " + id);
-
-        // reflect selection
-        //h.cb.setOnCheckedChangeListener(null);
-        //h.cb.setChecked(selectedIds.contains(id));
-
-        // toggle by row or checkbox click
-//        View.OnClickListener toggle = v -> {
-//            if (selectedIds.contains(id)) selectedIds.remove(id);
-//            else selectedIds.add(id);
-//            notifyItemChanged(h.getAdapterPosition());
-//        };
-//        h.itemView.setOnClickListener(toggle);
-        //h.cb.setOnClickListener(toggle);
-
-
-
     }
 
 
+    /**
+     * Returns the number of users in the waitlist.
+     *
+     * @return Total number of waitlisted users.
+     */
     @Override
     public int getItemCount() {
         return users.size();
     }
-
-    //public Set<String> getSelectedIds() { return new HashSet<>(selectedIds); }
-
-    //public void clearSelection() { selectedIds.clear(); notifyDataSetChanged(); }
 
     /**
      * ViewHolder class for a single waiting list row.
@@ -93,14 +96,18 @@ public class OrganizerWaitlistAdapter extends RecyclerView.Adapter<OrganizerWait
      */
     static class Holder extends RecyclerView.ViewHolder {
         TextView name, deviceId, email;
-        //CheckBox cb;
+
+        /**
+         * Initializes UI references for the waitlist row.
+         *
+         * @param itemView The row layout view.
+         */
         Holder(@NonNull View itemView) {
             super(itemView);
-            //cb = itemView.findViewById(R.id.cbSelect);
+
             name = itemView.findViewById(R.id.tvName);
             deviceId = itemView.findViewById(R.id.tvDeviceId);
             email = itemView.findViewById(R.id.tvEmail);
         }
     }
 }
-

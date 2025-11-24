@@ -4,35 +4,87 @@
 
 package com.example.sulfurevents;
 
+/**
+ * This class defines a profile model for the SulfurEvents application.
+ * A profile contains basic user information such as email, phone, device ID,
+ * user type, and name. It is stored in the Firestore "Profiles" collection.
+ */
 public class ProfileModel {
-    private String profileId; // Firestore document ID
+    private String profileId;
     private String email;
     private String phone;
     private String deviceId;
-    private String userType; // "entrant" or "organizer"
     private String name;
 
+    /**
+     * Default constructor required for Firestore deserialization.
+     */
     public ProfileModel() { }
 
-    public ProfileModel(String email, String phone, String deviceId, String userType) {
+    /**
+     * Constructor for creating a new ProfileModel.
+     * @param email The user's email address
+     * @param phone The user's phone number
+     * @param deviceId The user's device ID
+     */
+    public ProfileModel(String email, String phone, String deviceId) {
         this.email = email;
         this.phone = phone;
         this.deviceId = deviceId;
-        this.userType = userType;
     }
 
-    public String getProfileId() { return profileId; }
-    public void setProfileId(String profileId) { this.profileId = profileId; }
+    /**
+     * Gets the Firestore document ID for this profile.
+     * @return The profile ID
+     */
+    public String getProfileId() {
+        return profileId;
+    }
 
-    public String getEmail() { return email; }
-    public String getPhone() { return phone; }
-    public String getDeviceId() { return deviceId; }
-    public String getUserType() { return userType; }
+    /**
+     * Sets the Firestore document ID for this profile.
+     * @param profileId The profile ID
+     */
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
+    }
 
+    /**
+     * Gets the user's email.
+     * @return The email.
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Gets the user's phone number.
+     * @return The phone number
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * Gets the user's device ID.
+     * @return The device ID
+     */
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    /**
+     * Gets the user's name.
+     * @return The user's name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the user's name.
+     * @param name The user's name
+     */
     public void setName(String name) {
         this.name = name;
     }

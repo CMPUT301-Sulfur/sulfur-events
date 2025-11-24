@@ -17,6 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// Done for part 3 java docs
+
 /**
  * US 02.06.03 – View final enrolled list
  *
@@ -54,6 +57,16 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
     private final List<User> users = new ArrayList<>();
     private final List<String> deviceIds = new ArrayList<>();
 
+
+    /**
+     * Initializes the enrolled-users screen for a specific event.
+     * <p>
+     * Sets the layout, retrieves the event ID passed from the previous screen,
+     * prepares UI components, sets up the RecyclerView with its adapter,
+     * and begins loading enrolled users from Firestore.
+     *
+     * @param savedInstanceState Activity state if restoring from a previous instance
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,17 +106,6 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     // Tolerate alternate field names if teammates used camelCase
                     List<String> enrolled = getStringList(doc, "enrolled_list", "enrolledList", "final_list", "finalList");
-
-//                    // checking capacity
-//                    Long cap = Long.valueOf(doc.getString("limitGuests"));
-//                    int capacity = 0;
-//                    try{
-//                        capacity = Integer.parseInt(String.valueOf(cap));
-//                    } catch (Exception Ignored){
-//                        return;
-//                    }
-
-
                     handleEnrolled(enrolled);
                 })
                 .addOnFailureListener(e -> {
@@ -113,6 +115,7 @@ public class OrganizerEnrolledActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     /**
      * Best effort retrieval of a string list field that may appear under multiple keys,
