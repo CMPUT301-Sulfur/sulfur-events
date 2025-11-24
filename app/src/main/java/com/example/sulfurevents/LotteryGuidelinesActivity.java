@@ -7,33 +7,26 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * The {@code LotteryGuidelinesActivity} class displays the event lottery
- * participation guidelines for entrants within the SulfurEvents app.
- * <p>
- * This screen provides users with detailed information about how the
- * lottery system works — including joining, selection, and cancellation policies.
- * <p>
- * The activity contains a text view showing the guidelines and a back button
- * that allows the user to return to the previous screen.
+ * Simple screen that shows the entrant how the lottery system works.
  *
- * <p>Associated layout: {@code activity_lottery_guidelines.xml}
+ * <p>This activity:
+ * <ul>
+ *     <li>Inflates {@code activity_lottery_guidelines}</li>
+ *     <li>Fills a {@link TextView} with static help text</li>
+ *     <li>Closes itself when the back button is pressed</li>
+ * </ul>
+ *
+ * It does not read or write to Firestore – it’s just informational.
  */
 public class LotteryGuidelinesActivity extends AppCompatActivity {
 
-    /** Displays the lottery system guidelines text. */
     private TextView lotteryText;
-
-    /** Button that returns the user to the previous screen. */
     private Button backButton;
 
-
     /**
-     * Called when the activity is first created.
-     * <p>
-     * Initializes the UI elements, sets up the static lottery guidelines text,
-     * and configures the back button behavior.
+     * Initializes the view and sets the static guidelines text.
      *
-     * @param savedInstanceState The saved instance state bundle (if any)
+     * @param savedInstanceState previously saved instance state, if any
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +57,9 @@ public class LotteryGuidelinesActivity extends AppCompatActivity {
                 "   - Once selected, follow the event's cancellation policy\n\n" +
                 "Good luck with your event entries!";
 
+
         lotteryText.setText(guidelines);
+
 
         backButton.setOnClickListener(v -> finish());
     }

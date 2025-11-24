@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -33,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Calendar;
 
 /**
  * The {@code OrganizerCreateEventActivity} class allows organizers to create new events
@@ -107,13 +109,19 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
 
         // listen for user to click on upload poster area
-
         FrameLayout poster = findViewById(R.id.posterUploadArea);
         poster.setOnClickListener(view ->{
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
             startActivityForResult(intent,IMAGE_REQUEST);
         });
+
+        // listen for user to click the date section on the date buttons
+        EditText start = findViewById(R.id.etStartDate);
+        EditText end = findViewById(R.id.etEndDate);
+
+        setdate(start);
+        setdate(end);
 
     }
 
@@ -153,13 +161,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private void CreateEvent() {
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
+
         String start = ((EditText)findViewById(R.id.etStartDate)).getText().toString();
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
+
+
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
-        String eventId = db.collection("Events").document().getId();
 
         // Generate deep link + QR
         Bitmap qrBitmap;
@@ -300,6 +310,71 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             posterUri = data.getData();
             eventposter.setImageURI(posterUri);
         }
+    }
+
+    private void setdate(EditText editText){
+        editText.setOnClickListener(v ->{
+            Calendar calendar = Calendar.getInstance();
+            // if there is already a date parse the date
+            String CurrentDate = editText.getText().toString();
+            if(!CurrentDate.isBlank() && CurrentDate.length() == 10){
+                try{
+                    String parts[] = CurrentDate.split("/");
+                    int month = Integer.parseInt(parts[0]) - 1;
+                    int day = Integer.parseInt(parts[1]);
+                    int year = Integer.parseInt(parts[2]);
+                    calendar.set(year, month, day);
+                }catch (Exception e){
+
+                }
+            }
+
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    this,
+                    (view, selectedYear, selectedMonth, selectedDay) -> {
+                        String formattedDate = String.format("%02d/%02d/%04d",
+                                selectedMonth + 1, // Add 1 because month is 0-indexed
+                                selectedDay,
+                                selectedYear);
+                        editText.setText(formattedDate);
+                    },
+                    year, month, day);
+            datePickerDialog.show();
+        });
+    }
+
+    private boolean isDateValid(String start, String end){
+        if(start.isEmpty() || end.isEmpty()){
+            return false;
+        }
+        String[] StartSplit = start.split("/");
+        String[] EndSplit = end.split("/");
+
+
+        // Year
+        Integer Syear = Integer.parseInt(StartSplit[2]);
+        Integer Eyear = Integer.parseInt(EndSplit[2]);
+        //day
+        Integer Sday = Integer.parseInt(StartSplit[1]);
+        Integer Eday = Integer.parseInt(EndSplit[1]);
+        // month
+        Integer Smonth = Integer.parseInt(StartSplit[0]);
+        Integer Emonth = Integer.parseInt(EndSplit[0]);
+        // year comparison
+        if(Eyear > Syear) return true;
+        if(Eyear < Syear) return false;
+
+        // month comparison
+        if(Emonth > Smonth) return true;
+        if(Emonth < Smonth) return false;
+
+        // compare day
+        return Eday >= Sday;
     }
 
 }
