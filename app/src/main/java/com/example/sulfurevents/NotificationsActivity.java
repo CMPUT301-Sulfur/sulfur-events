@@ -74,11 +74,11 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
         // NEW view bindings (match the new XML ids)
         rvNewNotifications = findViewById(R.id.rvNewNotifications);
-        rvHistoryNotifications = findViewById(R.id.rvHistoryNotifications);
+        //rvHistoryNotifications = findViewById(R.id.rvHistoryNotifications);
 
         tvEmptyNew = findViewById(R.id.tvEmptyNew);
         tvEmptyHistory = findViewById(R.id.tvEmptyHistory);
-        tvToggleHistory = findViewById(R.id.tvToggleHistory);
+        //tvToggleHistory = findViewById(R.id.tvToggleHistory);
 
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
