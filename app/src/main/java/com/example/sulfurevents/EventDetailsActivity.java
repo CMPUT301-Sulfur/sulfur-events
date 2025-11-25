@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
+
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -27,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Displays the details of a single event and lets the entrant:
@@ -134,7 +138,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
 
-        // 4️ Continue with rest of logic
+        if (applyDateRestrictions()) {
+            return; // Stop here. Do NOT load waiting list if registration is closed
+        }
+
+        //️ Continue with rest of logic
         checkWaitingListStatus();
 
         joinLeaveButton.setOnClickListener(v -> {
@@ -195,6 +203,11 @@ public class EventDetailsActivity extends AppCompatActivity {
      */
 
     private void joinWaitingList() {
+
+        if (applyDateRestrictions()) return;
+
+
+
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
 
@@ -212,6 +225,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                     joinLeaveButton.setEnabled(true);
                     Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
                 });
+
+
     }
 
     /**
@@ -249,6 +264,11 @@ public class EventDetailsActivity extends AppCompatActivity {
      * else → join/leave
      */
     private void updateButtonState() {
+
+        if (applyDateRestrictions()) return;
+
+
+
         // default: show join/leave
         joinLeaveButton.setVisibility(View.VISIBLE);
         acceptInviteButton.setVisibility(View.GONE);
@@ -478,6 +498,48 @@ public class EventDetailsActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
+    private boolean applyDateRestrictions() {
+        String start = getIntent().getStringExtra("startDate");
+        String end = getIntent().getStringExtra("endDate");
+
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            Date now = new Date();
+            Date sDate = df.parse(start);
+            Date eDate = df.parse(end);
+
+            if (now.before(sDate)) {
+                joinLeaveButton.setText("Waitlist opens on " + start);
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(
+                        getResources().getColorStateList(android.R.color.holo_red_light)
+                );
+                return true; // restricted
+            }
+
+            if (now.after(eDate)) {
+                joinLeaveButton.setText("Cannot join (Registration closed)");
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(
+                        getResources().getColorStateList(android.R.color.holo_red_light)
+                );
+                return true; // restricted
+            }
+
+        } catch (Exception ex) {
+            joinLeaveButton.setText("Invalid event dates");
+            joinLeaveButton.setEnabled(false);
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_red_light)
+            );
+            return true; // restricted
+        }
+
+        return false; // registration is allowed
+    }
+
 
 
 }
