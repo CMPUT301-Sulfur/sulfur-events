@@ -62,4 +62,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <Button
+        android:id="@+id/btnNotificationLogs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Notification Logs"
+        android:textAllCaps="false"
+        android:layout_marginTop="12dp"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
