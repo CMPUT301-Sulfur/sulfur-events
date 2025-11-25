@@ -23,6 +23,8 @@ public class User {
     /** Flag indicating whether the user has admin privileges */
     private boolean isAdmin;
 
+    private boolean notificationsEnabled = true;
+
     /**
      * Parameterized constructor to create a User with all fields.
      * @param deviceId The unique device identifier
@@ -31,12 +33,13 @@ public class User {
      * @param phone The user's phone number
      * @param isAdmin True if the user has admin privileges, false otherwise
      */
-    public User(String deviceId, String name, String email, String phone, boolean isAdmin){
+    public User(String deviceId, String name, String email, String phone, boolean isAdmin) {
         this.deviceId = deviceId;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.isAdmin = isAdmin;
+        this.notificationsEnabled = true; // default ON
     }
 
     /**
@@ -125,5 +128,13 @@ public class User {
      */
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    public void setNotificationsEnabled(boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
     }
 }

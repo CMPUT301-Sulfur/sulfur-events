@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -52,6 +54,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private ImageButton backButton;
 
+    private ImageView EventPoster;
+
 
     private boolean isOnWaitingList = false;
     private boolean isInvited = false;
@@ -74,7 +78,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        // 1️⃣ Initialize all UI views FIRST
+        // Get intent extras
+        eventId = getIntent().getStringExtra("eventId");
+        String eventName = getIntent().getStringExtra("eventName");
+        String description = getIntent().getStringExtra("description");
+        String organizer = getIntent().getStringExtra("organizerEmail");
+
+
+        // Initialize views
+        // 1 Initialize all UI views FIRST
         eventNameText = findViewById(R.id.event_name_detail);
         descriptionText = findViewById(R.id.event_description);
         organizerText = findViewById(R.id.event_organizer);
@@ -84,11 +96,23 @@ public class EventDetailsActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button_details);
         acceptInviteButton = findViewById(R.id.accept_invite_button);
         declineInviteButton = findViewById(R.id.decline_invite_button);
+        EventPoster = findViewById(R.id.EntrantEventImage);
+
+        // set the image poster
+        String posterURL = getIntent().getStringExtra("posterURL");
+        if (posterURL != null && !posterURL.isEmpty()) {
+            Glide.with(this)
+                    .load(posterURL)
+                    .into(EventPoster);
+        } else {
+            EventPoster.setImageResource(R.drawable.outline_ad_off_24);
+        }
+
 
         // Back button
         backButton.setOnClickListener(v -> finish());
 
-        // 2️⃣ Handle deep link (QR scan)
+        // 2️ Handle deep link (QR scan)
         Intent intent = getIntent();
 
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -100,17 +124,17 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
 
-        // 3️⃣ Normal navigation (coming from list)
+        // 3⃣ Normal navigation (coming from list)
         eventId = intent.getStringExtra("eventId");
-        String eventName = intent.getStringExtra("eventName");
-        String description = intent.getStringExtra("description");
-        String organizer = intent.getStringExtra("organizerEmail");
+//        String eventName = intent.getStringExtra("eventName");
+//        String description = intent.getStringExtra("description");
+//        String organizer = intent.getStringExtra("organizerEmail");
 
         eventNameText.setText(eventName);
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
 
-        // 4️⃣ Continue with rest of logic
+        // 4️ Continue with rest of logic
         checkWaitingListStatus();
 
         joinLeaveButton.setOnClickListener(v -> {
@@ -407,10 +431,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         notif.put("timestamp", System.currentTimeMillis());
                         notif.put("read", false);
 
-                        db.collection("Profiles")
-                                .document(deviceId)
-                                .collection("notifications")
-                                .add(notif);
+                        sendNotifIfEnabled(deviceId, notif);
                     }
 
                     // optional: clear waiting list since no more room
@@ -444,5 +465,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error loading event.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+                    }
+                });
+    }
+
 
 }

@@ -40,6 +40,7 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
     private String eventId;
 
 
+
     /**
      * Displays the details of a selected event and provides navigation
      * to view waitlisted, enrolled, and invited user lists.
@@ -81,6 +82,7 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
         tvCapacity = findViewById(R.id.tvCapacity);
         tvEmail = findViewById(R.id.tvEmail);
 
+
         //  Back button logic
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(OrganizerViewEventActivity.this, OrganizerActivity.class);
@@ -118,20 +120,29 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-        // Export Final list in CSV format file
-//        Button btnExportFinalListCSV = findViewById(R.id.btnExportFinalListCSV);
-//        btnExportFinalListCSV.setOnClickListener(v ->{
-//            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerExportFinalListCSV.class);
-//            i.putExtra("eventId", eventId);
-//            startActivity(i);
-//        });
-
-
         // Export Final List in CSV format file
         Button btnExportFinalListCSV = findViewById(R.id.btnExportFinalListCSV);
         btnExportFinalListCSV.setOnClickListener(v ->{
             ExportCSVFile();
         });
+
+
+        Button btnEditEvent = findViewById(R.id.EditEventButton);
+        btnEditEvent.setOnClickListener(v -> {
+            Intent intent = new Intent(OrganizerViewEventActivity.this, OrganizerCreateEventActivity.class);
+            intent.putExtra("isEdit", true);
+            intent.putExtra("eventId", eventId);
+            intent.putExtra("eventName", tvEventName.getText().toString());
+            intent.putExtra("description", tvDescription.getText().toString());
+            intent.putExtra("startDate", tvStartDate.getText().toString().replace("Start Date: ", ""));
+            intent.putExtra("endDate", tvEndDate.getText().toString().replace("End Date: ", ""));
+            intent.putExtra("location", tvLocation.getText().toString().replace("Location: ", ""));
+            intent.putExtra("capacity", tvCapacity.getText().toString().replace("Capacity: ", ""));
+            intent.putExtra("organizerEmail", tvEmail.getText().toString().replace("Organizer: ", ""));
+            intent.putExtra("posterURL", (String) tvEmail.getTag());
+            startActivity(intent);
+        });
+
 
     }
 
@@ -162,6 +173,9 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
         tvLocation.setText("Location: " + event.getLocation());
         tvCapacity.setText("Capacity: " + event.getLimitGuests());
         tvEmail.setText("Organizer: " + event.getOrganizerEmail());
+        tvEmail.setTag(event.getPosterURL());
+
+
     }
 
     // Export to CSV file Logic

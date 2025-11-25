@@ -263,10 +263,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                 notif.put("timestamp", System.currentTimeMillis());
                 notif.put("read", false);
 
-                db.collection("Profiles")
-                        .document(cancelledId)
-                        .collection("notifications")
-                        .add(notif);
+                sendNotifIfEnabled(cancelledId, notif);
             }
         }).addOnFailureListener(e ->
                 Toast.makeText(this, "Failed to cancel: " + e.getMessage(), Toast.LENGTH_SHORT).show()
@@ -340,6 +337,19 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         }).addOnFailureListener(e ->
                 Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show()
         );
+    }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+                    }
+                });
     }
 }
 

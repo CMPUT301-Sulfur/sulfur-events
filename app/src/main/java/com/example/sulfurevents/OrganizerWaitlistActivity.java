@@ -290,16 +290,27 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                 notif.put("timestamp", System.currentTimeMillis());
                 notif.put("read", false);
 
-                db.collection("Profiles")
-                        .document(invitedId)
-                        .collection("notifications")
-                        .add(notif);
+                sendNotifIfEnabled(invitedId, notif);
             }
         }).addOnFailureListener(e ->
                 Toast.makeText(OrganizerWaitlistActivity.this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
 
     }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+                    }
+                });
+    }
+
 
 
 
