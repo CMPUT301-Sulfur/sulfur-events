@@ -178,7 +178,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
         DocumentReference newEventRef = db.collection("Events").document();
-        String eventId = newEventRef.getId();
+        //String eventId = newEventRef.getId();
 
         if (getIntent().getBooleanExtra("isEdit", false)) {
             String eventId = getIntent().getStringExtra("eventId");
@@ -191,16 +191,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // QR-code variables
         Bitmap qrBitmap;
         String qrBase64;
-        String Link;
+        //String Link;
 
-        try{
-            // assign returned bitmap
-            qrBitmap = generateQR(eventId);
-            // convert to base 64
+//        try{
+//            // assign returned bitmap
+//            qrBitmap = generateQR(eventId);
+//            // convert to base 64
 
         // Generate deep link + QR
-        Bitmap qrBitmap;
-        String qrBase64;
+//        Bitmap qrBitmap;
+//        String qrBase64;
         try {
             String deepLink = "sulfurevents://event/" + eventId;
             qrBitmap = generateQR(deepLink);
