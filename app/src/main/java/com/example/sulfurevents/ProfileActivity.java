@@ -38,7 +38,10 @@ public class ProfileActivity extends AppCompatActivity {
     private String deviceId;
 
     /** The current user object loaded from Firestore */
-    private User currentUser;
+    private ProfileModel currentUser;
+
+    private Button adminButton;
+
 
     /**
      * Called when the activity is first created.
@@ -80,10 +83,17 @@ public class ProfileActivity extends AppCompatActivity {
                         return;
                     }
 
-                    currentUser = documentSnapshot.toObject(User.class);
+                    currentUser = documentSnapshot.toObject(ProfileModel.class);
                     displayInfo();
                     setupEditButton();
                     setupDeleteButton(); // ADD THIS LINE
+
+                    adminButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(ProfileActivity.this, AdminDashboardActivity.class);
+                        intent.putExtra("deviceId", deviceId);
+                        startActivity(intent);
+                    });
+
                 })
                 .addOnFailureListener(e -> {
                     Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
@@ -106,6 +116,7 @@ public class ProfileActivity extends AppCompatActivity {
         nameDisplay = findViewById(R.id.name_display);
         emailDisplay = findViewById(R.id.email_display);
         phoneDisplay = findViewById(R.id.phone_display);
+        adminButton = findViewById(R.id.admin_button);
     }
 
     /**
@@ -120,6 +131,14 @@ public class ProfileActivity extends AppCompatActivity {
             String phone = currentUser.getPhone();
             phoneDisplay.setText("Phone Number: " + (phone == null || phone.isEmpty() ? "Not provided" : phone));
         }
+
+        // Show admin button only if user is marked as admin
+        if (currentUser.getIsAdmin()) {
+            adminButton.setVisibility(View.VISIBLE);
+        } else {
+            adminButton.setVisibility(View.GONE);
+        }
+
     }
 
     /**

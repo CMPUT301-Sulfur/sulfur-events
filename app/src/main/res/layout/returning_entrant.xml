@@ -4,105 +4,122 @@
     android:id="@+id/profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@android:color/white">
 
-
-    <FrameLayout
-        android:id="@+id/frame_layout2"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="24dp">
 
-
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-
-            <LinearLayout
+            <!-- Title -->
+            <TextView
+                android:id="@+id/welcome_back_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="Profile"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit Your Personal Information Below"
+                android:textSize="16sp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
 
-                <TextView
-                    android:id="@+id/welcome_back_title"
+            <!-- Profile Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Profile"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:layout_marginBottom="32dp" />
+                    android:orientation="vertical"
+                    android:padding="20dp">   <!-- ADD THIS -->
+
+                    <TextView
+                        android:id="@+id/name_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name: {name}"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/email_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Email: {email}"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/phone_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phone Number: {number}"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Edit Your Personal Information Below"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="32dp" />
+            <!-- Buttons -->
+            <Button
+                android:id="@+id/edit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
 
+            <Button
+                android:id="@+id/delete_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete Profile"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#D32F2F"
+                android:textColor="@android:color/white" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Name: {name}"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/name_display"/>
+            <Button
+                android:id="@+id/admin_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Admin Dashboard"
+                android:visibility="gone"
+                android:layout_marginTop="8dp" />
 
+        </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Email: {email}"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/email_display"/>
+    </ScrollView>
 
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Phone Number: {number}"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="32dp"
-                    android:id="@+id/phone_display"/>
-
-
-                <Button
-                    android:id="@+id/edit_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Edit"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/delete_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Delete Profile"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-        </ScrollView>
-
-
-    </FrameLayout>
-
-
+    <!-- Bottom Nav -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu">
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
-
+        app:menu="@menu/bottom_nav_menu" />
 
 </LinearLayout>

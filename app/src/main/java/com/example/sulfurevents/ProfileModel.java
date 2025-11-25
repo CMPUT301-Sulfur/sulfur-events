@@ -4,6 +4,8 @@
 
 package com.example.sulfurevents;
 
+import com.google.firebase.database.Exclude;
+
 /**
  * This class defines a profile model for the SulfurEvents application.
  * A profile contains basic user information such as email, phone, device ID,
@@ -47,12 +49,15 @@ public class ProfileModel {
      * Gets the Firestore document ID for this profile.
      * @return The profile ID
      */
+
+    @Exclude
     public String getProfileId() { return profileId; }
 
     /**
      * Sets the Firestore document ID for this profile.
      * @param profileId The profile ID
      */
+    @Exclude
     public void setProfileId(String profileId) { this.profileId = profileId; }
 
     /**
@@ -87,6 +92,15 @@ public class ProfileModel {
 
     public boolean getIsAdmin() { return isAdmin; }
     public void setIsAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
 
     public boolean getIsOrganizer() { return isOrganizer; }
     public void setIsOrganizer(boolean isOrganizer) { this.isOrganizer = isOrganizer; }
