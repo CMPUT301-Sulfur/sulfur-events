@@ -64,7 +64,7 @@
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
         <activity android:name=".SuccessfulDeleteActivity" />
-
+        <activity android:name=".AdminNotificationLogsActivity" />
 
         <!-- ⭐ Deep Link MUST go here -->
         <activity

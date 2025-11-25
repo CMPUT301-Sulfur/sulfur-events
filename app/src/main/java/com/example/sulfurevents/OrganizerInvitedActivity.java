@@ -54,6 +54,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
     private String eventName;
+    private String organizerDeviceId;
 
     // UI
     private RecyclerView recyclerView;
@@ -82,6 +83,10 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
+        organizerDeviceId = android.provider.Settings.Secure.getString(
+                getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID
+        );
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -258,6 +263,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                 Map<String, Object> notif = new HashMap<>();
                 notif.put("eventId", eventId);
                 notif.put("eventName", eventName != null ? eventName : "Event");
+                notif.put("type", "NOT_SELECTED");
                 notif.put("message", "You were not selected for " +
                         (eventName != null ? eventName : "this event") + ".");
                 notif.put("timestamp", System.currentTimeMillis());
@@ -367,14 +373,31 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         db.collection("Profiles").document(targetId).get()
                 .addOnSuccessListener(doc -> {
                     Boolean enabled = doc.getBoolean("notificationsEnabled");
+
                     if (enabled == null || enabled) {
+
+                        // =============== 1) Send the notification ===============
                         db.collection("Profiles")
                                 .document(targetId)
                                 .collection("notifications")
                                 .add(notif);
+
+                        // =============== 2) Log it for admins ===================
+                        Map<String, Object> log = new HashMap<>();
+                        log.put("senderId", organizerDeviceId);
+                        log.put("senderRole", "ORGANIZER");
+                        log.put("recipientId", targetId);
+                        log.put("eventId", notif.get("eventId"));
+                        log.put("eventName", notif.get("eventName"));
+                        log.put("type", notif.get("type")); // e.g. "NOT_SELECTED"
+                        log.put("message", notif.get("message"));
+                        log.put("timestamp", System.currentTimeMillis());
+
+                        db.collection("NotificationLogs").add(log);
                     }
                 });
     }
+
 }
 
 
