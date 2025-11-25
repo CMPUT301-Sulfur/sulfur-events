@@ -507,8 +507,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 });
                 return;
             }
-
-
+            // added comment to push onto main
             return;
         }
 
