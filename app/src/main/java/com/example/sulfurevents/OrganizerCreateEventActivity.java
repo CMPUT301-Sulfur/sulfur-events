@@ -190,8 +190,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();      
         String waitingLimit = ((EditText)findViewById(R.id.etWaitingListLimit)).getText().toString();
-        //String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
-
         String OGEmail = organizerProfileEmail;
 
         DocumentReference newEventRef = db.collection("Events").document();
@@ -437,10 +435,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         ((EditText)findViewById(R.id.etLimitGuests))
                 .setText(intent.getStringExtra("capacity"));
-
-
-//        ((EditText)findViewById(R.id.organizerEmail))
-//                .setText(intent.getStringExtra("organizerEmail"));
 
         // NEW: pre-fill waiting list limit if provided
         String waitingLimitExtra = intent.getStringExtra("waitingListLimit");
