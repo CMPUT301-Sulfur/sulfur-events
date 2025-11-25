@@ -407,10 +407,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         notif.put("timestamp", System.currentTimeMillis());
                         notif.put("read", false);
 
-                        db.collection("Profiles")
-                                .document(deviceId)
-                                .collection("notifications")
-                                .add(notif);
+                        sendNotifIfEnabled(deviceId, notif);
                     }
 
                     // optional: clear waiting list since no more room
@@ -444,5 +441,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error loading event.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+                    }
+                });
+    }
+
 
 }

@@ -15,6 +15,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.appcompat.widget.SwitchCompat;
+import android.widget.CompoundButton;
 
 /**
  * ProfileActivity
@@ -39,6 +41,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     /** The current user object loaded from Firestore */
     private User currentUser;
+
+    private SwitchCompat notificationsSwitch;
 
     /**
      * Called when the activity is first created.
@@ -81,6 +85,20 @@ public class ProfileActivity extends AppCompatActivity {
                     }
 
                     currentUser = documentSnapshot.toObject(User.class);
+                    Boolean enabled = documentSnapshot.getBoolean("notificationsEnabled");
+                    if (enabled == null) enabled = true; // default ON if missing
+
+                    currentUser.setNotificationsEnabled(enabled);
+
+                    if (notificationsSwitch != null) {
+                        notificationsSwitch.setChecked(enabled);
+
+                        notificationsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                            db.collection("Profiles")
+                                    .document(deviceId)
+                                    .update("notificationsEnabled", isChecked);
+                        });
+                    }
                     displayInfo();
                     setupEditButton();
                 })
@@ -109,6 +127,7 @@ public class ProfileActivity extends AppCompatActivity {
         nameDisplay = findViewById(R.id.name_display);
         emailDisplay = findViewById(R.id.email_display);
         phoneDisplay = findViewById(R.id.phone_display);
+        notificationsSwitch = findViewById(R.id.switch_notifications);
     }
 
     /**
