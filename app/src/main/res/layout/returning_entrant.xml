@@ -89,6 +89,13 @@
                         android:text="Edit"
                         android:textSize="16sp" />
 
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_notifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Receive notifications"
+                        android:textSize="16sp"
+                        android:layout_marginTop="16dp"/>
                 </LinearLayout>
             </ScrollView>
 
