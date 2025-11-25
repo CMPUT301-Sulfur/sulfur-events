@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#D3DEFF"
     android:padding="16dp">
 
+    <!-- Header row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,32 +19,92 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/back_arrow" />
+            android:src="@drawable/back_arrow"
+            android:contentDescription="Back"
+            android:tint="@color/black" />
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvNotificationsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notifications"
-            android:textSize="22sp"
             android:textStyle="bold"
+            android:textSize="20sp"
             android:textColor="@color/black"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <!-- ===== New Notifications Section ===== -->
     <TextView
-        android:id="@+id/tvEmpty"
+        android:id="@+id/tvNewHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/tvEmptyNew"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No notifications."
+        android:text="No new notifications."
         android:textColor="@color/black"
-        android:layout_marginTop="12dp"
-        android:visibility="gone"/>
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvNotifications"
+        android:id="@+id/rvNewNotifications"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="8dp"
+        android:nestedScrollingEnabled="true"/>
+
+    <!-- ===== History Section (collapsible) ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+
+        <TextView
+            android:id="@+id/tvHistoryHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="History"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/tvToggleHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show history"
+            android:textStyle="bold"
+            android:textColor="#6B4EFF"
+            android:padding="6dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvEmptyHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No history yet."
+        android:textColor="@color/black"
+        android:layout_marginTop="6dp"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistoryNotifications"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="6dp"
+        android:visibility="gone"
+        android:nestedScrollingEnabled="true"/>
+
 </LinearLayout>
