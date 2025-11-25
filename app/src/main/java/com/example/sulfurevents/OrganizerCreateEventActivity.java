@@ -188,7 +188,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String start = ((EditText)findViewById(R.id.etStartDate)).getText().toString();
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
-        String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
+        String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();      
+        String waitingLimit = ((EditText)findViewById(R.id.etWaitingListLimit)).getText().toString();
         //String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
 
         String OGEmail = organizerProfileEmail;
@@ -198,7 +199,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         if (getIntent().getBooleanExtra("isEdit", false)) {
             String EditID = getIntent().getStringExtra("eventId");
-            EditEvent(EditID, title, description, start, end, location, limit);
+            EditEvent(EditID, title, description, start, end, location, limit, waitingLimit);
             return;
         }
 
@@ -207,7 +208,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // QR-code variables
         Bitmap qrBitmap;
         String qrBase64;
-        //String Link;
 
         try {
             String deepLink = "sulfurevents://event/" + eventId;
@@ -235,6 +235,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.limitGuests = limit;
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
+
+        // NEW: save optional waiting list limit
+        if (waitingLimit != null && !waitingLimit.isBlank()) {
+            event.waitingListLimit = waitingLimit;
+        } else {
+            event.waitingListLimit = "";
+        }
 
         // Save poster
         if (posterUri == null) {
@@ -435,6 +442,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 //        ((EditText)findViewById(R.id.organizerEmail))
 //                .setText(intent.getStringExtra("organizerEmail"));
 
+        // NEW: pre-fill waiting list limit if provided
+        String waitingLimitExtra = intent.getStringExtra("waitingListLimit");
+        if (waitingLimitExtra != null && !waitingLimitExtra.isEmpty()) {
+            ((EditText)findViewById(R.id.etWaitingListLimit))
+                    .setText(waitingLimitExtra);
+        }
+
         // Change button text
         Button btn = findViewById(R.id.GenerateEventButton);
         btn.setText("Save Changes");
@@ -446,20 +460,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             Glide.with(this).load(posterURL).into(preview);
             posterUri = Uri.parse(posterURL);
         }
-
-
-
     }
 
     private void EditEvent(String eventId, String title, String description,
                            String start, String end, String location,
-                           String limit){
+                           String limit, String waitingLimit){
 
 
         // Checking if the event is of edit type
         if (getIntent().getBooleanExtra("isEdit", false)) {
-
-            //String eventId = getIntent().getStringExtra("eventId");
 
             // Validate fields in edit mode too
             if(title.isBlank() || description.isBlank() || start.isBlank() ||
@@ -482,7 +491,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                             "endDate", end,
                             "location", location,
                             "limitGuests", limit,
-                            "organizerEmail", organizerProfileEmail
+                            "organizerEmail", organizerProfileEmail,
+                            "waitingListLimit", waitingLimit != null ? waitingLimit : ""
                     )
                     .addOnSuccessListener(unused -> {
                         Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
@@ -503,8 +513,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                         "startDate", start,
                                         "endDate", end,
                                         "location", location,
-                                        "limitGuests", limit,
-                                        "posterURL", downloadURL.toString()
+                                        "limitGuests", limit,                                        
+                                        "posterURL", downloadURL.toString(),
+                                        "waitingListLimit", waitingLimit != null ? waitingLimit : ""
                                 )
                                 .addOnSuccessListener(unused -> {
                                     Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();

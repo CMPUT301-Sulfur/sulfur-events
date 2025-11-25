@@ -47,6 +47,7 @@
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+        <activity android:name=".OrganizerCancelledActivity" android:exported="false" />
         <activity android:name=".ImageActivity" />
 
 
