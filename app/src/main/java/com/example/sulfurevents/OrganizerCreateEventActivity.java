@@ -193,14 +193,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String qrBase64;
         //String Link;
 
-//        try{
-//            // assign returned bitmap
-//            qrBitmap = generateQR(eventId);
-//            // convert to base 64
-
-        // Generate deep link + QR
-//        Bitmap qrBitmap;
-//        String qrBase64;
         try {
             String deepLink = "sulfurevents://event/" + eventId;
             qrBitmap = generateQR(deepLink);
