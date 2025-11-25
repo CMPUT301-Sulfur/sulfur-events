@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "Device ID: " + deviceId);
 
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+
         checkUserProfile();
     }
 
