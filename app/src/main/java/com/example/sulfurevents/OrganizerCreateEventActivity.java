@@ -70,6 +70,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     /** The currently logged-in user (if available). */
     private User CurrentUser;
 
+    /** the appropriate email*/
+    private String organizerProfileEmail;
+
+
 
     /**
      * Called when the activity is first created.
@@ -104,6 +108,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // getting the instance of device id and database access
         db = FirebaseFirestore.getInstance();
         DeviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        db.collection("Profiles").document(DeviceID).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        User u = doc.toObject(User.class);
+                        if (u != null) {
+                            organizerProfileEmail = u.getEmail();
+                        }
+                    }
+                });
 
 
 
@@ -175,19 +189,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
-        String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
+        //String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
+
+        String OGEmail = organizerProfileEmail;
 
         DocumentReference newEventRef = db.collection("Events").document();
-        //String eventId = newEventRef.getId();
+        String eventId = newEventRef.getId();
 
         if (getIntent().getBooleanExtra("isEdit", false)) {
-            String eventId = getIntent().getStringExtra("eventId");
-            EditEvent(eventId, title, description, start, end, location, limit, OGEmail);
+            String EditID = getIntent().getStringExtra("eventId");
+            EditEvent(EditID, title, description, start, end, location, limit);
             return;
         }
 
         // store under the Events tab in the data base
-        String eventId = db.collection("Events").document().getId();
+        //String eventId = db.collection("Events").document().getId();
         // QR-code variables
         Bitmap qrBitmap;
         String qrBase64;
@@ -203,7 +219,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
 
         if (title.isBlank() || description.isBlank() || start.isBlank() ||
-                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()) {
+                end.isBlank() || location.isBlank() || limit.isBlank()) {
             Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -416,8 +432,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 .setText(intent.getStringExtra("capacity"));
 
 
-        ((EditText)findViewById(R.id.organizerEmail))
-                .setText(intent.getStringExtra("organizerEmail"));
+//        ((EditText)findViewById(R.id.organizerEmail))
+//                .setText(intent.getStringExtra("organizerEmail"));
 
         // Change button text
         Button btn = findViewById(R.id.GenerateEventButton);
@@ -437,7 +453,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private void EditEvent(String eventId, String title, String description,
                            String start, String end, String location,
-                           String limit, String OGEmail){
+                           String limit){
 
 
         // Checking if the event is of edit type
@@ -447,7 +463,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
             // Validate fields in edit mode too
             if(title.isBlank() || description.isBlank() || start.isBlank() ||
-                    end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+                    end.isBlank() || location.isBlank() || limit.isBlank()){
                 Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -466,7 +482,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                             "endDate", end,
                             "location", location,
                             "limitGuests", limit,
-                            "organizerEmail", OGEmail
+                            "organizerEmail", organizerProfileEmail
                     )
                     .addOnSuccessListener(unused -> {
                         Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
@@ -488,7 +504,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                         "endDate", end,
                                         "location", location,
                                         "limitGuests", limit,
-                                        "organizerEmail", OGEmail,
                                         "posterURL", downloadURL.toString()
                                 )
                                 .addOnSuccessListener(unused -> {
