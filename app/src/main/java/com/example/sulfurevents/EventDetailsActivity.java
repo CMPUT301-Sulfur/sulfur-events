@@ -211,23 +211,73 @@ public class EventDetailsActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
 
-
+        // Load event so we can enforce waiting list limit
         db.collection("Events").document(eventId)
-                .update("waiting_list", FieldValue.arrayUnion(deviceID))
-                .addOnSuccessListener(aVoid -> {
-                    isOnWaitingList = true;
-                    updateButtonState();
-                    Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
-                    checkWaitingListStatus(); // Refresh count
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Event not found.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Get current waiting list (support both naming styles)
+                    @SuppressWarnings("unchecked")
+                    List<String> waiting = (List<String>) (
+                            doc.get("waiting_list") != null ?
+                                    doc.get("waiting_list") :
+                                    doc.get("waitingList")
+                    );
+                    if (waiting == null)
+                        waiting = new ArrayList<>();
+
+                    // Get optional waiting list limit from Firestore
+                    String waitingLimitStr = doc.getString("waitingListLimit");
+                    int waitingLimit = -1;  // -1 means "unlimited"
+
+                    if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
+                        try {
+                            waitingLimit = Integer.parseInt(waitingLimitStr.trim());
+                        } catch (NumberFormatException ignored) {
+                            waitingLimit = -1; // if invalid, treat as no limit
+                        }
+                    }
+
+                    // Enforce waiting list limit
+                    if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Waiting list is full for this event.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Proceed normally if not full
+                    db.collection("Events").document(eventId)
+                            .update("waiting_list", FieldValue.arrayUnion(deviceID))
+                            .addOnSuccessListener(aVoid -> {
+                                progressBar.setVisibility(View.GONE);
+                                isOnWaitingList = true;
+                                updateButtonState();
+                                Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                                checkWaitingListStatus(); // refresh count
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                joinLeaveButton.setEnabled(true);
+                                Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
+                            });
+
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     joinLeaveButton.setEnabled(true);
-                    Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show();
                 });
 
 
     }
+
 
     /**
      * Removes the current deviceId from {@code waiting_list}.

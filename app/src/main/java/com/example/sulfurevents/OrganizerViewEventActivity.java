@@ -120,6 +120,15 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        Button btnViewCancelled = findViewById(R.id.btnViewCancelled);
+        btnViewCancelled.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerCancelledActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
+
+
+
         // Export Final List in CSV format file
         Button btnExportFinalListCSV = findViewById(R.id.btnExportFinalListCSV);
         btnExportFinalListCSV.setOnClickListener(v ->{
