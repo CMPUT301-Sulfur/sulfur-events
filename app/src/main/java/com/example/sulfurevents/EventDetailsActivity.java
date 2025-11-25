@@ -86,7 +86,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
 
         // Initialize views
-        // 1️⃣ Initialize all UI views FIRST
+        // 1 Initialize all UI views FIRST
         eventNameText = findViewById(R.id.event_name_detail);
         descriptionText = findViewById(R.id.event_description);
         organizerText = findViewById(R.id.event_organizer);
@@ -112,7 +112,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Back button
         backButton.setOnClickListener(v -> finish());
 
-        // 2️⃣ Handle deep link (QR scan)
+        // 2️ Handle deep link (QR scan)
         Intent intent = getIntent();
 
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -124,17 +124,17 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
 
-        // 3️⃣ Normal navigation (coming from list)
+        // 3⃣ Normal navigation (coming from list)
         eventId = intent.getStringExtra("eventId");
-        String eventName = intent.getStringExtra("eventName");
-        String description = intent.getStringExtra("description");
-        String organizer = intent.getStringExtra("organizerEmail");
+//        String eventName = intent.getStringExtra("eventName");
+//        String description = intent.getStringExtra("description");
+//        String organizer = intent.getStringExtra("organizerEmail");
 
         eventNameText.setText(eventName);
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
 
-        // 4️⃣ Continue with rest of logic
+        // 4️ Continue with rest of logic
         checkWaitingListStatus();
 
         joinLeaveButton.setOnClickListener(v -> {
