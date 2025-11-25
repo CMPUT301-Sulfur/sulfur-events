@@ -181,7 +181,19 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
         tvEndDate.setText("End Date: " + event.getEndDate());
         tvLocation.setText("Location: " + event.getLocation());
         tvCapacity.setText("Capacity: " + event.getLimitGuests());
-        tvEmail.setText("Organizer: " + event.getOrganizerEmail());
+        //tvEmail.setText("Organizer: " + event.getOrganizerEmail());
+        db.collection("Profiles").document(event.organizerId)
+                .get()
+                .addOnSuccessListener(d -> {
+                    if (d.exists()) {
+                        String email = d.getString("email");
+                        tvEmail.setText("Organizer: " + email);
+                    } else {
+                        tvEmail.setText("Organizer: Unknown");
+                    }
+                });
+
+
         tvEmail.setTag(event.getPosterURL());
 
 
