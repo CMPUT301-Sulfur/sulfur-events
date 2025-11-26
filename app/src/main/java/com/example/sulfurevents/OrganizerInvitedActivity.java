@@ -54,6 +54,7 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
     private String eventName;
+    private String organizerDeviceId;
 
     // UI
     private RecyclerView recyclerView;
@@ -82,6 +83,10 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
+        organizerDeviceId = android.provider.Settings.Secure.getString(
+                getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID
+        );
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -258,16 +263,18 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                 Map<String, Object> notif = new HashMap<>();
                 notif.put("eventId", eventId);
                 notif.put("eventName", eventName != null ? eventName : "Event");
+                notif.put("type", "NOT_SELECTED");
                 notif.put("message", "You were not selected for " +
                         (eventName != null ? eventName : "this event") + ".");
                 notif.put("timestamp", System.currentTimeMillis());
                 notif.put("read", false);
 
-                db.collection("Profiles")
-                        .document(cancelledId)
-                        .collection("notifications")
-                        .add(notif);
+                sendNotifIfEnabled(cancelledId, notif);
             }
+
+            // automatically draw replacements for the same number we just cancelled
+            drawReplacements(chosen.size());
+
         }).addOnFailureListener(e ->
                 Toast.makeText(this, "Failed to cancel: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
@@ -331,17 +338,66 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
             eventRef.update(
                     "waiting_list", FieldValue.arrayRemove(chosen.toArray()),
                     "invited_list", FieldValue.arrayUnion(chosen.toArray())
-            ).addOnSuccessListener(aVoid ->
-                    Toast.makeText(this, "Invited " + chosen.size() + " replacement(s).", Toast.LENGTH_SHORT).show()
-            ).addOnFailureListener(e ->
+            ).addOnSuccessListener(aVoid -> {
+                Toast.makeText(this, "Invited " + chosen.size() + " replacement(s).", Toast.LENGTH_SHORT).show();
+
+                // notify each replacement that they have been invited (US 01.05.01)
+                String localEventName = doc.getString("eventName");
+                String safeName = (localEventName != null && !localEventName.isEmpty())
+                        ? localEventName
+                        : "this event";
+
+                for (String invitedId : chosen) {
+                    Map<String, Object> notif = new HashMap<>();
+                    notif.put("eventId", eventId);
+                    notif.put("eventName", localEventName != null ? localEventName : "Event");
+                    notif.put("type", "INVITED");
+                    notif.put("message", "You were selected for " + safeName + ". Tap the event to accept or decline.");
+                    notif.put("timestamp", System.currentTimeMillis());
+                    notif.put("read", false);
+
+                    sendNotifIfEnabled(invitedId, notif);
+                }
+
+            }).addOnFailureListener(e ->
                     Toast.makeText(this, "Failed to invite replacements: " + e.getMessage(), Toast.LENGTH_SHORT).show()
             );
+
 
         }).addOnFailureListener(e ->
                 Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show()
         );
     }
-}
 
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+
+                    if (enabled == null || enabled) {
+
+                        // =============== 1) Send the notification ===============
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+
+                        // =============== 2) Log it for admins ===================
+                        Map<String, Object> log = new HashMap<>();
+                        log.put("senderId", organizerDeviceId);
+                        log.put("senderRole", "ORGANIZER");
+                        log.put("recipientId", targetId);
+                        log.put("eventId", notif.get("eventId"));
+                        log.put("eventName", notif.get("eventName"));
+                        log.put("type", notif.get("type")); // e.g. "NOT_SELECTED"
+                        log.put("message", notif.get("message"));
+                        log.put("timestamp", System.currentTimeMillis());
+
+                        db.collection("NotificationLogs").add(log);
+                    }
+                });
+    }
+
+}
 
 

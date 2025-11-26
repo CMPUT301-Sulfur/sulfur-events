@@ -16,6 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
  * redirects to the correct screen (Admin, Entrant Profile, or New User).
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = "MainActivity";
     private FirebaseFirestore db;
     private String deviceId;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         // Get this device's unique ID
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "Device ID: " + deviceId);
+
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
 
         checkUserProfile();
     }

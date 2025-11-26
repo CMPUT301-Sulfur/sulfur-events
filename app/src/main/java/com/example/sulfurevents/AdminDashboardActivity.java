@@ -22,6 +22,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnViewLogs;
     private Button backToUserButton;
 
+    private Button btnNotificationLogs;
 
     /**
      * Called when the activity is created.
@@ -37,6 +38,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageProfiles = findViewById(R.id.btnManageProfiles);
         btnManageImages = findViewById(R.id.btnManageImages);
         backToUserButton = findViewById(R.id.back_to_user_button);
+        btnNotificationLogs = findViewById(R.id.btnNotificationLogs);
 
         // go to Manage Events
         btnManageEvents.setOnClickListener(new View.OnClickListener() {
@@ -73,5 +75,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
 
+        btnNotificationLogs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminDashboardActivity.this, AdminNotificationLogsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

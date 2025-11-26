@@ -68,6 +68,13 @@ public class UpdateProfileActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show();
                     finish();
                 });
+
+        BottomNavigationHelper.setupNotificationFab(
+                this,
+                R.id.fab_notifications,
+                R.id.bottomNavigationView
+        );
+
     }
 
     private void initializeViews() {

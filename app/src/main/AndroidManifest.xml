@@ -47,6 +47,9 @@
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+        <activity android:name=".OrganizerCancelledActivity" android:exported="false" />
+        <activity android:name=".ImageActivity" />
+
 
         <!-- Other activities -->
         <activity android:name=".AdminEventsActivity" />
@@ -61,7 +64,7 @@
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
         <activity android:name=".SuccessfulDeleteActivity" />
-
+        <activity android:name=".AdminNotificationLogsActivity" />
 
         <!-- ⭐ Deep Link MUST go here -->
         <activity
