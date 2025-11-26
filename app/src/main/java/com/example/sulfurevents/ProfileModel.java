@@ -23,6 +23,8 @@ public class ProfileModel {
     private boolean isOrganizer;
     private boolean isEntrant;
 
+    private Boolean notificationsEnabled;
+
     /**
      * Default constructor required for Firestore deserialization.
      */
@@ -107,6 +109,9 @@ public class ProfileModel {
 
     public boolean getIsEntrant() { return isEntrant; }
     public void setIsEntrant(boolean isEntrant) { this.isEntrant = isEntrant; }
+
+    public Boolean getNotificationsEnabled() { return notificationsEnabled; }
+    public void setNotificationsEnabled(Boolean notificationsEnabled) { this.notificationsEnabled = notificationsEnabled; }
 
 
 }
