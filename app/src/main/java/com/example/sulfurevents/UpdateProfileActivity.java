@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,51 +15,25 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
-/**
- * UpdateProfileActivity
- * This activity allows existing users to edit their profile information.
- * It retrieves the current user data from Firestore, pre-fills the input fields,
- * and allows the user to update their name, email, and phone number.
- * After successful update, the user is redirected back to ProfileActivity.
- */
 public class UpdateProfileActivity extends AppCompatActivity {
-    /** Button to confirm and save profile changes */
+
     private Button confirmButton;
-
-    /** Input fields for editing user information */
     private TextInputEditText nameInput, emailInput, phoneInput;
-
-    /** Firestore database instance */
     private FirebaseFirestore db;
-
-    /** Unique device identifier used to locate the user's profile */
     private String deviceId;
 
-    /** The current user object loaded from Firestore */
-    private User currentUser;
+    private ProfileModel currentProfile;
 
-    /**
-     * Called when the activity is first created.
-     * Initializes the UI, retrieves the device ID, loads the existing user profile from Firestore,
-     * and pre-fills the input fields with current values.
-     * If the profile doesn't exist, redirects to WelcomeEntrantActivity.
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
-     *                           this Bundle contains the data it most recently supplied.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile);
-        EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.update), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         db = FirebaseFirestore.getInstance();
 
+        // Get device ID
         String passedId = getIntent().getStringExtra("deviceId");
         if (passedId != null && !passedId.isEmpty()) {
             deviceId = passedId;
@@ -68,10 +43,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
 
         initializeViews();
 
+        // Load existing profile
         db.collection("Profiles").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        // profile missing -> send back to welcome to create
                         Intent intent = new Intent(UpdateProfileActivity.this, WelcomeEntrantActivity.class);
                         intent.putExtra("deviceId", deviceId);
                         startActivity(intent);
@@ -79,20 +54,18 @@ public class UpdateProfileActivity extends AppCompatActivity {
                         return;
                     }
 
-                    currentUser = documentSnapshot.toObject(User.class);
-                    if (currentUser != null) {
-                        // prefill
-                        nameInput.setText(currentUser.getName());
-                        emailInput.setText(currentUser.getEmail());
-                        phoneInput.setText(currentUser.getPhone());
+                    currentProfile = documentSnapshot.toObject(ProfileModel.class);
+
+                    if (currentProfile != null) {
+                        nameInput.setText(currentProfile.getName());
+                        emailInput.setText(currentProfile.getEmail());
+                        phoneInput.setText(currentProfile.getPhone());
                     }
+
                     setupConfirmButton();
                 })
                 .addOnFailureListener(e -> {
-                    // can't load profile -> back to profile or welcome
-                    Intent intent = new Intent(UpdateProfileActivity.this, ProfileActivity.class);
-                    intent.putExtra("deviceId", deviceId);
-                    startActivity(intent);
+                    Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show();
                     finish();
                 });
 
@@ -104,10 +77,6 @@ public class UpdateProfileActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Initializes all view components by finding them in the layout.
-     * This includes the confirm button and all input fields.
-     */
     private void initializeViews() {
         confirmButton = findViewById(R.id.confirm_button);
         nameInput = findViewById(R.id.name_input);
@@ -115,44 +84,35 @@ public class UpdateProfileActivity extends AppCompatActivity {
         phoneInput = findViewById(R.id.phone_input);
     }
 
-    /**
-     * Sets up the confirm button with a click listener.
-     * When clicked, reads the values from input fields and updates the user profile in Firestore.
-     * If any field is left blank, the original value is retained.
-     * On successful update, navigates back to ProfileActivity.
-     * On failure, displays an error message.
-     */
     private void setupConfirmButton() {
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentUser == null) return;
+        confirmButton.setOnClickListener(v -> {
+            if (currentProfile == null) return;
 
-                String name = nameInput.getText() != null ? nameInput.getText().toString().trim() : "";
-                String email = emailInput.getText() != null ? emailInput.getText().toString().trim() : "";
-                String phone = phoneInput.getText() != null ? phoneInput.getText().toString().trim() : "";
+            String name = nameInput.getText() != null ? nameInput.getText().toString().trim() : "";
+            String email = emailInput.getText() != null ? emailInput.getText().toString().trim() : "";
+            String phone = phoneInput.getText() != null ? phoneInput.getText().toString().trim() : "";
 
-                // if user left blank, keep old value
-                if (name.isEmpty()) name = currentUser.getName();
-                if (email.isEmpty()) email = currentUser.getEmail();
-                if (phone.isEmpty()) phone = currentUser.getPhone();
+            // Keep old values if left blank
+            if (name.isEmpty()) name = currentProfile.getName();
+            if (email.isEmpty()) email = currentProfile.getEmail();
+            if (phone.isEmpty()) phone = currentProfile.getPhone();
 
-                currentUser.setName(name);
-                currentUser.setEmail(email);
-                currentUser.setPhone(phone);
+            currentProfile.setName(name);
+            currentProfile.setEmail(email);
+            currentProfile.setPhone(phone);
 
-                db.collection("Profiles").document(currentUser.getDeviceId())
-                        .set(currentUser)
-                        .addOnSuccessListener(unused -> {
-                            Intent intent = new Intent(UpdateProfileActivity.this, ProfileActivity.class);
-                            intent.putExtra("deviceId", deviceId);
-                            startActivity(intent);
-                            finish();
-                        })
-                        .addOnFailureListener(e -> {
-                            emailInput.setError("Failed to update profile. Try again.");
-                        });
-            }
+            // MERGE → keeps isAdmin, isOrganizer, isEntrant
+            db.collection("Profiles").document(deviceId)
+                    .set(currentProfile, SetOptions.merge())
+                    .addOnSuccessListener(unused -> {
+                        Intent intent = new Intent(UpdateProfileActivity.this, ProfileActivity.class);
+                        intent.putExtra("deviceId", deviceId);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                    );
         });
     }
 }

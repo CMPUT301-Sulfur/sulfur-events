@@ -251,9 +251,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         // SAVE QR TO GALLERY HERE
                         saveQRToGallery(qrBitmap, eventId);
 
-                        // FINISH BACK TO ORGANIZER HOME
+                        // UPDATE PROFILE: Mark user as organizer
+                        db.collection("Profiles").document(DeviceID)
+                                .update("isOrganizer", true);
+
+                        // RETURN TO ORGANIZER HOME
                         finish();
                     });
+
 
         } else {
             StorageReference storeref = FirebaseStorage.getInstance()
@@ -270,9 +275,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                 // SAVE QR TO GALLERY HERE
                                 saveQRToGallery(qrBitmap, eventId);
 
-                                // FINISH BACK TO ORGANIZER HOME
+                                // UPDATE PROFILE: Mark user as organizer
+                                db.collection("Profiles").document(DeviceID)
+                                        .update("isOrganizer", true);
+
+                                // RETURN TO ORGANIZER HOME
                                 finish();
                             });
+
                 });
             }).addOnFailureListener(e -> {
                 Toast.makeText(this, "Poster Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();

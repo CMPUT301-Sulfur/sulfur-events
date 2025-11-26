@@ -40,7 +40,10 @@ public class ProfileActivity extends AppCompatActivity {
     private String deviceId;
 
     /** The current user object loaded from Firestore */
-    private User currentUser;
+    private ProfileModel currentUser;
+
+    private Button adminButton;
+
 
     private SwitchCompat notificationsSwitch;
 
@@ -83,6 +86,17 @@ public class ProfileActivity extends AppCompatActivity {
                         finish();
                         return;
                     }
+
+                    currentUser = documentSnapshot.toObject(ProfileModel.class);
+                    displayInfo();
+                    setupEditButton();
+                    setupDeleteButton(); // ADD THIS LINE
+
+                    adminButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(ProfileActivity.this, AdminDashboardActivity.class);
+                        intent.putExtra("deviceId", deviceId);
+                        startActivity(intent);
+                    });
 
                     currentUser = documentSnapshot.toObject(User.class);
                     Boolean enabled = documentSnapshot.getBoolean("notificationsEnabled");
@@ -127,6 +141,7 @@ public class ProfileActivity extends AppCompatActivity {
         nameDisplay = findViewById(R.id.name_display);
         emailDisplay = findViewById(R.id.email_display);
         phoneDisplay = findViewById(R.id.phone_display);
+        adminButton = findViewById(R.id.admin_button);
         notificationsSwitch = findViewById(R.id.switch_notifications);
     }
 
@@ -142,6 +157,14 @@ public class ProfileActivity extends AppCompatActivity {
             String phone = currentUser.getPhone();
             phoneDisplay.setText("Phone Number: " + (phone == null || phone.isEmpty() ? "Not provided" : phone));
         }
+
+        // Show admin button only if user is marked as admin
+        if (currentUser.getIsAdmin()) {
+            adminButton.setVisibility(View.VISIBLE);
+        } else {
+            adminButton.setVisibility(View.GONE);
+        }
+
     }
 
     /**

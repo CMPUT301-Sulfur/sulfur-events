@@ -20,6 +20,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnManageImages;
 
     private Button btnViewLogs;
+    private Button backToUserButton;
+
     private Button btnNotificationLogs;
 
     /**
@@ -35,6 +37,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageEvents = findViewById(R.id.btnManageEvents);
         btnManageProfiles = findViewById(R.id.btnManageProfiles);
         btnManageImages = findViewById(R.id.btnManageImages);
+        backToUserButton = findViewById(R.id.back_to_user_button);
         btnNotificationLogs = findViewById(R.id.btnNotificationLogs);
 
         // go to Manage Events
@@ -63,6 +66,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        backToUserButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, ProfileActivity.class);
+            intent.putExtra("deviceId", getIntent().getStringExtra("deviceId"));
+            startActivity(intent);
+            finish(); // close admin dashboard
+        });
+
 
         btnNotificationLogs.setOnClickListener(new View.OnClickListener() {
             @Override
