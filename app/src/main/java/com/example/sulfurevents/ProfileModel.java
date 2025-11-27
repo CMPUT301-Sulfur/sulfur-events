@@ -28,6 +28,7 @@ public class ProfileModel {
      */
     public ProfileModel() { }
 
+
     /**
      * Constructor for creating a new ProfileModel.
      * @param email The user's email address
@@ -52,6 +53,12 @@ public class ProfileModel {
 
     @Exclude
     public String getProfileId() { return profileId; }
+
+    private boolean notificationsEnabled = true; // default ON
+
+    public boolean isNotificationsEnabled() { return notificationsEnabled; }
+    public void setNotificationsEnabled(boolean enabled) { this.notificationsEnabled = enabled; }
+
 
     /**
      * Sets the Firestore document ID for this profile.
