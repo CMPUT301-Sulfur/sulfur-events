@@ -50,12 +50,17 @@ import java.util.Map;
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationsAdapter.NotificationActionListener {
 
-    private RecyclerView rvNotifications;
-    private TextView tvEmpty;
+    private RecyclerView rvNewNotifications, rvHistoryNotifications;
+    private TextView tvEmptyNew, tvEmptyHistory, tvToggleHistory;
+
     private FirebaseFirestore db;
     private String deviceId;
-    private NotificationsAdapter adapter;
-    private List<NotificationItem> notifications = new ArrayList<>();
+
+    private NotificationsAdapter newAdapter, historyAdapter;
+    private final List<NotificationItem> newNotifications = new ArrayList<>();
+    private final List<NotificationItem> historyNotifications = new ArrayList<>();
+
+    private boolean historyVisible = false;
 
     /**
      * Initializes the notifications screen, prepares the RecyclerView and starts
@@ -67,10 +72,15 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
 
-        rvNotifications = findViewById(R.id.rvNotifications);
-        tvEmpty = findViewById(R.id.tvEmpty);
-        ImageButton btnBack = findViewById(R.id.btnBack);
+        // NEW view bindings (match the new XML ids)
+        rvNewNotifications = findViewById(R.id.rvNewNotifications);
+        rvHistoryNotifications = findViewById(R.id.rvHistoryNotifications);
 
+        tvEmptyNew = findViewById(R.id.tvEmptyNew);
+        tvEmptyHistory = findViewById(R.id.tvEmptyHistory);
+        tvToggleHistory = findViewById(R.id.tvToggleHistory);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
@@ -79,11 +89,29 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 android.provider.Settings.Secure.ANDROID_ID
         );
 
-        adapter = new NotificationsAdapter(notifications, this);
-        rvNotifications.setLayoutManager(new LinearLayoutManager(this));
-        rvNotifications.setAdapter(adapter);
+        // NEW adapters + lists
+        newAdapter = new NotificationsAdapter(newNotifications, this);
+        historyAdapter = new NotificationsAdapter(historyNotifications, this);
 
-        listenForNotifications();
+        rvNewNotifications.setLayoutManager(new LinearLayoutManager(this));
+        rvHistoryNotifications.setLayoutManager(new LinearLayoutManager(this));
+
+        rvNewNotifications.setAdapter(newAdapter);
+        rvHistoryNotifications.setAdapter(historyAdapter);
+
+        // Collapsible history toggle
+        tvToggleHistory.setOnClickListener(v -> {
+            historyVisible = !historyVisible;
+            rvHistoryNotifications.setVisibility(historyVisible ? View.VISIBLE : View.GONE);
+
+            // show empty history text only when history is open
+            tvEmptyHistory.setVisibility(historyVisible && historyNotifications.isEmpty()
+                    ? View.VISIBLE : View.GONE);
+
+            tvToggleHistory.setText(historyVisible ? "Hide history" : "Show history");
+        });
+
+        listenForNotifications(); // same name, but updated body
     }
 
     /**
@@ -101,15 +129,33 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                         Toast.makeText(this, "Error loading notifications", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    notifications.clear();
+
+                    newNotifications.clear();
+                    historyNotifications.clear();
+
                     if (value != null) {
                         for (DocumentSnapshot doc : value.getDocuments()) {
                             NotificationItem item = NotificationItem.fromDoc(doc);
-                            notifications.add(item);
+
+                            if (item.read) {
+                                historyNotifications.add(item);
+                            } else {
+                                newNotifications.add(item);
+                            }
                         }
                     }
-                    adapter.notifyDataSetChanged();
-                    tvEmpty.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+
+                    newAdapter.notifyDataSetChanged();
+                    historyAdapter.notifyDataSetChanged();
+
+                    tvEmptyNew.setVisibility(newNotifications.isEmpty() ? View.VISIBLE : View.GONE);
+
+                    if (historyVisible) {
+                        tvEmptyHistory.setVisibility(historyNotifications.isEmpty()
+                                ? View.VISIBLE : View.GONE);
+                    } else {
+                        tvEmptyHistory.setVisibility(View.GONE);
+                    }
                 });
     }
 

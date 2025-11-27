@@ -8,7 +8,6 @@
     android:background="#D3DEFF"
     tools:context=".OrganizerActivity">
 
-        <!-- Back button -->
         <ImageButton
             android:id="@+id/BackButtonOrganizerEvents"
             android:layout_width="47dp"
@@ -20,7 +19,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Header -->
         <TextView
             android:id="@+id/HeaderTitle"
             android:layout_width="wrap_content"
@@ -34,7 +32,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Create Event Button -->
         <Button
             android:id="@+id/CreateEventButton"
             android:layout_width="wrap_content"
@@ -47,7 +44,6 @@
             app:layout_constraintTop_toBottomOf="@id/HeaderTitle"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Your Events Section -->
         <TextView
             android:id="@+id/YourEvents"
             android:layout_width="wrap_content"
@@ -61,7 +57,7 @@
             app:layout_constraintTop_toBottomOf="@id/CreateEventButton"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- RecyclerView for Event Cards -->
+        <!-- SINGLE RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/CreatedEventsRecyclerView"
             android:layout_width="0dp"
@@ -76,7 +72,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/organizer_events_row" />
 
-        <!-- Bottom Navigation -->
+        <!-- SINGLE Bottom Navigation -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
@@ -85,5 +81,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:menu="@menu/bottom_nav_menu" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_notifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="@string/notifications"
+            app:srcCompat="@drawable/ic_notifications"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
