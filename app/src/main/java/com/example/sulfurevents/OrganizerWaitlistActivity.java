@@ -45,6 +45,7 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
     // --- Firebase + State ---
     private FirebaseFirestore db;
     private String eventId;
+    private String organizerDeviceId;
 
     // --- UI components ---
     private RecyclerView recyclerView;
@@ -85,6 +86,10 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
+        organizerDeviceId = android.provider.Settings.Secure.getString(
+                getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID
+        );
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -290,16 +295,42 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                 notif.put("timestamp", System.currentTimeMillis());
                 notif.put("read", false);
 
-                db.collection("Profiles")
-                        .document(invitedId)
-                        .collection("notifications")
-                        .add(notif);
+                sendNotifIfEnabled(invitedId, notif);
             }
         }).addOnFailureListener(e ->
                 Toast.makeText(OrganizerWaitlistActivity.this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
 
     }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        // 1) send notification to entrant
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+
+                        // 2) log it for admins
+                        Map<String, Object> log = new HashMap<>();
+                        log.put("senderId", organizerDeviceId);
+                        log.put("senderRole", "ORGANIZER");
+                        log.put("recipientId", targetId);
+                        log.put("eventId", notif.get("eventId"));
+                        log.put("eventName", notif.get("eventName"));
+                        log.put("type", notif.get("type"));         // e.g. "INVITED"
+                        log.put("message", notif.get("message"));
+                        log.put("timestamp", System.currentTimeMillis());
+
+                        db.collection("NotificationLogs").add(log);
+                    }
+                });
+    }
+
+
 
 
 

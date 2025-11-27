@@ -6,11 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,13 +65,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         EventModel event = eventList.get(position);
 
-        // ✅ Load real data from Firestore model instead of hardcoded values
+        //  Load real data from Firestore model instead of hardcoded values
         holder.eventName.setText(event.getEventName() != null ? event.getEventName() : "Unnamed Event");
 
         String description = event.getDescription() != null ? event.getDescription() : "No description available";
         holder.eventDetails.setText("Details: " + description);
 
-        // ✅ Real Firestore fields
+        //  Real Firestore fields
         String startDate = event.getStartDate() != null ? event.getStartDate() : "N/A";
         String endDate = event.getEndDate() != null ? event.getEndDate() : "N/A";
         holder.date.setText("Date: " + startDate + " → " + endDate);
@@ -77,7 +82,40 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         String capacity = event.getLimitGuests() != null ? event.getLimitGuests() : "Not set";
         holder.capacity.setText("Capacity: " + capacity);
 
-        // ✅ Clicking “Join Waiting List” button
+        // get the image from the database and places it in the imageView portion of the
+        // event card
+        String imgUrl = event.getPosterURL();
+        Glide.with(context).load(imgUrl).into(holder.EventImage);
+
+        // ---- DATE RESTRICTION LOGIC ----
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            Date now = new Date();
+
+            Date sDate = df.parse(startDate);
+            Date eDate = df.parse(endDate);
+
+            if (sDate == null || eDate == null) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Invalid event dates");
+            } else if (now.before(sDate)) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Waitlist available on " + startDate);
+            } else if (now.after(eDate)) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Event registration has passed");
+            } else {
+                holder.joinButton.setEnabled(true);
+                holder.joinButton.setText("Join Waiting List");
+            }
+
+        } catch (Exception ex) {
+            holder.joinButton.setEnabled(false);
+            holder.joinButton.setText("Invalid date format");
+        }
+
+
+        //  Clicking “Join Waiting List” button
         holder.joinButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
@@ -88,10 +126,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             intent.putExtra("startDate", event.getStartDate());
             intent.putExtra("endDate", event.getEndDate());
             intent.putExtra("capacity", event.getLimitGuests());
+            intent.putExtra("posterURL", event.getPosterURL());
             context.startActivity(intent);
         });
 
-        // ✅ Clicking the whole card
+        //  Clicking the whole card
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
@@ -102,7 +141,21 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             intent.putExtra("startDate", event.getStartDate());
             intent.putExtra("endDate", event.getEndDate());
             intent.putExtra("capacity", event.getLimitGuests());
+            intent.putExtra("posterURL", event.getPosterURL());
             context.startActivity(intent);
+        });
+
+        // Button now will preview Event image
+        holder.EventImage.setOnClickListener(v ->{
+            // Do nothing if no image exists
+            if (imgUrl == null || imgUrl.trim().isEmpty()) {
+                return;
+            }
+
+            Intent intent = new Intent(context, ImageActivity.class);
+            intent.putExtra("imageUrl", imgUrl);
+            context.startActivity(intent);
+
         });
     }
 
@@ -114,6 +167,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView eventName, eventDetails, date, location, capacity;
         Button joinButton;
+        ImageView EventImage;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -123,6 +177,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             location = itemView.findViewById(R.id.location);
             capacity = itemView.findViewById(R.id.capacity);
             joinButton = itemView.findViewById(R.id.join_button);
+            EventImage = itemView.findViewById(R.id.EntrantEventImage);
         }
     }
 }

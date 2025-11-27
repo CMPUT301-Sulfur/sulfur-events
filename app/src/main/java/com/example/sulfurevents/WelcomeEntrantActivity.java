@@ -63,6 +63,12 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
 
         initializeViews();
         setupSubmitButton();
+
+        BottomNavigationHelper.setupNotificationFab(
+                this,
+                R.id.fab_notifications,
+                R.id.bottomNavigationView
+        );
     }
 
     /**
@@ -122,4 +128,3 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
         });
     }
 }
-
