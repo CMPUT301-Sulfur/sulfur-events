@@ -23,7 +23,7 @@ import java.util.Locale;
 public final class EventFilter {
 
     private static final String TAG = "EventFilter";
-
+    
     private static final SimpleDateFormat DF_YYYY =
             new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
     private static final SimpleDateFormat DF_YY =
