@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +86,34 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         // event card
         String imgUrl = event.getPosterURL();
         Glide.with(context).load(imgUrl).into(holder.EventImage);
+
+        // ---- DATE RESTRICTION LOGIC ----
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            Date now = new Date();
+
+            Date sDate = df.parse(startDate);
+            Date eDate = df.parse(endDate);
+
+            if (sDate == null || eDate == null) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Invalid event dates");
+            } else if (now.before(sDate)) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Waitlist available on " + startDate);
+            } else if (now.after(eDate)) {
+                holder.joinButton.setEnabled(false);
+                holder.joinButton.setText("Event registration has passed");
+            } else {
+                holder.joinButton.setEnabled(true);
+                holder.joinButton.setText("Join Waiting List");
+            }
+
+        } catch (Exception ex) {
+            holder.joinButton.setEnabled(false);
+            holder.joinButton.setText("Invalid date format");
+        }
+
 
         //  Clicking “Join Waiting List” button
         holder.joinButton.setOnClickListener(v -> {
