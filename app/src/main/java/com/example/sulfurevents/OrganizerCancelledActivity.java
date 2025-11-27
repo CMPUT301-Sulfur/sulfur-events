@@ -178,4 +178,3 @@ public class OrganizerCancelledActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 }
-

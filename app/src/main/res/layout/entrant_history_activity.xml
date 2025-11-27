@@ -9,8 +9,7 @@
     android:background="#D7DDF7"
     android:padding="16dp"
     tools:context=".EntrantHistoryActivity">
-
-    <!-- Optional back button -->
+    
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="40dp"

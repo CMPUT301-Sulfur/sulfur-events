@@ -7,60 +7,62 @@
     android:id="@+id/waiting_list"
     android:padding="12dp">
 
-    <Button
-        android:id="@+id/btn_lottery_guidelines"
-        android:layout_width="match_parent"
+    <!-- Top Row: Lottery Guidelines and Filter Buttons -->
+    <LinearLayout
+        android:id="@+id/top_buttons"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="View Guidelines"
+        android:orientation="horizontal"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- NEW: Filter section for US 01.01.04 -->
-    <LinearLayout
-        android:id="@+id/filter_container"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_lottery_guidelines"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_lottery_guidelines"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Search by name, description, or location"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
-            android:padding="8dp" />
+            android:layout_weight="1"
+            android:text="View Guidelines"
+            android:layout_marginEnd="4dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/filter_button"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_weight="1"
+            android:text="Filter Events"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="4dp"
+            android:layout_marginStart="4dp" />
 
-            <EditText
-                android:id="@+id/etFilterDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Available on (MM/DD/YYYY)"
-                android:inputType="none"
-                android:focusable="false"
-                android:padding="8dp" />
-
-            <Button
-                android:id="@+id/btnClearFilters"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Clear" />
-        </LinearLayout>
     </LinearLayout>
+
+    <!-- Filter Status Display -->
+    <TextView
+        android:id="@+id/filter_status_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/top_buttons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/clear_filters_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Filters"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textSize="12sp"
+        android:padding="8dp"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filter_status_text"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -68,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/filter_container"
+        app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -79,7 +81,7 @@
         android:text="No joinable events right now."
         android:visibility="gone"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/filter_container"
+        app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -91,15 +93,15 @@
         android:textStyle="bold"
         android:textSize="18sp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/filter_container"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
         app:layout_constraintTop_toBottomOf="@id/event_label"
