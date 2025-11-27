@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class OrganizerActivity extends AppCompatActivity {
     private User CurrentUser;
     private ArrayList<OrganizerEvent> organizerEvents = new ArrayList<>();
     private OrganizerEventsAdapter adapter;
+    private BottomNavigationView bottomNavigationView;
 
     // Done for part 3
     /**
@@ -100,12 +102,19 @@ public class OrganizerActivity extends AppCompatActivity {
         });
 
         // Bottom navigation
-        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
 
         BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BottomNavigationHelper.updateNavHighlighting(bottomNavigationView, this);
+    }
 
 
     /**

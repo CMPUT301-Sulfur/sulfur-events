@@ -120,6 +120,12 @@ public class OrganizerViewEventActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        Button btnViewGeolocationMap = findViewById(R.id.btnViewGeolocationMap);
+        btnViewGeolocationMap.setOnClickListener(v -> {
+            Intent i = new Intent(OrganizerViewEventActivity.this, EventMapActivity.class);
+            i.putExtra("eventId", eventId);
+            startActivity(i);
+        });
         Button btnViewCancelled = findViewById(R.id.btnViewCancelled);
         btnViewCancelled.setOnClickListener(v -> {
             Intent i = new Intent(OrganizerViewEventActivity.this, OrganizerCancelledActivity.class);

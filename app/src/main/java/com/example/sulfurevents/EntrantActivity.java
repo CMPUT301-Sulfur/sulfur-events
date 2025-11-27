@@ -101,7 +101,6 @@ public class EntrantActivity extends AppCompatActivity {
 
         // Setup Bottom Navigation
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
-        bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
 
         // Set up filter activity launcher
         filterActivityLauncher = registerForActivityResult(
@@ -337,5 +336,6 @@ public class EntrantActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        BottomNavigationHelper.updateNavHighlighting(bottomNavigationView, this);
     }
 }
