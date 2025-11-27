@@ -46,35 +46,21 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Firestore check for " + deviceId + " => exists: " + document.exists());
 
                     if (document.exists()) {
-                        Log.d(TAG, "Document data: " + document.getData());
 
-                        Boolean isAdmin = document.getBoolean("admin");
-                        Log.d(TAG, "Admin flag = " + isAdmin);
-
-                        if (Boolean.TRUE.equals(isAdmin)) {
-                            // Admin user
-                            Log.d(TAG, "Redirecting to AdminDashboardActivity");
-                            Intent intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
-                            startActivity(intent);
-                            finish();
-
-                        } else {
-                            // Normal user (entrant or organizer)
-                            Log.d(TAG, "Redirecting to ProfileActivity");
-                            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                            intent.putExtra("deviceId", deviceId);
-                            startActivity(intent);
-                            finish();
-                        }
+                        // Profile exists → always go to ProfileActivity
+                        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                        intent.putExtra("deviceId", deviceId);
+                        startActivity(intent);
+                        finish();
 
                     } else {
-                        // No profile exists for this device
-                        Log.d(TAG, "No profile found — redirecting to WelcomeEntrantActivity");
+                        // No profile → go to welcome screen
                         Intent intent = new Intent(MainActivity.this, WelcomeEntrantActivity.class);
                         intent.putExtra("deviceId", deviceId);
                         startActivity(intent);
                         finish();
                     }
+
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error checking user profile", e);
