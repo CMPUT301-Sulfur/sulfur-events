@@ -113,6 +113,16 @@
             android:textColor="@color/white"/>
 
         <Button
+            android:id="@+id/btnViewGeolocationMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Geolocation Map"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6B4EFF"
+            android:textColor="@color/white"/>
+
+        <Button
             android:id="@+id/btnViewEnrolled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

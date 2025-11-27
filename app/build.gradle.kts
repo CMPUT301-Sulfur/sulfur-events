@@ -45,9 +45,7 @@ dependencies {
     implementation(libs.zxing.embedded)
     implementation(libs.zxing.core)
 
-    // to autosend email
-    //implementation("com.sun.mail:android-mail:1.6.7")
-    //implementation("com.sun.mail:android-activation:1.6.7")
+
 
 
     implementation(libs.appcompat)
@@ -70,7 +68,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
-
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
 
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
@@ -85,5 +85,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    //implementation(files("/Users/bader/Library/Android/sdk/platforms/android-36/android.jar"))
 }

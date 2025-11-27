@@ -8,6 +8,8 @@
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +20,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents" >
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBwOOK_zkjGPgghAXxqDGdXPNfHsomQips" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -81,6 +87,7 @@
         <activity android:name=".LotteryGuidelinesActivity" />
         <activity android:name=".EventDetailsActivity" />
         <activity android:name=".SuccessfulDeleteActivity" />
+        <activity android:name=".EventMapActivity" />
 
 
 
