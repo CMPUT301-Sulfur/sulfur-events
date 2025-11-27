@@ -30,6 +30,9 @@ public class ProfileActivity extends AppCompatActivity {
     /** Button to navigate to the profile editing screen */
     private Button editButton;
 
+    /** Button to navigate to the profile editing screen */
+    private Button deleteButton;
+
     /** TextViews for displaying user profile information */
     private TextView nameDisplay, emailDisplay, phoneDisplay;
 
@@ -43,6 +46,9 @@ public class ProfileActivity extends AppCompatActivity {
     private ProfileModel currentUser;
 
     private Button adminButton;
+
+    private BottomNavigationView bottomNavigationView;
+
     private Button deleteButton;
 
     private SwitchCompat notificationsSwitch;
@@ -100,6 +106,7 @@ public class ProfileActivity extends AppCompatActivity {
                         return;
                     }
 
+                    currentUser = documentSnapshot.toObject(ProfileModel.class);
                     // Read notificationsEnabled flag (default ON if missing)
                     Boolean enabled = documentSnapshot.getBoolean("notificationsEnabled");
                     if (enabled == null) enabled = true;
@@ -133,8 +140,7 @@ public class ProfileActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 });
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
         BottomNavigationHelper.setupNotificationFab(
                 this,
@@ -143,12 +149,19 @@ public class ProfileActivity extends AppCompatActivity {
         );
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BottomNavigationHelper.updateNavHighlighting(bottomNavigationView, this);
+    }
+
     /**
      * Initializes all view components by finding them in the layout.
      * This includes the edit button, display TextViews, and bottom navigation view.
      */
     private void initializeViews() {
         editButton = findViewById(R.id.edit_button);
+        deleteButton = findViewById(R.id.delete_button);
         nameDisplay = findViewById(R.id.name_display);
         emailDisplay = findViewById(R.id.email_display);
         phoneDisplay = findViewById(R.id.phone_display);
@@ -222,5 +235,137 @@ public class ProfileActivity extends AppCompatActivity {
                     .setNegativeButton("Cancel", null)
                     .show();
         });
+    }
+    private void setupDeleteButton() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new androidx.appcompat.app.AlertDialog.Builder(ProfileActivity.this)
+                        .setTitle("Delete Profile")
+                        .setMessage("Are you sure you want to delete your profile? This will:\n\n" +
+                                "• Remove you from all event lists\n" +
+                                "• Delete all events you've created\n" +
+                                "• Permanently delete your profile\n\n" +
+                                "This action cannot be undone.")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            deleteUserCompletely();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
+
+    /**
+     * Step 1: Start the deletion process
+     */
+    private void deleteUserCompletely() {
+        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(ProfileActivity.this);
+        progressDialog.setMessage("Deleting profile...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // First, remove user from all event lists
+        removeUserFromEventLists(progressDialog);
+    }
+
+    /**
+     * Step 2: Remove user from all event lists (waiting_list, enrolled_list, invited_list, cancelled_list)
+     */
+    private void removeUserFromEventLists(android.app.ProgressDialog progressDialog) {
+        db.collection("Events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                        // Remove user from all four lists
+                        batch.update(doc.getReference(), "waiting_list",
+                                com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+                        batch.update(doc.getReference(), "enrolled_list",
+                                com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+                        batch.update(doc.getReference(), "invited_list",
+                                com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+                        batch.update(doc.getReference(), "cancelled_list",
+                                com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+                    }
+
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                // After removing from lists, delete user's events
+                                deleteUserCreatedEvents(progressDialog);
+                            })
+                            .addOnFailureListener(e -> {
+                                progressDialog.dismiss();
+                                showError("Failed to remove from event lists: " + e.getMessage());
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    showError("Failed to query events: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Step 3: Delete all events created by this user
+     */
+    private void deleteUserCreatedEvents(android.app.ProgressDialog progressDialog) {
+        db.collection("Events")
+                .whereEqualTo("organizerId", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                // Finally, delete the user's profile
+                                deleteUserProfile(progressDialog);
+                            })
+                            .addOnFailureListener(e -> {
+                                progressDialog.dismiss();
+                                showError("Failed to delete events: " + e.getMessage());
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    showError("Failed to query user events: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Step 4: Delete the user's profile
+     */
+    private void deleteUserProfile(android.app.ProgressDialog progressDialog) {
+        db.collection("Profiles").document(deviceId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    progressDialog.dismiss();
+
+                    // Navigate to success screen
+                    Intent intent = new Intent(ProfileActivity.this, SuccessfulDeleteActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    showError("Failed to delete profile: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Shows an error message to the user
+     */
+    private void showError(String message) {
+        new androidx.appcompat.app.AlertDialog.Builder(ProfileActivity.this)
+                .setTitle("Error")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }
