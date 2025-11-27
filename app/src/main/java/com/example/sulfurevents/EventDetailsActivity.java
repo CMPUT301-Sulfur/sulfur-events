@@ -577,7 +577,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 );
                 return true; // restricted
             }
-            
+
         } catch (Exception ex) {
             joinLeaveButton.setText("Invalid event dates");
             joinLeaveButton.setEnabled(false);

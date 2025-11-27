@@ -9,11 +9,13 @@ public class OrganizerEvent {
     public String endDate;
     public String location;
     public String limitGuests;
+    public String waitingListLimit;
     public String link;    // <--- add this
     public String qrCode;
     public String organizerEmail;
 
     public String posterURL;
+
 
 
     // Done java docs for Part 3
@@ -95,6 +97,8 @@ public class OrganizerEvent {
         return limitGuests;
     }
 
+    public String getWaitingListLimit() { return waitingListLimit; }
+
     public String getLink() {
         return link;
     }
@@ -143,6 +147,8 @@ public class OrganizerEvent {
     public void setLimitGuests(String limitGuests) {
         this.limitGuests = limitGuests;
     }
+
+    public void setWaitingListLimit(String waitingListLimit) { this.waitingListLimit = waitingListLimit; }
 
     public void setLink(String link) {
         this.link = link;
