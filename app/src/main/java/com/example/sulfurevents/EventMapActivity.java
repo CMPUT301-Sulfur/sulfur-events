@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * EventMapActivity displays all waitlist sign-up locations for a specific event on a Google Map.
  * It fetches location data from Firestore subcollection: Events/{eventId}/entrant_registration_location
+ * If geolocation is disabled for the event, it shows a message instead of the map.
  */
 public class EventMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -36,10 +37,12 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
     private TextView eventNameText;
     private TextView waitlistCountText;
     private ProgressBar loadingIndicator;
+    private SupportMapFragment mapFragment;
 
     private String eventId;
     private String eventName;
     private List<EntrantLocation> entrantLocations;
+    private boolean geolocationEnabled = true; // Default to true
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +75,67 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
             eventNameText.setText("Event Map");
         }
 
-        // Initialize map
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        // Initialize map fragment
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
-        }
 
         // Back button
         ImageButton backButton = findViewById(R.id.backButtonMap);
         backButton.setOnClickListener(v -> finish());
+
+        // Check if geolocation is enabled before loading map
+        checkGeolocationStatus();
+    }
+
+    /**
+     * Check if geolocation is enabled for this event
+     */
+    private void checkGeolocationStatus() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean geoEnabled = documentSnapshot.getBoolean("geolocationEnabled");
+                        geolocationEnabled = (geoEnabled != null && geoEnabled);
+
+                        Log.d(TAG, "Geolocation enabled: " + geolocationEnabled);
+
+                        if (geolocationEnabled) {
+                            // Geolocation is enabled - load the map
+                            if (mapFragment != null) {
+                                mapFragment.getMapAsync(this);
+                            }
+                        } else {
+                            // Geolocation is disabled - show message and hide map
+                            loadingIndicator.setVisibility(View.GONE);
+                            waitlistCountText.setText("Geolocation Not Enabled");
+
+                            // Hide the map fragment
+                            if (mapFragment != null) {
+                                getSupportFragmentManager().beginTransaction()
+                                        .hide(mapFragment)
+                                        .commit();
+                            }
+
+                            Toast.makeText(this,
+                                    "Geolocation tracking is not enabled for this event",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        loadingIndicator.setVisibility(View.GONE);
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    loadingIndicator.setVisibility(View.GONE);
+                    Log.e(TAG, "Error checking geolocation status: " + e.getMessage());
+                    Toast.makeText(this,
+                            "Error loading event details: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override
