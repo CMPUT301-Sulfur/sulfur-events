@@ -19,6 +19,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnManageProfiles;
     private Button btnManageImages;
 
+    private Button btnViewLogs;
+    private Button backToUserButton;
+
+    private Button btnNotificationLogs;
+
     /**
      * Called when the activity is created.
      * Sets up the buttons and their click listeners.
@@ -32,6 +37,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageEvents = findViewById(R.id.btnManageEvents);
         btnManageProfiles = findViewById(R.id.btnManageProfiles);
         btnManageImages = findViewById(R.id.btnManageImages);
+        backToUserButton = findViewById(R.id.back_to_user_button);
+        btnNotificationLogs = findViewById(R.id.btnNotificationLogs);
 
         // go to Manage Events
         btnManageEvents.setOnClickListener(new View.OnClickListener() {
@@ -56,6 +63,22 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AdminDashboardActivity.this, AdminImagesActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        backToUserButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, ProfileActivity.class);
+            intent.putExtra("deviceId", getIntent().getStringExtra("deviceId"));
+            startActivity(intent);
+            finish(); // close admin dashboard
+        });
+
+
+        btnNotificationLogs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminDashboardActivity.this, AdminNotificationLogsActivity.class);
                 startActivity(intent);
             }
         });

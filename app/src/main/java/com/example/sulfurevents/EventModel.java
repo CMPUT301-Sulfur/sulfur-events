@@ -110,4 +110,3 @@ public class EventModel {
         this.posterURL = posterURL;
     }
 }
-

@@ -10,6 +10,8 @@
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -44,55 +46,61 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".OrganizerCreateEventActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".OrganizerActivity"
-            android:exported="true" />
+        <activity android:name=".OrganizerCreateEventActivity" android:exported="true"/>
+        <activity android:name=".OrganizerActivity" android:exported="true" />
 
-        <activity
-            android:name=".AdminDashboardActivity"
-            android:exported="true">
+        <activity android:name=".AdminDashboardActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".OrganizerWaitlistActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NotificationsActivity"
-            android:exported="false" />
-
+        <activity android:name=".OrganizerWaitlistActivity" android:exported="false" />
+        <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
-
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
+        <activity android:name=".OrganizerCancelledActivity" android:exported="false" />
 
+        <!-- ImageActivity for full-screen image preview -->
+        <activity android:name=".ImageActivity" android:exported="false" />
 
-
+        <!-- EventFilterActivity for filtering events -->
+        <activity android:name=".EventFilterActivity" android:exported="false" />
 
         <!-- Other activities -->
-        <activity android:name=".AdminEventsActivity" />
-        <activity android:name=".AdminProfilesActivity" />
-        <activity android:name=".AdminImagesActivity" />
-        <activity android:name=".EventImageDetailActivity" />
-        <activity android:name=".WelcomeEntrantActivity"/>
-        <activity android:name=".ProfileActivity"/>
-        <activity android:name=".UpdateProfileActivity"/>
+        <activity android:name=".AdminEventsActivity" android:exported="false" />
+        <activity android:name=".AdminProfilesActivity" android:exported="false" />
+        <activity android:name=".AdminImagesActivity" android:exported="false" />
+        <activity android:name=".EventImageDetailActivity" android:exported="false" />
+        <activity android:name=".WelcomeEntrantActivity" android:exported="false" />
+        <activity android:name=".ProfileActivity" android:exported="false" />
+        <activity android:name=".UpdateProfileActivity" android:exported="false" />
+        <activity android:name=".OrganizerPreviewEventActivity" android:exported="true" />
         <activity android:name=".EntrantActivity" />
         <activity android:name=".OrganizerViewEventActivity" />
         <activity android:name=".LotteryGuidelinesActivity" />
-        <activity android:name=".EventDetailsActivity" />
         <activity android:name=".SuccessfulDeleteActivity" />
         <activity android:name=".EventMapActivity" />
+        <activity android:name=".AdminNotificationLogsActivity" />
 
+        <!-- Deep Link for EventDetailsActivity -->
+        <activity
+            android:name=".EventDetailsActivity"
+            android:exported="true">
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-        <!-- Keep AdminDashboardActivity declared even when commented above -->
-        <!--        <activity android:name=".AdminDashboardActivity" android:exported="true" />-->
+                <!-- deep link: sulfurevents://event/<eventId> -->
+                <data
+                    android:scheme="sulfurevents"
+                    android:host="event" />
+            </intent-filter>
+
+        </activity>
 
     </application>
 

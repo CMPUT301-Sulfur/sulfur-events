@@ -7,11 +7,6 @@
         android:icon="@drawable/ic_home"/>
 
     <item
-        android:id="@+id/qr_scanner_navigation"
-        android:title="QR Scanner"
-        android:icon="@drawable/qr_scanner"/>
-
-    <item
         android:id="@+id/organizer_navigation"
         android:title="Your Events"
         android:icon="@drawable/create_event" />
@@ -22,9 +17,9 @@
         android:title="Joinable Events"
         android:icon="@android:drawable/ic_menu_view" />
 
-    <!-- Notifications -->
-    <item
-        android:id="@+id/notifications_navigation"
-        android:title="Notifications"
-        android:icon="@drawable/ic_notifications" />
+    <!--    &lt;!&ndash; Notifications &ndash;&gt;-->
+    <!--    <item-->
+    <!--        android:id="@+id/notifications_navigation"-->
+    <!--        android:title="Notifications"-->
+    <!--        android:icon="@drawable/ic_notifications" />-->
 </menu>

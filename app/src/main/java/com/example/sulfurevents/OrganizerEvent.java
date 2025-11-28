@@ -11,10 +11,16 @@ public class OrganizerEvent {
     public String location;
     public String limitGuests;
     public String link;
+    public String waitingListLimit;
+    public String link;    // <--- add this
     public String qrCode;
     public String organizerEmail;
     public String posterURL;
     public boolean geolocationEnabled; // Add geolocation field
+
+
+
+    // Done java docs for Part 3
 
     /**
      * Default constructor required for Firestore data mapping.
@@ -94,6 +100,8 @@ public class OrganizerEvent {
         return limitGuests;
     }
 
+    public String getWaitingListLimit() { return waitingListLimit; }
+
     public String getLink() {
         return link;
     }
@@ -147,6 +155,8 @@ public class OrganizerEvent {
     public void setLimitGuests(String limitGuests) {
         this.limitGuests = limitGuests;
     }
+
+    public void setWaitingListLimit(String waitingListLimit) { this.waitingListLimit = waitingListLimit; }
 
     public void setLink(String link) {
         this.link = link;

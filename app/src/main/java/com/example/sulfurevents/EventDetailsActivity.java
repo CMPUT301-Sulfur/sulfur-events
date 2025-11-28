@@ -3,17 +3,24 @@ package com.example.sulfurevents;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+
+
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -21,6 +28,8 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -28,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Displays the details of a single event and lets the entrant:
@@ -56,6 +67,9 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button declineInviteButton;
     private ProgressBar progressBar;
     private ImageButton backButton;
+
+    private ImageView EventPoster;
+
 
     private boolean isOnWaitingList = false;
     private boolean isInvited = false;
@@ -88,6 +102,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         String organizer = getIntent().getStringExtra("organizerEmail");
 
         // Initialize views
+        // 1 Initialize all UI views FIRST
         eventNameText = findViewById(R.id.event_name_detail);
         descriptionText = findViewById(R.id.event_description);
         organizerText = findViewById(R.id.event_organizer);
@@ -97,8 +112,41 @@ public class EventDetailsActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button_details);
         acceptInviteButton = findViewById(R.id.accept_invite_button);
         declineInviteButton = findViewById(R.id.decline_invite_button);
+        EventPoster = findViewById(R.id.EntrantEventImage);
+
+        // set the image poster
+        String posterURL = getIntent().getStringExtra("posterURL");
+        if (posterURL != null && !posterURL.isEmpty()) {
+            Glide.with(this)
+                    .load(posterURL)
+                    .into(EventPoster);
+        } else {
+            EventPoster.setImageResource(R.drawable.outline_ad_off_24);
+        }
+
+
+        // Back button
+        backButton.setOnClickListener(v -> finish());
 
         // Set event details
+        // 2️ Handle deep link (QR scan)
+        Intent intent = getIntent();
+
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();  // sulfurevents://event/<eventId>
+            if (uri != null) {
+                eventId = uri.getLastPathSegment();  // extract eventId
+                loadEventDetailsFromFirestore();     // VALID now (views exist)
+                return;
+            }
+        }
+
+        // 3⃣ Normal navigation (coming from list)
+        eventId = intent.getStringExtra("eventId");
+//        String eventName = intent.getStringExtra("eventName");
+//        String description = intent.getStringExtra("description");
+//        String organizer = intent.getStringExtra("organizerEmail");
+
         eventNameText.setText(eventName);
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
@@ -106,7 +154,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Back button
         backButton.setOnClickListener(v -> finish());
 
-        // Check if user is on waiting list and load event settings
+       
+        // Check if user is on waiting list and load entrant count
+        if (applyDateRestrictions()) {
+            return; // Stop here. Do NOT load waiting list if registration is closed
+        }
+
+        //️ Continue with rest of logic
         checkWaitingListStatus();
 
         joinLeaveButton.setOnClickListener(v -> {
@@ -212,6 +266,16 @@ public class EventDetailsActivity extends AppCompatActivity {
      * On success updates the UI and re-reads the list to refresh the count.
      */
     private void joinWaitingList() {
+        // Check location permission first
+        if (!checkLocationPermission()) {
+            requestLocationPermission();
+            return;
+        }
+
+        if (applyDateRestrictions()) return;
+
+
+
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
 
@@ -386,6 +450,63 @@ public class EventDetailsActivity extends AppCompatActivity {
                     updateButtonState();
                     Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
                     checkWaitingListStatus(); // Refresh count
+        // Load event so we can enforce waiting list limit
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Event not found.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Get current waiting list (support both naming styles)
+                    @SuppressWarnings("unchecked")
+                    List<String> waiting = (List<String>) (
+                            doc.get("waiting_list") != null ?
+                                    doc.get("waiting_list") :
+                                    doc.get("waitingList")
+                    );
+                    if (waiting == null)
+                        waiting = new ArrayList<>();
+
+                    // Get optional waiting list limit from Firestore
+                    String waitingLimitStr = doc.getString("waitingListLimit");
+                    int waitingLimit = -1;  // -1 means "unlimited"
+
+                    if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
+                        try {
+                            waitingLimit = Integer.parseInt(waitingLimitStr.trim());
+                        } catch (NumberFormatException ignored) {
+                            waitingLimit = -1; // if invalid, treat as no limit
+                        }
+                    }
+
+                    // Enforce waiting list limit
+                    if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Waiting list is full for this event.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Proceed normally if not full
+                    db.collection("Events").document(eventId)
+                            .update("waiting_list", FieldValue.arrayUnion(deviceID))
+                            .addOnSuccessListener(aVoid -> {
+                                progressBar.setVisibility(View.GONE);
+                                isOnWaitingList = true;
+                                updateButtonState();
+                                Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                                checkWaitingListStatus(); // refresh count
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                joinLeaveButton.setEnabled(true);
+                                Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
+                            });
+
                 })
                 .addOnFailureListener(e -> {
                     // Location save failed, but user is still on waiting list
@@ -397,8 +518,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Joined waiting list (location not saved)",
                             Toast.LENGTH_SHORT).show();
                     checkWaitingListStatus(); // Refresh count
+                    Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show();
                 });
+
+
     }
+
 
     /**
      * Removes the current deviceId from {@code waiting_list} and deletes location data if it exists.
@@ -474,6 +599,11 @@ public class EventDetailsActivity extends AppCompatActivity {
      * else → join/leave
      */
     private void updateButtonState() {
+
+        if (applyDateRestrictions()) return;
+
+
+
         // default: show join/leave
         joinLeaveButton.setVisibility(View.VISIBLE);
         acceptInviteButton.setVisibility(View.GONE);
@@ -656,10 +786,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         notif.put("timestamp", System.currentTimeMillis());
                         notif.put("read", false);
 
-                        db.collection("Profiles")
-                                .document(deviceId)
-                                .collection("notifications")
-                                .add(notif);
+                        sendNotifIfEnabled(deviceId, notif);
                     }
 
                     // optional: clear waiting list since no more room
@@ -667,4 +794,88 @@ public class EventDetailsActivity extends AppCompatActivity {
                             .update("waiting_list", new ArrayList<String>());
                 });
     }
+}
+
+    private void loadEventDetailsFromFirestore() {
+        // load event directly from Firestore using the eventId from the QR code
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String eventName = doc.getString("eventName");
+                    String description = doc.getString("description");
+                    String organizerEmail = doc.getString("organizerEmail");
+
+                    eventNameText.setText(eventName);
+                    descriptionText.setText(description);
+                    organizerText.setText("Organizer: " + organizerEmail);
+
+                    // Continue loading entrants etc.
+                    checkWaitingListStatus();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error loading event.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
+        db.collection("Profiles").document(targetId).get()
+                .addOnSuccessListener(doc -> {
+                    Boolean enabled = doc.getBoolean("notificationsEnabled");
+                    if (enabled == null || enabled) {
+                        db.collection("Profiles")
+                                .document(targetId)
+                                .collection("notifications")
+                                .add(notif);
+                    }
+                });
+    }
+
+
+    private boolean applyDateRestrictions() {
+        String start = getIntent().getStringExtra("startDate");
+        String end = getIntent().getStringExtra("endDate");
+
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            Date now = new Date();
+            Date sDate = df.parse(start);
+            Date eDate = df.parse(end);
+
+            if (now.before(sDate)) {
+                joinLeaveButton.setText("Waitlist opens on " + start);
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(
+                        getResources().getColorStateList(android.R.color.holo_red_light)
+                );
+                return true; // restricted
+            }
+
+            if (now.after(eDate)) {
+                joinLeaveButton.setText("Cannot join (Registration closed)");
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(
+                        getResources().getColorStateList(android.R.color.holo_red_light)
+                );
+                return true; // restricted
+            }
+
+        } catch (Exception ex) {
+            joinLeaveButton.setText("Invalid event dates");
+            joinLeaveButton.setEnabled(false);
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_red_light)
+            );
+            return true; // restricted
+        }
+
+        return false; // registration is allowed
+    }
+
+
+
 }
