@@ -3,20 +3,26 @@ package com.example.sulfurevents;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,7 +33,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The {@code OrganizerCreateEventActivity} class allows organizers to create new events
@@ -38,6 +47,7 @@ import java.util.Calendar;
  *     <li>Enter event details (name, description, date, etc.)</li>
  *     <li>Upload an event poster image</li>
  *     <li>Automatically generate a QR code for the event</li>
+ *     <li>Toggle geolocation requirement for entrants</li>
  * </ul>
  *
  * The new event is stored in the Firestore "Events" collection.
@@ -45,6 +55,8 @@ import java.util.Calendar;
  * <p>Associated layout: {@code create_event_activity.xml}
  */
 public class OrganizerCreateEventActivity extends AppCompatActivity {
+
+    private static final String TAG = "CreateEvent";
 
     /** Request code for selecting an image from the gallery. */
     private static final int IMAGE_REQUEST = 1;
@@ -55,11 +67,20 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     /** Firestore database instance. */
     private FirebaseFirestore db;
 
-    /** Device ID used as the organizer’s unique identifier. */
+    /** Device ID used as the organizer's unique identifier. */
     private String DeviceID;
 
     /** The currently logged-in user (if available). */
     private User CurrentUser;
+
+    /** Geolocation toggle switch */
+    private SwitchCompat switchGeolocation;
+
+    /** Geolocation status text */
+    private TextView tvGeolocationStatus;
+
+    /** Geocoder for address validation */
+    private Geocoder geocoder;
 
 
     /**
@@ -87,6 +108,26 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // getting the instance of device id and database access
         db = FirebaseFirestore.getInstance();
         DeviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        // Initialize geolocation switch and status text
+        switchGeolocation = findViewById(R.id.switchGeolocation);
+        tvGeolocationStatus = findViewById(R.id.tvGeolocationStatus);
+
+        // Set initial state to OFF (red)
+        updateSwitchColors(false);
+
+        // Add listener to change colors when toggled
+        switchGeolocation.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateSwitchColors(isChecked);
+
+            if (isChecked) {
+                Toast.makeText(this, "Geolocation enabled - entrants' locations will be tracked",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Geolocation disabled", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
 
@@ -118,6 +159,33 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Updates the switch colors and status text based on its state
+     * @param isChecked true if switch is ON (green), false if OFF (red)
+     */
+    private void updateSwitchColors(boolean isChecked) {
+        if (isChecked) {
+            // GREEN when enabled
+            switchGeolocation.setThumbTintList(android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#4CAF50"))); // Green thumb
+            switchGeolocation.setTrackTintList(android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#A5D6A7"))); // Light green track
+
+            // Update status text
+            tvGeolocationStatus.setText("ON");
+            tvGeolocationStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"));
+        } else {
+            // RED when disabled
+            switchGeolocation.setThumbTintList(android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#F44336"))); // Red thumb
+            switchGeolocation.setTrackTintList(android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#EF9A9A"))); // Light red track
+
+            // Update status text
+            tvGeolocationStatus.setText("OFF");
+            tvGeolocationStatus.setTextColor(android.graphics.Color.parseColor("#F44336"));
+        }
+    }
 
 
     /**
@@ -145,11 +213,56 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     /**
+     * Validates that the entered address is a real, valid address using Google's Geocoder
+     *
+     * @param address The address string to validate
+     * @return true if address is valid, false otherwise
+     */
+    private boolean validateAddress(String address) {
+        if (TextUtils.isEmpty(address)) {
+            return false;
+        }
+
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(address, 1);
+
+            if (addresses == null || addresses.isEmpty()) {
+                EditText etLocation = findViewById(R.id.etLocation);
+                etLocation.setError("Please enter a valid address");
+                Toast.makeText(this,
+                        "Address not found. Please enter a valid address.",
+                        Toast.LENGTH_LONG).show();
+                return false;
+            }
+
+            // Address is valid
+            Address validAddress = addresses.get(0);
+            String formattedAddress = validAddress.getAddressLine(0);
+
+            Log.d(TAG, "Valid address: " + formattedAddress);
+
+            // Update with formatted address
+            EditText etLocation = findViewById(R.id.etLocation);
+            etLocation.setText(formattedAddress);
+
+            return true;
+
+        } catch (IOException e) {
+            Log.e(TAG, "Geocoder error: " + e.getMessage());
+            Toast.makeText(this,
+                    "Unable to verify address. Please check your internet connection.",
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+    /**
      * Creates a new event and uploads its data to Firestore.
      * <p>
      * If an image is selected, it uploads the event poster to Firebase Storage
      * and stores the download URL in the event document.
      * A unique event ID is generated for each event.
+     * Includes geolocation toggle status and validates address if geolocation is enabled.
      */
     private void CreateEvent(){
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
@@ -162,6 +275,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
         String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String OGEmail = ((EditText)findViewById(R.id.organizerEmail)).getText().toString();
+
+        // Get geolocation toggle status
+        boolean geolocationEnabled = switchGeolocation.isChecked();
+
+        // ALWAYS validate address regardless of geolocation setting
+        if (!location.isBlank() && !validateAddress(location)) {
+            Toast.makeText(this,
+                    "Please enter a valid address.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
 
 
         // store under the Events tab in the data base
@@ -178,13 +302,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             // convert to base 64
             qrBase64 = bitmaptobase64(qrBitmap);
         }catch (Exception e){
-            // we should add a toast and say "cannot create event"
+            Toast.makeText(this, "Cannot create event: QR code generation failed", Toast.LENGTH_SHORT).show();
             return;
         }
 
 
         if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
-        end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
             Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
             return; // Stop here, stay on this screen
         }
@@ -205,6 +329,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.limitGuests = limit;
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
+        event.geolocationEnabled = geolocationEnabled; // Add geolocation status
 
         // if the event poster is null just store null in the database for event poster
         if(posterUri == null){
@@ -212,7 +337,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             db.collection("Events").document(eventId)
                     .set(event)
                     .addOnSuccessListener(unused ->{
+                        String message = geolocationEnabled
+                                ? "Event created with geolocation enabled!"
+                                : "Event created successfully!";
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                         finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to create event: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
                     });
         }else{
             StorageReference storeref = FirebaseStorage.getInstance()
@@ -227,7 +360,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     db.collection("Events").document(eventId)
                             .set(event)
                             .addOnSuccessListener(unused ->{
+                                String message = geolocationEnabled
+                                        ? "Event created with geolocation enabled!"
+                                        : "Event created successfully!";
+                                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                                 finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to create event: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
                             });
                 });
             }).addOnFailureListener(e ->{

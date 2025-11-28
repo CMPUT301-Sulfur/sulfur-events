@@ -165,18 +165,52 @@
             android:hint="Location"
             android:background="@drawable/rounded_input"
             android:padding="12dp"
+            android:inputType="textPostalAddress"
             app:layout_constraintTop_toBottomOf="@id/lblLocation"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnViewLocation" />
+            app:layout_constraintEnd_toStartOf="@id/geolocationContainer"
+            android:layout_marginEnd="10dp"/>
 
-        <Button
-            android:id="@+id/btnViewLocation"
+        <LinearLayout
+            android:id="@+id/geolocationContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View Location"
-            app:layout_constraintTop_toTopOf="@id/etLocation"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_input"
+            app:layout_constraintTop_toTopOf="@id/lblLocation"
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Geolocation"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchGeolocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:scaleX="1.2"
+                android:scaleY="1.2" />
+
+            <TextView
+                android:id="@+id/tvGeolocationStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OFF"
+                android:textColor="#F44336"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
         <!-- Limit Guests -->
         <TextView
             android:id="@+id/lblLimitGuests"
@@ -186,7 +220,8 @@
             android:textStyle="bold"
             android:layout_marginTop="20dp"
             app:layout_constraintTop_toBottomOf="@id/etLocation"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_goneMarginTop="8dp"/>
 
         <EditText
             android:id="@+id/etLimitGuests"
@@ -198,7 +233,8 @@
             android:padding="12dp"
             app:layout_constraintTop_toBottomOf="@id/lblLimitGuests"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
 
         <!-- Upload Poster -->
         <TextView

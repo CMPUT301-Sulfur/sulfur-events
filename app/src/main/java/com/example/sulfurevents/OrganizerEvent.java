@@ -1,4 +1,5 @@
 package com.example.sulfurevents;
+
 public class OrganizerEvent {
 
     public String eventId;
@@ -9,22 +10,17 @@ public class OrganizerEvent {
     public String endDate;
     public String location;
     public String limitGuests;
-    public String link;    // <--- add this
+    public String link;
     public String qrCode;
     public String organizerEmail;
-
     public String posterURL;
-
-
-    // Done java docs for Part 3
+    public boolean geolocationEnabled; // Add geolocation field
 
     /**
      * Default constructor required for Firestore data mapping.
      */
-    //empty constructor because the organizer adds
     public OrganizerEvent() {
     }
-
 
     /**
      * Creates a fully-initialized OrganizerEvent object.
@@ -41,12 +37,14 @@ public class OrganizerEvent {
      * @param qrCode         Base64-encoded QR code used for event check-in.
      * @param organizerEmail Organizer's contact email.
      * @param posterURL      URL of the uploaded event poster image (nullable).
+     * @param geolocationEnabled Whether geolocation tracking is enabled for this event.
      */
     public OrganizerEvent(String eventId, String organizerId,
                           String EventTitle, String description,
                           String startDate, String endDate,
                           String location, String limitGuests,
-                          String link, String qrCode, String organizerEmail, String posterURL) {
+                          String link, String qrCode, String organizerEmail,
+                          String posterURL, boolean geolocationEnabled) {
 
         this.eventId = eventId;
         this.organizerId = organizerId;
@@ -60,8 +58,8 @@ public class OrganizerEvent {
         this.qrCode = qrCode;
         this.organizerEmail = organizerEmail;
         this.posterURL = posterURL;
+        this.geolocationEnabled = geolocationEnabled;
     }
-
 
     // Getters
     public String getEventId() {
@@ -75,6 +73,7 @@ public class OrganizerEvent {
     public String getEventName() {
         return eventName;
     }
+
     public String getDescription() {
         return description;
     }
@@ -107,6 +106,13 @@ public class OrganizerEvent {
         return organizerEmail;
     }
 
+    public String getPosterURL() {
+        return posterURL;
+    }
+
+    public boolean isGeolocationEnabled() {
+        return geolocationEnabled;
+    }
 
     //Setters
 
@@ -150,11 +156,15 @@ public class OrganizerEvent {
         this.qrCode = qrCode;
     }
 
-    public void setorganizerEmail() {
+    public void setOrganizerEmail(String organizerEmail) {
         this.organizerEmail = organizerEmail;
     }
 
+    public void setPosterURL(String posterURL) {
+        this.posterURL = posterURL;
+    }
 
-
-
+    public void setGeolocationEnabled(boolean geolocationEnabled) {
+        this.geolocationEnabled = geolocationEnabled;
+    }
 }
