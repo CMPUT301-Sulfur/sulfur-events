@@ -8,11 +8,12 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 /**
  * Main entry point of the Sulfur Events app.
  * Checks if the device already has a profile in Firestore and
- * redirects to the correct screen (Entrant Profile or New User).
+ * redirects to the correct screen (Admin, Entrant Profile, or New User).
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -31,8 +32,7 @@ public class MainActivity extends AppCompatActivity {
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "Device ID: " + deviceId);
 
-        // 🔥 Removed the FAB setup here – activity_main does not have those views.
-        // BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+        BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
 
         checkUserProfile();
     }
@@ -46,11 +46,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Firestore check for " + deviceId + " => exists: " + document.exists());
 
                     if (document.exists()) {
-                        // Profile exists → go to ProfileActivity
+
+                        // Profile exists → always go to ProfileActivity
                         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                         intent.putExtra("deviceId", deviceId);
                         startActivity(intent);
                         finish();
+
                     } else {
                         // No profile → go to welcome screen
                         Intent intent = new Intent(MainActivity.this, WelcomeEntrantActivity.class);
@@ -58,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     }
+
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error checking user profile", e);
-                    // Fallback to registration if Firestore fails
+                    // Optional: fallback to registration if Firestore fails
                     Intent intent = new Intent(MainActivity.this, WelcomeEntrantActivity.class);
                     intent.putExtra("deviceId", deviceId);
                     startActivity(intent);

@@ -2,7 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Camera permission with hardware requirement set to false -->
+
+    <!--permissions-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -15,6 +22,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SulfurEvents" >
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBwOOK_zkjGPgghAXxqDGdXPNfHsomQips" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -66,11 +77,12 @@
         <activity android:name=".ProfileActivity" android:exported="false" />
         <activity android:name=".UpdateProfileActivity" android:exported="false" />
         <activity android:name=".OrganizerPreviewEventActivity" android:exported="true" />
-        <activity android:name=".EntrantActivity" android:exported="false" />
-        <activity android:name=".OrganizerViewEventActivity" android:exported="false" />
-        <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
-        <activity android:name=".SuccessfulDeleteActivity" android:exported="false" />
-        <activity android:name=".AdminNotificationLogsActivity" android:exported="false" />
+        <activity android:name=".EntrantActivity" />
+        <activity android:name=".OrganizerViewEventActivity" />
+        <activity android:name=".LotteryGuidelinesActivity" />
+        <activity android:name=".SuccessfulDeleteActivity" />
+        <activity android:name=".EventMapActivity" />
+        <activity android:name=".AdminNotificationLogsActivity" />
 
         <!-- Deep Link for EventDetailsActivity -->
         <activity

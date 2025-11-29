@@ -25,19 +25,6 @@ public class BottomNavigationHelper {
 
     public static void setupBottomNavigation(BottomNavigationView bottomNavigationView, Context context) {
 
-        bottomNavigationView.setOnItemSelectedListener(null);
-
-        if (context instanceof ProfileActivity) {
-            bottomNavigationView.setSelectedItemId(R.id.home_navigation);
-        } else if (context instanceof OrganizerActivity) {
-            bottomNavigationView.setSelectedItemId(R.id.organizer_navigation);
-        } else if (context instanceof EntrantActivity) {
-            bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
-        }
-//        else if (context instanceof NotificationsActivity) {
-//            bottomNavigationView.setSelectedItemId(R.id.notifications_navigation);
-//        }
-
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -78,6 +65,17 @@ public class BottomNavigationHelper {
             return false;
         });
     }
+
+    public static void updateNavHighlighting(BottomNavigationView bottomNavigationView, Context context) {
+        if (context instanceof ProfileActivity) {
+            bottomNavigationView.setSelectedItemId(R.id.home_navigation);
+        } else if (context instanceof OrganizerActivity) {
+            bottomNavigationView.setSelectedItemId(R.id.organizer_navigation);
+        } else if (context instanceof EntrantActivity) {
+            bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
+        }
+    }
+
     public static void setupNotificationFab(Activity activity, int fabId, int bottomNavId) {
         FloatingActionButton fab = activity.findViewById(fabId);
         BottomNavigationView bottomNav = activity.findViewById(bottomNavId);

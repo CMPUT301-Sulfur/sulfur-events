@@ -16,6 +16,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+
+// Done Java docs for Part 3
 /**
  * Adapter for displaying the organizer’s events in a RecyclerView.
  * Each card shows event info and a button to view full details.
@@ -28,8 +30,8 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
     /**
      * Constructs the adapter for displaying organizer events in a RecyclerView.
      *
-     * @param context         The calling context.
-     * @param organizerEvents The list of events to display.
+     * @param context          The calling context.
+     * @param organizerEvents  The list of events to display.
      */
     public OrganizerEventsAdapter(Context context, ArrayList<OrganizerEvent> organizerEvents) {
         this.context = context;
@@ -49,54 +51,59 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.organizer_events_row, parent, false);
         return new MyViewHolder(view);
+
     }
+
 
     /**
      * Binds event data to the row UI elements at the specified position.
      *
-     * Sets event name, date, location, and capacity. Also attaches click listeners
-     * to open the event detail screen and preview the event image.
+     * @param holder   The ViewHolder containing the row's views.
+     * @param position The position of the event in the list.
+     *
+     * Sets event name, date, location, and capacity. Also attaches a click listener
+     * to open the event detail screen.
      */
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         OrganizerEvent event = organizerEvents.get(position);
 
-        // Poster image
+        // get the image from the database and places it in the imageView portion of the
+        // event card
         String imgUrl = event.getPosterURL();
-        if (imgUrl != null && !imgUrl.trim().isEmpty()) {
-            Glide.with(context).load(imgUrl).into(holder.EventImage);
-        } else {
-            holder.EventImage.setImageDrawable(null); // or placeholder
-        }
+        Glide.with(context).load(imgUrl).into(holder.EventImage);
 
-        // Clean, readable event info
+        //  Clean, readable event info
         holder.EventName.setText(event.getEventName());
         holder.Date.setText("Start date: " + event.getStartDate());
         holder.Location.setText("Location: " + event.getLocation());
 
         String capacity = event.getLimitGuests();
         holder.Capacity.setText(
-                (capacity == null || capacity.isBlank())
+                (capacity == null || capacity.isBlank() || capacity.isEmpty())
                         ? "Capacity: N/A"
                         : "Capacity: " + capacity
         );
 
-        // "View Details" button opens OrganizerViewEventActivity
+        //  Button now opens OrganizerViewEventActivity
         holder.ViewDetailsButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrganizerViewEventActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
 
-        // Clicking the image opens EventImageDetailActivity
-        holder.EventImage.setOnClickListener(v -> {
+        // Button now will preview Event image
+        holder.EventImage.setOnClickListener(v ->{
+            // Do nothing if no image exists
             if (imgUrl == null || imgUrl.trim().isEmpty()) {
                 return;
             }
-            Intent intent = new Intent(context, EventImageDetailActivity.class);
+            Intent intent = new Intent(context, ImageActivity.class);
             intent.putExtra("imageUrl", imgUrl);
             context.startActivity(intent);
+
         });
+
     }
 
     /**
@@ -109,6 +116,7 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         return organizerEvents.size();
     }
 
+
     /**
      * ViewHolder class that holds references to the UI elements in a single event row.
      * Used to efficiently bind data to RecyclerView rows.
@@ -118,6 +126,7 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
         TextView EventName, Date, Location, Capacity;
         Button ViewDetailsButton;
         ImageView EventImage;
+
 
         /**
          * Initializes view references for the row layout.
@@ -130,8 +139,10 @@ public class OrganizerEventsAdapter extends RecyclerView.Adapter<OrganizerEvents
             Date = itemView.findViewById(R.id.DateDetailsCard);
             Location = itemView.findViewById(R.id.LocationDetailsCard);
             Capacity = itemView.findViewById(R.id.CapacityDetailsCard);
-            ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard); // "View Details" button
+            ViewDetailsButton = itemView.findViewById(R.id.EditEventButtonCard); // same ID, but it's the "View Details" button
             EventImage = itemView.findViewById(R.id.EventImageCard);
+
+
         }
     }
 }

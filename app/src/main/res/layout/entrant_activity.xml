@@ -7,7 +7,7 @@
     android:id="@+id/waiting_list"
     android:padding="12dp">
 
-    <!-- Top Row: Lottery Guidelines, Filter, and History Buttons -->
+    <!-- Top Row: Lottery Guidelines and Filter Buttons -->
     <LinearLayout
         android:id="@+id/top_buttons"
         android:layout_width="0dp"
@@ -34,17 +34,6 @@
             android:text="Filter Events"
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp" />
-
-        <ImageButton
-            android:id="@+id/history_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="View Event History"
-            android:src="@android:drawable/ic_menu_recent_history"
-            android:padding="8dp"
             android:layout_marginStart="4dp" />
 
     </LinearLayout>

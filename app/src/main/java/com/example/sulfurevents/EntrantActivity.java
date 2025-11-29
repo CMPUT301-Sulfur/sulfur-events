@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +42,6 @@ public class EntrantActivity extends AppCompatActivity {
     private String deviceID;
     private Button viewGuidelines;
     private Button filterButton;
-    private ImageButton historyButton;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
@@ -88,7 +86,6 @@ public class EntrantActivity extends AppCompatActivity {
         // Initialize views
         viewGuidelines = findViewById(R.id.btn_lottery_guidelines);
         filterButton = findViewById(R.id.filter_button);
-        historyButton = findViewById(R.id.history_button);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         tvEmpty = findViewById(R.id.events_empty);
@@ -104,7 +101,6 @@ public class EntrantActivity extends AppCompatActivity {
 
         // Setup Bottom Navigation
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
-        bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
 
         // Set up filter activity launcher
         filterActivityLauncher = registerForActivityResult(
@@ -133,12 +129,6 @@ public class EntrantActivity extends AppCompatActivity {
         });
 
         filterButton.setOnClickListener(v -> openFilterActivity());
-
-        // History button listener
-        historyButton.setOnClickListener(v -> {
-            Intent intent = new Intent(EntrantActivity.this, EntrantHistoryActivity.class);
-            startActivity(intent);
-        });
 
         BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
 
@@ -346,5 +336,6 @@ public class EntrantActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        BottomNavigationHelper.updateNavHighlighting(bottomNavigationView, this);
     }
 }
