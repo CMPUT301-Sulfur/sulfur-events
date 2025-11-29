@@ -7,7 +7,8 @@
     android:id="@+id/waiting_list"
     android:padding="12dp">
 
-    <!-- Top Row: Lottery Guidelines and Filter Buttons -->
+
+    <!-- Top Row: Lottery Guidelines, Filter, and History Buttons -->
     <LinearLayout
         android:id="@+id/top_buttons"
         android:layout_width="0dp"
@@ -18,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+
         <Button
             android:id="@+id/btn_lottery_guidelines"
             android:layout_width="0dp"
@@ -25,6 +27,7 @@
             android:layout_weight="1"
             android:text="View Guidelines"
             android:layout_marginEnd="4dp" />
+
 
         <Button
             android:id="@+id/filter_button"
@@ -34,9 +37,23 @@
             android:text="Filter Events"
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+
+        <ImageButton
+            android:id="@+id/history_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="View Event History"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:padding="8dp"
             android:layout_marginStart="4dp" />
 
+
     </LinearLayout>
+
 
     <!-- Filter Status Display -->
     <TextView
@@ -51,6 +68,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+
     <Button
         android:id="@+id/clear_filters_button"
         android:layout_width="wrap_content"
@@ -64,6 +82,7 @@
         app:layout_constraintTop_toBottomOf="@id/filter_status_text"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -73,6 +92,7 @@
         app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
     <TextView
         android:id="@+id/events_empty"
@@ -84,6 +104,7 @@
         app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
     <TextView
         android:id="@+id/event_label"
@@ -97,6 +118,7 @@
         app:layout_constraintTop_toBottomOf="@id/clear_filters_button"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
@@ -109,6 +131,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
@@ -117,6 +140,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_notifications"
@@ -128,5 +152,6 @@
         app:srcCompat="@drawable/ic_notifications"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
