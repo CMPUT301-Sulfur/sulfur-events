@@ -9,7 +9,8 @@
     android:background="#D7DDF7"
     android:padding="16dp"
     tools:context=".EntrantHistoryActivity">
-    
+
+
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="40dp"
@@ -20,6 +21,7 @@
         android:src="@drawable/back_arrow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <!-- Screen title -->
     <TextView
@@ -37,6 +39,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintBottom_toBottomOf="@id/btnBack" />
 
+
     <!-- RecyclerView list of history items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
@@ -49,6 +52,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/row_event_history" />
+
 
     <!-- Empty state message -->
     <TextView
@@ -66,6 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
 
+
     <!-- Loading spinner -->
     <ProgressBar
         android:id="@+id/progressBar"
@@ -78,5 +83,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

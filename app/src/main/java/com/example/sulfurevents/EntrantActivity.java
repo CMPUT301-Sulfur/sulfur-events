@@ -1,13 +1,17 @@
+
 package com.example.sulfurevents;
+
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -19,9 +23,11 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 
 /**
  * This class defines the entrant activity screen.
@@ -38,19 +45,23 @@ import java.util.Locale;
  */
 public class EntrantActivity extends AppCompatActivity {
 
+
     private FirebaseFirestore db;
     private String deviceID;
     private Button viewGuidelines;
     private Button filterButton;
+    private ImageButton historyButton;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private TextView eventLabel;
     private BottomNavigationView bottomNavigationView;
 
+
     private EventAdapter eventAdapter;
     private List<EventModel> eventList;
     private List<EventModel> filteredEventList;
+
 
     // Filter variables
     private String filterKeyword = null;
@@ -58,8 +69,10 @@ public class EntrantActivity extends AppCompatActivity {
     private String filterStartDate = null;
     private String filterEndDate = null;
 
+
     // Activity result launcher for filter activity
     private ActivityResultLauncher<Intent> filterActivityLauncher;
+
 
     /**
      * Called when the activity is created.
@@ -72,25 +85,30 @@ public class EntrantActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.entrant_activity);
 
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.waiting_list), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         checkForNotifications();
 
+
         // Initialize views
         viewGuidelines = findViewById(R.id.btn_lottery_guidelines);
         filterButton = findViewById(R.id.filter_button);
+        historyButton = findViewById(R.id.history_button);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         tvEmpty = findViewById(R.id.events_empty);
         eventLabel = findViewById(R.id.event_label);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
 
         // Setup RecyclerView with filtered list
         eventList = new ArrayList<>();
@@ -99,8 +117,11 @@ public class EntrantActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(eventAdapter);
 
+
         // Setup Bottom Navigation
         BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
+        bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
+
 
         // Set up filter activity launcher
         filterActivityLauncher = registerForActivityResult(
@@ -113,7 +134,9 @@ public class EntrantActivity extends AppCompatActivity {
                         filterStartDate = data.getStringExtra("filterStartDate");
                         filterEndDate = data.getStringExtra("filterEndDate");
 
+
                         applyFilters();
+
 
                         // Show toast with active filters
                         if (hasActiveFilters()) {
@@ -123,24 +146,37 @@ public class EntrantActivity extends AppCompatActivity {
                 }
         );
 
+
         // Button listeners
         viewGuidelines.setOnClickListener(v -> {
             startActivity(new Intent(EntrantActivity.this, LotteryGuidelinesActivity.class));
         });
 
+
         filterButton.setOnClickListener(v -> openFilterActivity());
 
+
+        // History button listener
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantActivity.this, EntrantHistoryActivity.class);
+            startActivity(intent);
+        });
+
+
         BottomNavigationHelper.setupNotificationFab(this, R.id.fab_notifications, R.id.bottomNavigationView);
+
 
         // Load available events
         loadJoinableEvents();
     }
+
 
     /**
      * Opens the filter activity with current filter values
      */
     private void openFilterActivity() {
         Intent intent = new Intent(this, EventFilterActivity.class);
+
 
         // Pass current filters to the filter activity
         if (filterKeyword != null) {
@@ -154,8 +190,10 @@ public class EntrantActivity extends AppCompatActivity {
             intent.putExtra("filterEndDate", filterEndDate);
         }
 
+
         filterActivityLauncher.launch(intent);
     }
+
 
     /**
      * Checks the user's Firestore notifications collection for unread updates.
@@ -174,6 +212,7 @@ public class EntrantActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
      * Loads joinable events from the Firestore "Events" collection.
      * Updates the RecyclerView or shows a message if no events are available.
@@ -184,11 +223,13 @@ public class EntrantActivity extends AppCompatActivity {
         eventLabel.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
 
+
         db.collection("Events")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     progressBar.setVisibility(View.GONE);
                     eventList.clear();
+
 
                     if (querySnapshot.isEmpty()) {
                         tvEmpty.setText("No joinable events right now.");
@@ -197,11 +238,13 @@ public class EntrantActivity extends AppCompatActivity {
                         eventLabel.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
 
+
                         for (QueryDocumentSnapshot document : querySnapshot) {
                             EventModel event = document.toObject(EventModel.class);
                             event.setEventId(document.getId());
                             eventList.add(event);
                         }
+
 
                         // Apply any active filters
                         applyFilters();
@@ -215,11 +258,13 @@ public class EntrantActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
      * Applies all active filters to the event list
      */
     private void applyFilters() {
         filteredEventList.clear();
+
 
         for (EventModel event : eventList) {
             if (matchesFilters(event)) {
@@ -227,7 +272,9 @@ public class EntrantActivity extends AppCompatActivity {
             }
         }
 
+
         eventAdapter.notifyDataSetChanged();
+
 
         // Update UI visibility
         if (filteredEventList.isEmpty() && !eventList.isEmpty()) {
@@ -247,6 +294,7 @@ public class EntrantActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Checks if an event matches all active filters
      */
@@ -259,20 +307,24 @@ public class EntrantActivity extends AppCompatActivity {
             String eventDesc = event.getDescription() != null ?
                     event.getDescription().toLowerCase() : "";
 
+
             if (!eventName.contains(keyword) && !eventDesc.contains(keyword)) {
                 return false;
             }
         }
+
 
         // Location filter
         if (filterLocation != null && !filterLocation.isEmpty()) {
             String location = event.getLocation() != null ?
                     event.getLocation().toLowerCase() : "";
 
+
             if (!location.contains(filterLocation.toLowerCase())) {
                 return false;
             }
         }
+
 
         // Date filter (checks if event falls within user's availability window)
         if (filterStartDate != null && filterEndDate != null) {
@@ -281,8 +333,10 @@ public class EntrantActivity extends AppCompatActivity {
             }
         }
 
+
         return true;
     }
+
 
     /**
      * Checks if event dates fall within the user's availability window
@@ -292,33 +346,41 @@ public class EntrantActivity extends AppCompatActivity {
         try {
             SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
+
             Date userStartDate = df.parse(filterStartDate);
             Date userEndDate = df.parse(filterEndDate);
 
+
             String eventStartStr = event.getStartDate();
             String eventEndStr = event.getEndDate();
+
 
             if (eventStartStr == null || eventEndStr == null) {
                 return false;
             }
 
+
             Date eventStartDate = df.parse(eventStartStr);
             Date eventEndDate = df.parse(eventEndStr);
+
 
             if (userStartDate == null || userEndDate == null ||
                     eventStartDate == null || eventEndDate == null) {
                 return false;
             }
 
+
             // Event should overlap with user's availability window
             // Event starts before user's availability ends AND event ends after user's availability starts
             return !eventStartDate.after(userEndDate) && !eventEndDate.before(userStartDate);
+
 
         } catch (ParseException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
     /**
      * Checks if any filters are currently active
@@ -329,6 +391,7 @@ public class EntrantActivity extends AppCompatActivity {
                 (filterStartDate != null && filterEndDate != null);
     }
 
+
     /**
      * Called when the activity resumes.
      * Currently used to refresh the UI if needed.
@@ -336,6 +399,5 @@ public class EntrantActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        BottomNavigationHelper.updateNavHighlighting(bottomNavigationView, this);
     }
 }
