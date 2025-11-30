@@ -6,16 +6,25 @@
         android:title="Home"
         android:icon="@drawable/ic_home"/>
 
+
     <item
         android:id="@+id/organizer_navigation"
         android:title="Your Events"
         android:icon="@drawable/create_event" />
+
 
     <!-- Joinable events list -->
     <item
         android:id="@+id/entrant_events_navigation"
         android:title="Joinable Events"
         android:icon="@android:drawable/ic_menu_view" />
+
+
+    <item
+        android:id="@+id/entrant_history_navigation"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="History" />
+
 
     <!--    &lt;!&ndash; Notifications &ndash;&gt;-->
     <!--    <item-->

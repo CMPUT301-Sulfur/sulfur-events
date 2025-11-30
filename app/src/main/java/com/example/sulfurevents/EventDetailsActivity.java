@@ -37,6 +37,7 @@ import java.util.Date;
 
 public class EventDetailsActivity extends AppCompatActivity {
 
+    private static final String TAG = "EventDetailsActivity";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private FirebaseFirestore db;
@@ -56,6 +57,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private boolean isInvited = false;
     private boolean isEnrolled = false;
     private boolean isCancelled = false;
+    private boolean geolocationEnabled = false; // Track if geolocation is enabled for this event
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +114,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             EventPoster.setImageResource(R.drawable.outline_ad_off_24);
         }
 
+       
         // Check if user is on waiting list and load entrant count
         if (applyDateRestrictions()) {
             return; // Stop here if registration is closed
@@ -128,6 +131,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Reads the event document to see:
+     * <ul>
+     *     <li>if this device is in {@code waiting_list}</li>
+     *     <li>how many entrants are in the list</li>
+     *     <li>if geolocation is enabled for this event</li>
+     * </ul>
+     * Then updates the UI appropriately.
+     */
     private void checkWaitingListStatus() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -137,6 +149,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         List<String> waitingList = (List<String>) documentSnapshot.get("waiting_list");
+
+                        // Check if geolocation is enabled for this event
+                        Boolean geoEnabled = documentSnapshot.getBoolean("geolocationEnabled");
+                        geolocationEnabled = (geoEnabled != null && geoEnabled);
+
+                        Log.d(TAG, "Event geolocation enabled: " + geolocationEnabled);
 
                         if (waitingList != null) {
                             isOnWaitingList = waitingList.contains(deviceID);
@@ -189,7 +207,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void joinWaitingList() {
+    /**
+     * Adds the current deviceId to {@code waiting_list} in Firestore and saves location if enabled.
+     * On success updates the UI and re-reads the list to refresh the count.
+     */
+private void joinWaitingList() {
         if (!checkLocationPermission()) {
             requestLocationPermission();
             return;
@@ -200,8 +222,90 @@ public class EventDetailsActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
 
-        getCurrentLocationAndJoin();
+        // Check if geolocation is enabled for this event
+        if (geolocationEnabled) {
+            // Geolocation is enabled - check permission and get location
+            if (!checkLocationPermission()) {
+                requestLocationPermission();
+                return;
+            }
+            // Get current location first, then add to waiting list
+            getCurrentLocationAndJoin();
+        } else {
+            // Geolocation is disabled - just add to waiting list without location
+            Log.d("EventDetails", "Geolocation disabled for this event, joining without location");
+            addToWaitingListWithoutLocation();
+        }
     }
+
+    /**
+     * Add user to waiting list without location (when geolocation is disabled)
+     */
+    private void addToWaitingListWithoutLocation() {
+        // Check waiting list limit BEFORE adding
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Event not found.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    List<String> waiting = (List<String>) (
+                            doc.get("waiting_list") != null ?
+                                    doc.get("waiting_list") :
+                                    doc.get("waitingList")
+                    );
+                    if (waiting == null) waiting = new ArrayList<>();
+
+                    String waitingLimitStr = doc.getString("waitingListLimit");
+                    int waitingLimit = -1;
+
+                    if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
+                        try {
+                            waitingLimit = Integer.parseInt(waitingLimitStr.trim());
+                        } catch (NumberFormatException ignored) {
+                            waitingLimit = -1;
+                        }
+                    }
+
+                    // Enforce waiting list limit
+                    if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        Toast.makeText(this, "Waiting list is full for this event.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Add to waiting list without location
+                    db.collection("Events").document(eventId)
+                            .update("waiting_list", FieldValue.arrayUnion(deviceID))
+                            .addOnSuccessListener(aVoid -> {
+                                progressBar.setVisibility(View.GONE);
+                                joinLeaveButton.setEnabled(true);
+                                isOnWaitingList = true;
+                                updateButtonState();
+                                Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                                checkWaitingListStatus();
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                joinLeaveButton.setEnabled(true);
+                                Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    Toast.makeText(this, "Failed to load event.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Get current location and add user to waiting list (when geolocation is enabled)
+     */
 
     private void getCurrentLocationAndJoin() {
         if (ActivityCompat.checkSelfPermission(this,
@@ -218,16 +322,20 @@ public class EventDetailsActivity extends AppCompatActivity {
                         if (location != null) {
                             double latitude = location.getLatitude();
                             double longitude = location.getLongitude();
-                            Log.d("EventDetails", "Location obtained - Lat: " + latitude + ", Lng: " + longitude);
+
+                            Log.d(TAG, "Location obtained - Lat: " + latitude + ", Lng: " + longitude);
+
                             addToWaitingListWithLocation(latitude, longitude);
                         } else {
-                            Log.d("EventDetails", "Last location is null, requesting current location");
+                            // Location is null - try to get current location instead of last known
+                            Log.d(TAG, "Last location is null, requesting current location");
                             requestCurrentLocation();
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("EventDetails", "Failed to get location: " + e.getMessage());
+                    Log.e(TAG, "Failed to get location: " + e.getMessage());
+                    // Failed to get location, try requesting current location
                     requestCurrentLocation();
                 });
     }
@@ -254,10 +362,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                         if (location != null) {
                             double latitude = location.getLatitude();
                             double longitude = location.getLongitude();
-                            Log.d("EventDetails", "Current location obtained - Lat: " + latitude + ", Lng: " + longitude);
+
+                            Log.d(TAG, "Current location obtained - Lat: " + latitude + ", Lng: " + longitude);
+
                             addToWaitingListWithLocation(latitude, longitude);
                         } else {
-                            Log.d("EventDetails", "Current location is also null");
+                            Log.d(TAG, "Current location is also null");
                             addToWaitingListWithLocation(null, null);
                         }
                         fusedLocationClient.removeLocationUpdates(this);
@@ -356,7 +466,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("EventDetails", "Failed to save location: " + e.getMessage());
+                    // Location save failed, but user is still on waiting list
+                    Log.e(TAG, "Failed to save location: " + e.getMessage());
                     progressBar.setVisibility(View.GONE);
                     joinLeaveButton.setEnabled(true);
                     isOnWaitingList = true;
@@ -366,6 +477,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+
+    /**
+     * Removes the current deviceId from {@code waiting_list} and deletes location data if it exists.
+     * On success updates the UI and re-reads the list.
+     */
     private void leaveWaitingList() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -373,7 +489,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         db.collection("Events").document(eventId)
                 .update("waiting_list", FieldValue.arrayRemove(deviceID))
                 .addOnSuccessListener(aVoid -> {
-                    deleteRegistrationLocation();
+                    // Successfully removed from waiting list
+                    if (geolocationEnabled) {
+                        // Delete location data if geolocation was enabled
+                        deleteRegistrationLocation();
+                    } else {
+                        // No location data to delete
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        isOnWaitingList = false;
+                        updateButtonState();
+                        Toast.makeText(this, "Successfully left waiting list", Toast.LENGTH_SHORT).show();
+                        checkWaitingListStatus(); // Refresh count
+                    }
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);

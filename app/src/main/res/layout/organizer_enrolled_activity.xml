@@ -1,43 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="#D3DEFF" android:padding="16dp">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#F5F5F5"
+    tools:context=".OrganizerEnrolledActivity">
 
-    <!-- Header -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:gravity="center_vertical">
-        <ImageButton
-            android:id="@+id/btnBack" android:layout_width="36dp" android:layout_height="36dp"
-            android:background="@android:color/transparent" android:src="@drawable/back_arrow"
-            android:contentDescription="Back" android:tint="@color/black"/>
-        <TextView
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Final Enrolled Entrants" android:textStyle="bold" android:textSize="20sp"
-            android:textColor="@color/black" android:layout_marginStart="8dp"/>
-    </LinearLayout>
+    <!-- Back button -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/back_arrow"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <ProgressBar android:id="@+id/progressBar"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" android:visibility="gone"/>
-
-    <TextView android:id="@+id/tvEmpty"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="No enrolled entrants." android:textColor="@color/black"
-        android:visibility="gone" android:layout_marginTop="12dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvEnrolled" android:layout_width="match_parent"
-        android:layout_height="0dp" android:layout_weight="1" android:scrollbars="vertical"/>
-
-    <!-- Optional: allow drawing replacements even on final list -->
-    <Button
-        android:id="@+id/btnDrawOneReplacement"
-        android:layout_width="match_parent"
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Draw Replacement"
-        android:textAllCaps="false"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="#6B4EFF"
-        android:textColor="@color/white"/>
+        android:text="Enrolled Entrants"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        android:layout_marginStart="8dp" />
 
-</LinearLayout>
+    <!-- Progress -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No enrolled entrants."
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Enrolled list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvEnrolled"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
