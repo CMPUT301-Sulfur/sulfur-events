@@ -300,7 +300,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String start = ((EditText)findViewById(R.id.etStartDate)).getText().toString();
         String end = ((EditText)findViewById(R.id.etEndDate)).getText().toString();
         String location = ((EditText)findViewById(R.id.etLocation)).getText().toString();
-        String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();      
+        String limit = ((EditText)findViewById(R.id.etLimitGuests)).getText().toString();
         String waitingLimit = ((EditText)findViewById(R.id.etWaitingListLimit)).getText().toString();
         String OGEmail = organizerProfileEmail;
 
@@ -324,8 +324,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
-        // store under the Events tab in the data base
-        //String eventId = db.collection("Events").document().getId();
         // QR-code variables
         Bitmap qrBitmap;
         String qrBase64;
@@ -334,21 +332,20 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             String deepLink = "sulfurevents://event/" + eventId;
             qrBitmap = generateQR(deepLink);
             qrBase64 = bitmaptobase64(qrBitmap);
-        }catch (Exception e){
+        } catch (Exception e) {
             Toast.makeText(this, "Cannot create event: QR code generation failed", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        if(title.isBlank() ||description.isBlank() ||start.isBlank() ||
-                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()){
+        if(title.isBlank() || description.isBlank() || start.isBlank() ||
+                end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()) {
             Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
-            return; // Stop here, stay on this screen
+            return;
         }
 
-        if(!isDateValid(start, end)){
+        if(!isDateValid(start, end)) {
             Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
-            return; // Stop here, stay on this screen
+            return;
         }
 
         OrganizerEvent event = new OrganizerEvent();
@@ -362,9 +359,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.limitGuests = limit;
         event.qrCode = qrBase64;
         event.organizerEmail = OGEmail;
-        event.geolocationEnabled = geolocationEnabled; // Add geolocation status
+        event.geolocationEnabled = geolocationEnabled;
 
-        // NEW: save optional waiting list limit
         if (waitingLimit != null && !waitingLimit.isBlank()) {
             event.waitingListLimit = waitingLimit;
         } else {
@@ -374,18 +370,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // Save poster
         if (posterUri == null) {
             event.posterURL = null;
-            db.collection("Events").document(eventId)
-                    .set(event)
-                    .addOnSuccessListener(unused ->{
+
+            newEventRef.set(event)
+                    .addOnSuccessListener(unused -> {
                         String message = geolocationEnabled
                                 ? "Event created with geolocation enabled!"
                                 : "Event created successfully!";
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
-            newEventRef.set(event)
-                    .addOnSuccessListener(unused -> {
-
-                        // SAVE QR TO GALLERY HERE
+                        // SAVE QR TO GALLERY
                         saveQRToGallery(qrBitmap, eventId);
 
                         // UPDATE PROFILE: Mark user as organizer
@@ -400,28 +393,23 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG).show();
                     });
 
-
         } else {
             StorageReference storeref = FirebaseStorage.getInstance()
                     .getReference("Event_Posters")
                     .child(eventId + ".jpg");
 
             storeref.putFile(posterUri).addOnSuccessListener(task -> {
-                storeref.getDownloadUrl().addOnSuccessListener(downloadURl -> {
-                    event.posterURL = downloadURl.toString();
+                storeref.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                    event.posterURL = downloadUrl.toString();
 
-                    // need to change from finish() to PreviewEvent Activity screen
-                    db.collection("Events").document(eventId)
-                            .set(event)
-                            .addOnSuccessListener(unused ->{
+                    newEventRef.set(event)
+                            .addOnSuccessListener(unused -> {
                                 String message = geolocationEnabled
                                         ? "Event created with geolocation enabled!"
                                         : "Event created successfully!";
                                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                    newEventRef.set(event)
-                            .addOnSuccessListener(unused -> {
 
-                                // SAVE QR TO GALLERY HERE
+                                // SAVE QR TO GALLERY
                                 saveQRToGallery(qrBitmap, eventId);
 
                                 // UPDATE PROFILE: Mark user as organizer
@@ -435,7 +423,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                 Toast.makeText(this, "Failed to create event: " + e.getMessage(),
                                         Toast.LENGTH_LONG).show();
                             });
-
                 });
             }).addOnFailureListener(e -> {
                 Toast.makeText(this, "Poster Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -556,7 +543,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String[] StartSplit = start.split("/");
         String[] EndSplit = end.split("/");
 
-
         // Year
         Integer Syear = Integer.parseInt(StartSplit[2]);
         Integer Eyear = Integer.parseInt(EndSplit[2]);
@@ -577,8 +563,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         // compare day
         return Eday >= Sday;
     }
-
-}
 
     private void enableEditMode(Intent intent){
         // Pre-fill fields
@@ -624,23 +608,49 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                            String start, String end, String location,
                            String limit, String waitingLimit){
 
+        // Validate fields in edit mode
+        if(title.isBlank() || description.isBlank() || start.isBlank() ||
+                end.isBlank() || location.isBlank() || limit.isBlank()){
+            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Checking if the event is of edit type
-        if (getIntent().getBooleanExtra("isEdit", false)) {
+        if(!isDateValid(start, end)){
+            Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            // Validate fields in edit mode too
-            if(title.isBlank() || description.isBlank() || start.isBlank() ||
-                    end.isBlank() || location.isBlank() || limit.isBlank()){
-                Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        // If poster was updated, upload it first
+        if (posterUri != null && !posterUri.toString().startsWith("http")) {
+            StorageReference storeref = FirebaseStorage.getInstance()
+                    .getReference("Event_Posters")
+                    .child(eventId + ".jpg");
 
-            if(!isDateValid(start, end)){
-                Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-
+            storeref.putFile(posterUri).addOnSuccessListener(task -> {
+                storeref.getDownloadUrl().addOnSuccessListener(downloadURL -> {
+                    db.collection("Events").document(eventId)
+                            .update(
+                                    "eventName", title,
+                                    "description", description,
+                                    "startDate", start,
+                                    "endDate", end,
+                                    "location", location,
+                                    "limitGuests", limit,
+                                    "organizerEmail", organizerProfileEmail,
+                                    "posterURL", downloadURL.toString(),
+                                    "waitingListLimit", waitingLimit != null ? waitingLimit : ""
+                            )
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
+                                finish();
+                            });
+                });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Failed to upload poster: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            // No new poster - just update fields
             db.collection("Events").document(eventId)
                     .update(
                             "eventName", title,
@@ -656,38 +666,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
                         finish();
                     });
-
-            if (posterUri != null) {
-                StorageReference storeref = FirebaseStorage.getInstance()
-                        .getReference("Event_Posters")
-                        .child(eventId + ".jpg");
-
-                storeref.putFile(posterUri).addOnSuccessListener(task -> {
-                    storeref.getDownloadUrl().addOnSuccessListener(downloadURL -> {
-                        db.collection("Events").document(eventId)
-                                .update(
-                                        "eventName", title,
-                                        "description", description,
-                                        "startDate", start,
-                                        "endDate", end,
-                                        "location", location,
-                                        "limitGuests", limit,                                        
-                                        "posterURL", downloadURL.toString(),
-                                        "waitingListLimit", waitingLimit != null ? waitingLimit : ""
-                                )
-                                .addOnSuccessListener(unused -> {
-                                    Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                });
-                    });
-                });
-                return;
-            }
-            // added comment to push onto main
-            return;
         }
-
-
     }
 
 }

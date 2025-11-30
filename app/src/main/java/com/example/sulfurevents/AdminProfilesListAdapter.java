@@ -66,6 +66,7 @@ public class AdminProfilesListAdapter extends ArrayAdapter<ProfileModel> {
             btnDelete.setOnClickListener(v -> {
                 if (getContext() instanceof AdminProfilesActivity) {
                     ((AdminProfilesActivity) getContext()).deleteProfile(profile.getProfileId());
+
                 }
             });
         }

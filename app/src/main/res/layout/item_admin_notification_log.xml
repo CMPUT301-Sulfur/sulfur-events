@@ -3,40 +3,58 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@android:color/white"
-    android:padding="12dp"
-    android:layout_marginBottom="8dp"
-    android:elevation="2dp">
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="10dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
-    <TextView
-        android:id="@+id/tvLogEvent"
-        android:layout_width="wrap_content"
+    <!-- GOLD BORDER CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/black"/>
+        android:background="@drawable/gold_border_rounded"
+        android:orientation="vertical"
+        android:padding="18dp"
+        android:elevation="6dp">
 
-    <TextView
-        android:id="@+id/tvLogType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="#6B4EFF"
-        android:layout_marginTop="4dp"/>
+        <!-- Notification Message -->
+        <TextView
+            android:id="@+id/logMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#D4AF37"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:paddingBottom="6dp" />
 
-    <TextView
-        android:id="@+id/tvLogMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:layout_marginTop="4dp"/>
+        <!-- Event Name -->
+        <TextView
+            android:id="@+id/logEventName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#F5E7B0"
+            android:textSize="14sp"
+            android:paddingBottom="4dp" />
 
-    <TextView
-        android:id="@+id/tvLogMeta"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#555555"
-        android:textSize="12sp"
-        android:layout_marginTop="6dp"/>
+        <!-- Type -->
+        <TextView
+            android:id="@+id/logType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:paddingBottom="6dp" />
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/logTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

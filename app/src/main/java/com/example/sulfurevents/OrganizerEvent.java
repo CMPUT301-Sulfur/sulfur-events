@@ -12,7 +12,6 @@ public class OrganizerEvent {
     public String limitGuests;
     public String link;
     public String waitingListLimit;
-    public String link;    // <--- add this
     public String qrCode;
     public String organizerEmail;
     public String posterURL;

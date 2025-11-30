@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="GoldAdminButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">300dp</item> <!-- centered fixed width -->
+        <item name="android:layout_height">wrap_content</item>
+        <item name="cornerRadius">40dp</item>
+        <item name="backgroundTint">#111111</item> <!-- charcoal -->
+        <item name="android:textColor">#F5E7B0</item> <!-- soft gold -->
+        <item name="strokeColor">#D4AF37</item> <!-- gold border -->
+        <item name="strokeWidth">3dp</item>
+        <item name="rippleColor">#33D4AF37</item> <!-- translucent gold ripple -->
+        <item name="elevation">8dp</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+</resources>

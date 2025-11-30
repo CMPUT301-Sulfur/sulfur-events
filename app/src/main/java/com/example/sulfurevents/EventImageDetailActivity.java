@@ -4,8 +4,11 @@
 package com.example.sulfurevents;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.media.Image;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,12 +39,16 @@ public class EventImageDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_image_detail_activity);
 
+        // UI references
         imgEvent = findViewById(R.id.imgEventDetail);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvEventInfo = findViewById(R.id.tvEventInfo);
-        btnBack = findViewById(R.id.btnBackEventDetail);
+
+        ImageButton btnBackTop = findViewById(R.id.btnBackEventDetail);
+        Button btnBackBottom = findViewById(R.id.btnBackEventDetailBottom);
         btnDelete = findViewById(R.id.btnDeleteImage);
 
+        // Get Intent data
         eventId = getIntent().getStringExtra("eventId");
         eventName = getIntent().getStringExtra("eventName");
         organizerEmail = getIntent().getStringExtra("organizerEmail");
@@ -58,9 +65,14 @@ public class EventImageDetailActivity extends AppCompatActivity {
                 .placeholder(R.drawable.ic_launcher_background)
                 .into(imgEvent);
 
-        btnBack.setOnClickListener(v -> finish());
+        // Back buttons
+        btnBackTop.setOnClickListener(v -> finish());
+        btnBackBottom.setOnClickListener(v -> finish());
+
+        // Delete button
         btnDelete.setOnClickListener(v -> deleteImageFromFirebase());
     }
+
 
     /**
      * Deletes the event image from Firebase Storage and updates Firestore.

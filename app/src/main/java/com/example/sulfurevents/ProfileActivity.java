@@ -49,8 +49,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
-    private Button deleteButton;
-
     private SwitchCompat notificationsSwitch;
 
     /**
@@ -208,34 +206,7 @@ public class ProfileActivity extends AppCompatActivity {
      * Sets up the delete button with a confirmation dialog.
      * On confirmation, deletes the user's profile document and redirects to WelcomeEntrantActivity.
      */
-    private void setupDeleteButton() {
-        if (deleteButton == null) return;
 
-        deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(ProfileActivity.this)
-                    .setTitle("Delete Profile")
-                    .setMessage("Are you sure you want to delete your profile? This action cannot be undone.")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        db.collection("Profiles").document(deviceId)
-                                .delete()
-                                .addOnSuccessListener(aVoid -> {
-                                    Intent intent = new Intent(ProfileActivity.this, WelcomeEntrantActivity.class);
-                                    intent.putExtra("deviceId", deviceId);
-                                    startActivity(intent);
-                                    finish();
-                                })
-                                .addOnFailureListener(e ->
-                                        new AlertDialog.Builder(ProfileActivity.this)
-                                                .setTitle("Error")
-                                                .setMessage("Failed to delete profile: " + e.getMessage())
-                                                .setPositiveButton("OK", null)
-                                                .show()
-                                );
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
-    }
     private void setupDeleteButton() {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
