@@ -13,31 +13,6 @@
         android:layout_height="wrap_content"
         android:background="@color/black">
 
-        <!-- Back Button -->
-
-<!--        <EditText-->
-<!--            android:id="@+id/organizerEmail"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="45dp"-->
-<!--            android:background="@drawable/rounded_input"-->
-<!--            android:hint="Ex. ABC@gmail.com"-->
-<!--            android:inputType="textEmailAddress"-->
-<!--            android:padding="12dp"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHorizontal_bias="0.0"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/tvOrganizerEmail" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/tvOrganizerEmail"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="24dp"-->
-<!--            android:text="Contact Email Information"-->
-<!--            android:textStyle="bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/posterUploadArea" />-->
-
         <Button
             android:id="@+id/GenerateEventButton"
             android:layout_width="match_parent"
