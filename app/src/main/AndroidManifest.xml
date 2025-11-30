@@ -59,6 +59,7 @@
         <activity android:name=".OrganizerViewEventActivity" android:exported="false" />
 
         <!-- Entrant Screens -->
+<!--        testing push-->
         <activity android:name=".EntrantActivity" android:exported="false" />
 <!--        <activity android:name=".EventFilterActivity" android:exported="false" />-->
         <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
