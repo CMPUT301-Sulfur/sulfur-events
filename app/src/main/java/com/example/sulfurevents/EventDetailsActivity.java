@@ -738,6 +738,14 @@ private void joinWaitingList() {
             Date sDate = df.parse(start);
             Date eDate = df.parse(end);
 
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(eDate);
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1); // Move to next day
+            cal.add(java.util.Calendar.MILLISECOND, -1); // Subtract 1ms to get 23:59:59.999
+            eDate = cal.getTime();
+
+
+
             if (now.before(sDate)) {
                 joinLeaveButton.setText("Waitlist opens on " + start);
                 joinLeaveButton.setEnabled(false);
