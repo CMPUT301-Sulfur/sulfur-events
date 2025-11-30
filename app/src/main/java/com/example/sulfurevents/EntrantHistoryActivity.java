@@ -14,19 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * US 01.02.03 – History of events registered for.
- *
- * Shows a reverse-chronological history of notifications for the current entrant.
- * Each entry corresponds to a NotificationItem in
- * Profiles/{deviceId}/notifications.
- */
 public class EntrantHistoryActivity extends AppCompatActivity
         implements EventHistoryAdapter.OnHistoryClickListener {
 
@@ -40,10 +34,12 @@ public class EntrantHistoryActivity extends AppCompatActivity
     private final List<NotificationItem> historyItems = new ArrayList<>();
     private EventHistoryAdapter adapter;
 
+    private boolean isLoadingData = false; // Prevent multiple loads
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.entrant_history_activity); // make sure this matches your XML name
+        setContentView(R.layout.entrant_history_activity);
 
         db = FirebaseFirestore.getInstance();
         deviceId = Settings.Secure.getString(
@@ -62,16 +58,32 @@ public class EntrantHistoryActivity extends AppCompatActivity
         adapter = new EventHistoryAdapter(historyItems, this);
         rvHistory.setAdapter(adapter);
 
+        // Setup bottom navigation if it exists
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        if (bottomNav != null) {
+            // Set selected item BEFORE setting up the listener to avoid triggering navigation
+            bottomNav.setSelectedItemId(R.id.entrant_history_navigation);
+            BottomNavigationHelper.setupBottomNavigation(bottomNav, this);
+        }
+
         loadHistory();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadHistory();
+        // Only reload if we're not currently loading
+        if (!isLoadingData) {
+            loadHistory();
+        }
     }
 
     private void loadHistory() {
+        if (isLoadingData) {
+            return; // Prevent concurrent loads
+        }
+
+        isLoadingData = true;
         progressBar.setVisibility(View.VISIBLE);
         tvEmptyHistory.setVisibility(View.GONE);
         historyItems.clear();
@@ -83,12 +95,13 @@ public class EntrantHistoryActivity extends AppCompatActivity
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(snapshot -> {
+                    isLoadingData = false;
                     progressBar.setVisibility(View.GONE);
 
                     if (snapshot == null || snapshot.isEmpty()) {
                         tvEmptyHistory.setVisibility(View.VISIBLE);
                         tvEmptyHistory.setText(
-                                "You haven’t registered for any events yet.");
+                                "You haven't registered for any events yet.");
                         return;
                     }
 
@@ -102,7 +115,7 @@ public class EntrantHistoryActivity extends AppCompatActivity
                     if (historyItems.isEmpty()) {
                         tvEmptyHistory.setVisibility(View.VISIBLE);
                         tvEmptyHistory.setText(
-                                "You haven’t registered for any events yet.");
+                                "You haven't registered for any events yet.");
                     } else {
                         tvEmptyHistory.setVisibility(View.GONE);
                     }
@@ -110,6 +123,7 @@ public class EntrantHistoryActivity extends AppCompatActivity
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
+                    isLoadingData = false;
                     progressBar.setVisibility(View.GONE);
                     tvEmptyHistory.setVisibility(View.VISIBLE);
                     tvEmptyHistory.setText("Failed to load history.");
