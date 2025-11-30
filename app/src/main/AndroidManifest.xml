@@ -62,6 +62,8 @@
         <activity android:name=".EntrantActivity" android:exported="false" />
         <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
         <activity android:name=".NotificationsActivity" android:exported="false" />
+        <activity android:name=".EntrantHistoryActivity" android:exported="false" android:label="Event History" />
+        <activity android:name=".EventFilterActivity" android:exported="false" android:label="Filter Events" />
 
         <!-- Profile & Onboarding -->
         <activity android:name=".WelcomeEntrantActivity" android:exported="false" />
