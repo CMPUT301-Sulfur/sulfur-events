@@ -1,29 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9F3FF">
 
-    <!-- MAIN VERTICAL LAYOUT -->
-    <LinearLayout
-        android:id="@+id/profile"
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:layout_above="@id/bottomNavigationView">
+        android:layout_above="@id/bottomNavigationView"
+        android:fillViewport="true">
 
-        <!-- TOP CONTENT AREA -->
-        <FrameLayout
-            android:id="@+id/frame_layout2"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="24dp">
 
-            <ScrollView
+            <!-- Title -->
+            <TextView
+                android:id="@+id/welcome_back_title"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit Your Personal Information Below"
+                android:textSize="16sp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
+
+            <!-- PROFILE INFO CARD -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -31,111 +53,37 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <!-- Title -->
                     <TextView
-                        android:id="@+id/welcome_back_title"
+                        android:id="@+id/name_display"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Profile"
-                        android:textSize="32sp"
+                        android:text="Name: {name}"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        android:gravity="center"
-                        android:layout_marginBottom="24dp" />
+                        android:layout_marginBottom="16dp" />
 
                     <TextView
+                        android:id="@+id/email_display"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Edit Your Personal Information Below"
+                        android:text="Email: {email}"
                         android:textSize="16sp"
-                        android:textColor="#666"
-                        android:gravity="center"
-                        android:layout_marginBottom="24dp" />
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
 
-                    <!-- PROFILE INFO CARD -->
-                    <com.google.android.material.card.MaterialCardView
+                    <TextView
+                        android:id="@+id/phone_display"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
-                        app:cardElevation="4dp"
-                        app:cardCornerRadius="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <TextView
-                                android:id="@+id/name_display"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Name: {name}"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="16dp" />
-
-                            <TextView
-                                android:id="@+id/email_display"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Email: {email}"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="16dp" />
-
-                            <TextView
-                                android:id="@+id/phone_display"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Phone Number: {number}"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="8dp" />
-
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- EDIT BUTTON -->
-                    <Button
-                        android:id="@+id/edit_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Edit"
+                        android:text="Phone Number: {number}"
                         android:textSize="16sp"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- NOTIFICATION SWITCH -->
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/switch_notifications"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Receive notifications"
-                        android:textSize="16sp"
-                        android:layout_marginTop="16dp" />
-
-                    <!-- DELETE BUTTON -->
-                    <Button
-                        android:id="@+id/delete_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Delete Profile"
-                        android:textColor="@android:color/white"
-                        android:backgroundTint="#D32F2F"
-                        android:layout_marginTop="24dp"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- ADMIN BUTTON -->
-                    <Button
-                        android:id="@+id/admin_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Admin Dashboard"
-                        android:visibility="gone"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
 
                 </LinearLayout>
-            </ScrollView>
-            <!-- Buttons -->
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- EDIT BUTTON -->
             <Button
                 android:id="@+id/edit_button"
                 android:layout_width="match_parent"
@@ -144,26 +92,38 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp" />
 
-        </FrameLayout>
-
-        <!-- BOTTOM NAV BAR -->
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:menu="@menu/bottom_nav_menu" />
+            <!-- NOTIFICATION SWITCH -->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_notifications"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enable notifications"
+                android:text="Receive notifications"
                 android:checked="true"
+                android:textSize="16sp"
                 android:layout_marginTop="16dp" />
 
+            <!-- DELETE BUTTON -->
+            <Button
+                android:id="@+id/delete_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete Profile"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#D32F2F"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- ADMIN BUTTON -->
+            <Button
+                android:id="@+id/admin_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Admin Dashboard"
+                android:visibility="gone"
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
     <!-- NOTIFICATION FLOATING BUTTON -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -176,9 +136,13 @@
         android:layout_marginEnd="16dp"
         android:contentDescription="@string/notifications"
         app:srcCompat="@drawable/ic_notifications" />
+
+    <!-- BOTTOM NAV BAR -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu" />
-
-
 
 </RelativeLayout>

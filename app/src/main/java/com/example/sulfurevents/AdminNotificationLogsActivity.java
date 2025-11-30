@@ -12,15 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AdminNotificationLogsActivity extends AppCompatActivity {
 
     private RecyclerView rvLogs;
-    private TextView tvEmpty;
+    private TextView tvEmpty, tvTitle;
     private AdminNotificationLogsAdapter adapter;
-    private final List<NotificationLogItem> logs = new ArrayList<>();
+    private final ArrayList<NotificationLogItem> logs = new ArrayList<>();
     private FirebaseFirestore db;
+
+    private String deviceId;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,27 +31,35 @@ public class AdminNotificationLogsActivity extends AppCompatActivity {
 
         rvLogs = findViewById(R.id.rvNotificationLogs);
         tvEmpty = findViewById(R.id.tvEmptyLogs);
+        tvTitle = findViewById(R.id.tvTitle);
         ImageButton btnBack = findViewById(R.id.btnBack);
 
         btnBack.setOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
 
+        deviceId = getIntent().getStringExtra("deviceId");
+        userName = getIntent().getStringExtra("name");
+        tvTitle.setText("Notifications for " + userName);
+
         adapter = new AdminNotificationLogsAdapter(logs);
         rvLogs.setLayoutManager(new LinearLayoutManager(this));
         rvLogs.setAdapter(adapter);
 
-        listenForLogs();
+        loadLogs();
     }
 
-    private void listenForLogs() {
-        db.collection("NotificationLogs")
+    private void loadLogs() {
+        db.collection("Profiles")
+                .document(deviceId)
+                .collection("notifications")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener((value, error) -> {
+                .addSnapshotListener((snapshot, e) -> {
 
                     logs.clear();
-                    if (value != null) {
-                        for (DocumentSnapshot doc : value.getDocuments()) {
+
+                    if (snapshot != null) {
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
                             NotificationLogItem item = doc.toObject(NotificationLogItem.class);
                             if (item != null) logs.add(item);
                         }
@@ -59,4 +69,5 @@ public class AdminNotificationLogsActivity extends AppCompatActivity {
                     tvEmpty.setVisibility(logs.isEmpty() ? View.VISIBLE : View.GONE);
                 });
     }
+
 }

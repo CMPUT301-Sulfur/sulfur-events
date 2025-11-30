@@ -9,40 +9,38 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-public class AdminNotificationLogsAdapter extends RecyclerView.Adapter<AdminNotificationLogsAdapter.VH> {
+public class AdminNotificationLogsAdapter extends RecyclerView.Adapter<AdminNotificationLogsAdapter.ViewHolder> {
 
-    private final List<NotificationLogItem> logs;
-    private final SimpleDateFormat fmt =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    private ArrayList<NotificationLogItem> logs;
 
-    public AdminNotificationLogsAdapter(List<NotificationLogItem> logs) {
+    public AdminNotificationLogsAdapter(ArrayList<NotificationLogItem> logs) {
         this.logs = logs;
     }
 
     @NonNull
     @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_admin_notification_log, parent, false);
-        return new VH(v);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NotificationLogItem item = logs.get(position);
 
-        h.tvEvent.setText(item.eventName != null ? item.eventName : "Event");
-        h.tvType.setText(item.type);
-        h.tvMessage.setText(item.message);
+        holder.message.setText(item.getMessage());
+        holder.eventName.setText("Event: " + item.getEventName());
+        holder.type.setText("Type: " + item.getType());
 
-        String time = fmt.format(new Date(item.timestamp));
-        h.tvMeta.setText("From: " + item.senderRole +
-                "  →  To entrant: " + item.recipientId +
-                "\n" + time);
+        String formatted = new SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault())
+                .format(new Date(item.getTimestamp()));
+
+        holder.timestamp.setText(formatted);
     }
 
     @Override
@@ -50,14 +48,17 @@ public class AdminNotificationLogsAdapter extends RecyclerView.Adapter<AdminNoti
         return logs.size();
     }
 
-    static class VH extends RecyclerView.ViewHolder {
-        TextView tvEvent, tvType, tvMessage, tvMeta;
-        VH(@NonNull View v) {
-            super(v);
-            tvEvent = v.findViewById(R.id.tvLogEvent);
-            tvType = v.findViewById(R.id.tvLogType);
-            tvMessage = v.findViewById(R.id.tvLogMessage);
-            tvMeta = v.findViewById(R.id.tvLogMeta);
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView message, eventName, type, timestamp;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            message = itemView.findViewById(R.id.logMessage);
+            eventName = itemView.findViewById(R.id.logEventName);
+            type = itemView.findViewById(R.id.logType);
+            timestamp = itemView.findViewById(R.id.logTimestamp);
         }
     }
 }

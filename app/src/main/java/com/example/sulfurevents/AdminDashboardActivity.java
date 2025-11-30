@@ -75,12 +75,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
 
-        btnNotificationLogs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AdminDashboardActivity.this, AdminNotificationLogsActivity.class);
-                startActivity(intent);
-            }
+        btnNotificationLogs.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminEntrantListActivity.class);
+            startActivity(intent);
         });
     }
 }
