@@ -67,8 +67,6 @@ public class OrganizerCreateEventTest {
         onView(withId(R.id.etEndDate)).perform(typeText("11/7/2025"), closeSoftKeyboard());
         onView(withId(R.id.etLocation)).perform(typeText("Edmonton"), closeSoftKeyboard());
         onView(withId(R.id.etLimitGuests)).perform(typeText("2"), closeSoftKeyboard());
-        onView(withId(R.id.organizerEmail)).perform(typeText("Test@gmail.com"), closeSoftKeyboard());
-
         SystemClock.sleep(2500);
 
     }
