@@ -87,6 +87,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         String imgUrl = event.getPosterURL();
         Glide.with(context).load(imgUrl).into(holder.EventImage);
 
+
+
         // ---- DATE RESTRICTION LOGIC ----
         try {
             SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
@@ -94,6 +96,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
             Date sDate = df.parse(startDate);
             Date eDate = df.parse(endDate);
+
+
+            if (eDate != null) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(eDate);
+                cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+                cal.add(java.util.Calendar.MILLISECOND, -1);
+                eDate = cal.getTime();
+            }
 
             if (sDate == null || eDate == null) {
                 holder.joinButton.setEnabled(false);
