@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#D3DEFF"
+    android:background="#000000"
     android:padding="16dp">
 
-    <!-- Header row -->
+    <!-- Header Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,12 +16,12 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@android:color/transparent"
             android:src="@drawable/back_arrow"
-            android:contentDescription="Back"
-            android:tint="@color/black" />
+            android:tint="#D4AF37"
+            android:contentDescription="Back" />
 
         <TextView
             android:id="@+id/tvNotificationsTitle"
@@ -29,28 +29,36 @@
             android:layout_height="wrap_content"
             android:text="Notifications"
             android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_marginStart="8dp" />
+            android:textSize="22sp"
+            android:textColor="#D4AF37"
+            android:layout_marginStart="12dp" />
     </LinearLayout>
 
-    <!-- ===== New Notifications Section ===== -->
+    <!-- GOLD DIVIDER -->
+    <View
+        android:layout_width="150dp"
+        android:layout_height="2dp"
+        android:background="#D4AF37"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"/>
+
+    <!-- ===== NEW NOTIFICATIONS SECTION ===== -->
     <TextView
         android:id="@+id/tvNewHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New"
         android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:layout_marginTop="12dp"/>
+        android:textSize="18sp"
+        android:textColor="#D4AF37"
+        android:layout_marginTop="18dp"/>
 
     <TextView
         android:id="@+id/tvEmptyNew"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No new notifications."
-        android:textColor="@color/black"
+        android:textColor="#AAAAAA"
         android:layout_marginTop="8dp"
         android:visibility="gone" />
 
@@ -62,13 +70,13 @@
         android:layout_marginTop="8dp"
         android:nestedScrollingEnabled="true"/>
 
-    <!-- ===== History Section (collapsible) ===== -->
+    <!-- ===== HISTORY (COLLAPSIBLE) ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="16dp">
 
         <TextView
             android:id="@+id/tvHistoryHeader"
@@ -77,8 +85,8 @@
             android:layout_weight="1"
             android:text="History"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/black"/>
+            android:textSize="18sp"
+            android:textColor="#D4AF37"/>
 
         <TextView
             android:id="@+id/tvToggleHistory"
@@ -95,7 +103,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No history yet."
-        android:textColor="@color/black"
+        android:textColor="#AAAAAA"
         android:layout_marginTop="6dp"
         android:visibility="gone" />
 
