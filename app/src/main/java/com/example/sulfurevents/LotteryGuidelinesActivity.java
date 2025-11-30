@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LotteryGuidelinesActivity extends AppCompatActivity {
 
     private TextView lotteryText;
-    private Button backButton;
 
     /**
      * Initializes the view and sets the static guidelines text.
@@ -34,7 +34,9 @@ public class LotteryGuidelinesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lottery_guidelines);
 
         lotteryText = findViewById(R.id.lottery_text);
-        backButton = findViewById(R.id.back_button);
+        
+        ImageButton back = findViewById(R.id.back_button);
+        back.setOnClickListener(v -> finish());
 
         // Set the lottery guidelines text
         String guidelines = "Lottery System Guidelines\n\n" +
@@ -60,7 +62,5 @@ public class LotteryGuidelinesActivity extends AppCompatActivity {
 
         lotteryText.setText(guidelines);
 
-
-        backButton.setOnClickListener(v -> finish());
     }
 }
