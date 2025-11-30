@@ -84,6 +84,16 @@ public class UpdateProfileActivity extends AppCompatActivity {
         phoneInput = findViewById(R.id.phone_input);
     }
 
+    /**
+     * Validates that the email contains an "@" symbol.
+     *
+     * @param email The email string to validate.
+     * @return true if valid, false otherwise.
+     */
+    private boolean isValidEmail(String email) {
+        return email != null && email.contains("@");
+    }
+
     private void setupConfirmButton() {
         confirmButton.setOnClickListener(v -> {
             if (currentProfile == null) return;
@@ -96,6 +106,12 @@ public class UpdateProfileActivity extends AppCompatActivity {
             if (name.isEmpty()) name = currentProfile.getName();
             if (email.isEmpty()) email = currentProfile.getEmail();
             if (phone.isEmpty()) phone = currentProfile.getPhone();
+
+            // Validate email format
+            if (!isValidEmail(email)) {
+                emailInput.setError("Email must contain an @ symbol");
+                return;
+            }
 
             currentProfile.setName(name);
             currentProfile.setEmail(email);

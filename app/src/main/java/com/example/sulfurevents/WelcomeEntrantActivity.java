@@ -92,6 +92,16 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
     }
 
     /**
+     * Validates that the email contains an "@" symbol.
+     *
+     * @param email The email string to validate.
+     * @return true if valid, false otherwise.
+     */
+    private boolean isValidEmail(String email) {
+        return email != null && email.contains("@");
+    }
+
+    /**
      * Sets up the submit button.
      *
      * When clicked:
@@ -116,6 +126,12 @@ public class WelcomeEntrantActivity extends AppCompatActivity {
 
             if (email.isEmpty()) {
                 emailInput.setError("Email is required");
+                return;
+            }
+
+            // Validate email format
+            if (!isValidEmail(email)) {
+                emailInput.setError("Email must contain an @ symbol");
                 return;
             }
 
