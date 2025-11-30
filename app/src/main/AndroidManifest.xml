@@ -60,7 +60,7 @@
 
         <!-- Entrant Screens -->
         <activity android:name=".EntrantActivity" android:exported="false" />
-        <activity android:name=".EventFilterActivity" android:exported="false" />
+<!--        <activity android:name=".EventFilterActivity" android:exported="false" />-->
         <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".EntrantHistoryActivity" android:exported="false" android:label="Event History" />
