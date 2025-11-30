@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D3DEFF"
+    android:background="@color/black"
     android:padding="16dp">
 
     <LinearLayout
@@ -31,7 +31,7 @@
             android:text="Event Name"
             android:textStyle="bold"
             android:textSize="24sp"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:text="Description"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="16dp" />
 
         <!--  Dates -->
@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:text="Start Date:"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="6dp" />
 
         <TextView
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:text="End Date:"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="16dp" />
 
         <!--  Location -->
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:text="Location:"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="12dp" />
 
         <!--  Capacity -->
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:text="Capacity:"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="12dp" />
 
         <!--  Organizer Email -->
@@ -98,8 +98,11 @@
             android:layout_height="wrap_content"
             android:text="Organizer Email:"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/yellow"
             android:layout_marginBottom="8dp" />
+
+
+<!--        Button sections -->
 
         <!--  View Waiting List Button -->
         <Button
@@ -109,8 +112,10 @@
             android:text="View Waiting List"
             android:textAllCaps="false"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white"/>
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
         <Button
             android:id="@+id/btnViewGeolocationMap"
@@ -119,8 +124,10 @@
             android:text="View Geolocation Map"
             android:textAllCaps="false"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white"/>
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
         <Button
             android:id="@+id/btnViewEnrolled"
@@ -129,8 +136,10 @@
             android:text="View Enrolled"
             android:textAllCaps="false"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white"/>
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
         <Button
             android:id="@+id/btnViewInvited"
@@ -139,8 +148,10 @@
             android:text="View Invited (Pending)"
             android:textAllCaps="false"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white"/>
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
         <Button
             android:id="@+id/btnViewCancelled"
@@ -149,8 +160,10 @@
             android:text="View Cancelled Entrants"
             android:textAllCaps="false"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:textColor="@color/white" />
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent" />
 
 
 
@@ -159,20 +172,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
             android:text="Export Final List (CSV)"
             android:textAllCaps="false"
-            android:textColor="@color/white" />
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
         <Button
             android:id="@+id/EditEventButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
             android:text="Edit Event"
             android:textAllCaps="false"
-            android:textColor="@color/white" />
+            android:textColor="@color/yellow"
+            android:background="@drawable/gold_border_rounded"
+            app:backgroundTint="@null"
+            app:rippleColor="@android:color/transparent"/>
 
 
     </LinearLayout>
