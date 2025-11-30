@@ -1,9 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
+
     <style name="Base.Theme.SulfurEvents" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="materialButtonStyle">@style/NoTintMaterialButton</item>
     </style>
+
+    <style name="NoTintMaterialButton" parent="@style/Widget.Material3.Button">
+        <item name="backgroundTint">@null</item>
+
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
 
     <style name="Theme.SulfurEvents" parent="Base.Theme.SulfurEvents" />
 </resources>

@@ -4,6 +4,13 @@
 
     <color name="white">#FFFFFFFF</color>
 
+    <color name="yellow">#CEB04E</color>
+    
+    <color name="light_black">#111111</color>
+
+    <color name="gray">#2D2D32</color>
+
+
     <color name="nav_selected_color">#6200EE</color> <!-- Example: A purple color -->
     <color name="nav_unselected_color">#757575</color>
 
