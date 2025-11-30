@@ -5,11 +5,13 @@
 package com.example.sulfurevents;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import javax.annotation.Nullable;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -21,10 +23,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-/**
- * This class defines the admin profiles screen.
- * It lets administrators view and delete user profiles from Firestore.
- */
 public class AdminProfilesActivity extends AppCompatActivity {
 
     private ListView listViewProfiles;
@@ -33,24 +31,22 @@ public class AdminProfilesActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
 
-    /**
-     * Called when the activity is created.
-     * Sets up the list and loads profiles from Firestore.
-     * @param savedInstanceState The saved instance state bundle
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_profiles_activity);
 
-        Button btnBack = findViewById(R.id.btnBackProfiles);
-        btnBack.setOnClickListener(v -> finish());
+        // Back button
+        ImageButton back = findViewById(R.id.btnBackProfiles);
+        back.setOnClickListener(v -> finish());
 
+        // List setup
         listViewProfiles = findViewById(R.id.listViewProfiles);
         profileList = new ArrayList<>();
         adapter = new AdminProfilesListAdapter(this, profileList);
         listViewProfiles.setAdapter(adapter);
 
+        // Firestore
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("Profiles");
 
@@ -58,68 +54,71 @@ public class AdminProfilesActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads all profiles from the Firestore "Profiles" collection.
-     * Updates the list automatically when data changes.
+     * Loads all profiles from Firestore and updates the ListView.
      */
     private void loadProfilesFromFirestore() {
-        profilesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Toast.makeText(AdminProfilesActivity.this, "Failed to load profiles: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                    Log.w("Firestore", "Listen failed.", e);
-                    return;
-                }
+        profilesRef.addSnapshotListener((snapshots, e) -> {
+            if (e != null) {
+                Toast.makeText(AdminProfilesActivity.this,
+                        "Failed to load profiles: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                Log.w("Firestore", "Listen failed.", e);
+                return;
+            }
 
-                profileList.clear();
+            profileList.clear();
+
+            if (snapshots != null) {
                 for (DocumentSnapshot doc : snapshots) {
                     ProfileModel profile = doc.toObject(ProfileModel.class);
                     if (profile != null) {
-                        profile.setProfileId(doc.getId());
+                        profile.setProfileId(doc.getId()); // set doc ID
                         profileList.add(profile);
                     }
                 }
-                adapter.notifyDataSetChanged();
             }
+
+            adapter.notifyDataSetChanged();
         });
     }
 
     /**
-     * Deletes a profile from Firestore.
-     * @param profileId The ID of the profile to delete
+     * Deletes a profile document from Firestore by deviceId.
      */
     public void deleteProfile(String profileId) {
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Are you sure you want to delete this profile?\n\nThis action cannot be undone.")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Delete", (dialog, which) -> {
 
-        // 1. Delete all events created by this profile
-        db.collection("Events")
-                .whereEqualTo("organizerId", profileId)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
+                    android.app.ProgressDialog progressDialog =
+                            new android.app.ProgressDialog(this);
+                    progressDialog.setMessage("Deleting profile...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
 
-                    for (DocumentSnapshot doc : querySnapshot) {
-                        doc.getReference().delete();
-                    }
-
-                    // 2. Now delete the profile itself
-                    profilesRef.document(profileId)
+                    db.collection("Profiles")
+                            .document(profileId)
                             .delete()
-                            .addOnSuccessListener(aVoid ->
-                                    Toast.makeText(this,
-                                            "Profile and all related events deleted",
-                                            Toast.LENGTH_SHORT).show()
-                            )
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this,
-                                            "Failed to delete profile: " + e.getMessage(),
-                                            Toast.LENGTH_SHORT).show()
-                            );
+                            .addOnSuccessListener(aVoid -> {
+                                progressDialog.dismiss();
+
+                                // The snapshot listener will auto-update the list
+                                Toast.makeText(this,
+                                        "Profile deleted.",
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                progressDialog.dismiss();
+                                Toast.makeText(this,
+                                        "Error: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            });
+
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Failed to delete profile's events: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show());
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

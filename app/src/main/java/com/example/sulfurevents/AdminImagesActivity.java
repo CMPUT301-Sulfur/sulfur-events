@@ -12,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class AdminImagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_images_activity);
 
-        Button btnBack = findViewById(R.id.btnBackImages);
+        ImageButton btnBack = findViewById(R.id.btnBackImages);
         btnBack.setOnClickListener(v -> finish());
 
         listViewImageEvents = findViewById(R.id.listViewImageEvents);

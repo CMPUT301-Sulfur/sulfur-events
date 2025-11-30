@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="nav_selected_color">#6200EE</color> <!-- Example: A purple color -->
+    <color name="nav_unselected_color">#757575</color>
+
 </resources>

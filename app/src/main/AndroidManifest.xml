@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <!--permissions-->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -21,12 +20,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SulfurEvents" >
+        android:theme="@style/Theme.SulfurEvents">
 
+        <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBwOOK_zkjGPgghAXxqDGdXPNfHsomQips" />
 
+        <!-- FileProvider for image handling -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -37,6 +38,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- MAIN LAUNCHER (ONLY ONE) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -46,45 +48,47 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".OrganizerCreateEventActivity" android:exported="true"/>
-        <activity android:name=".OrganizerActivity" android:exported="true" />
-
-        <activity android:name=".AdminDashboardActivity" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+        <!-- Organizer Screens -->
+        <activity android:name=".OrganizerCreateEventActivity" android:exported="false" />
+        <activity android:name=".OrganizerActivity" android:exported="false" />
         <activity android:name=".OrganizerWaitlistActivity" android:exported="false" />
-        <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".OrganizerEnrolledActivity" android:exported="false"/>
         <activity android:name=".OrganizerInvitedActivity" android:exported="false"/>
         <activity android:name=".OrganizerCancelledActivity" android:exported="false" />
+        <activity android:name=".OrganizerPreviewEventActivity" android:exported="false" />
+        <activity android:name=".OrganizerViewEventActivity" android:exported="false" />
 
-        <!-- ImageActivity for full-screen image preview -->
-        <activity android:name=".ImageActivity" android:exported="false" />
+        <!-- Entrant Screens -->
+        <activity android:name=".EntrantActivity" android:exported="false" />
+        <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
+        <activity android:name=".NotificationsActivity" android:exported="false" />
 
-        <!-- EventFilterActivity for filtering events -->
-        <activity android:name=".EventFilterActivity" android:exported="false" />
-
-        <!-- Other activities -->
-        <activity android:name=".AdminEventsActivity" android:exported="false" />
-        <activity android:name=".AdminProfilesActivity" android:exported="false" />
-        <activity android:name=".AdminImagesActivity" android:exported="false" />
-        <activity android:name=".EventImageDetailActivity" android:exported="false" />
+        <!-- Profile & Onboarding -->
         <activity android:name=".WelcomeEntrantActivity" android:exported="false" />
         <activity android:name=".ProfileActivity" android:exported="false" />
         <activity android:name=".UpdateProfileActivity" android:exported="false" />
-        <activity android:name=".OrganizerPreviewEventActivity" android:exported="true" />
-        <activity android:name=".EntrantActivity" />
-        <activity android:name=".OrganizerViewEventActivity" />
-        <activity android:name=".LotteryGuidelinesActivity" />
-        <activity android:name=".SuccessfulDeleteActivity" />
-        <activity android:name=".EventMapActivity" />
-        <activity android:name=".AdminNotificationLogsActivity" />
+        <activity android:name=".SuccessfulDeleteActivity" android:exported="false" />
 
-        <!-- Deep Link for EventDetailsActivity -->
+        <!-- Admin Screens -->
+        <activity android:name=".AdminDashboardActivity" android:exported="false" />
+        <activity android:name=".AdminEventsActivity" android:exported="false" />
+        <activity android:name=".AdminProfilesActivity" android:exported="false" />
+        <activity android:name=".AdminImagesActivity" android:exported="false" />
+
+        <!-- NEW: Admin Entrant List for Notification Logs -->
+        <activity android:name=".AdminEntrantListActivity" android:exported="false" />
+
+        <!-- NEW: Admin Notification Logs (filtered per entrant) -->
+        <activity android:name=".AdminNotificationLogsActivity" android:exported="false" />
+
+        <!-- Image Viewer -->
+        <activity android:name=".ImageActivity" android:exported="false" />
+        <activity android:name=".EventImageDetailActivity" android:exported="false" />
+
+        <!-- Event Map -->
+        <activity android:name=".EventMapActivity" android:exported="false" />
+
+        <!-- Deep Link: Event Details Viewer -->
         <activity
             android:name=".EventDetailsActivity"
             android:exported="true">
@@ -94,7 +98,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!-- deep link: sulfurevents://event/<eventId> -->
                 <data
                     android:scheme="sulfurevents"
                     android:host="event" />

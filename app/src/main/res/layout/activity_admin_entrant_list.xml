@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/btnBackEntrants"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_media_previous"
+        android:tint="#D4AF37"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvEntrantsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select an Entrant"
+        android:textColor="#D4AF37"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:paddingBottom="12dp"
+        android:paddingTop="4dp" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progressEntrants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="#D4AF37"
+        android:visibility="gone"
+        android:padding="20dp" />
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEntrants"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="8dp" />
+
+</LinearLayout>

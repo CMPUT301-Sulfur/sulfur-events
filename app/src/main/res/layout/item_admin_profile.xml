@@ -1,91 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="8dp"
+    android:backgroundTint="#111111"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
-        android:id="@+id/profileContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:padding="16dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:padding="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground">
 
-        <TextView
-            android:id="@+id/tvProfileEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#000000" />
-
-        <TextView
-            android:id="@+id/tvProfilePhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone:"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:layout_marginTop="4dp" />
-
-        <!-- NEW: REQUIRED FOR NAME -->
+        <!-- NAME (Gold Header) -->
         <TextView
             android:id="@+id/tvProfileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:layout_marginTop="4dp" />
+            android:text="Name"
+            android:textColor="#D4AF37"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.03" />
 
+        <!-- EMAIL -->
+        <TextView
+            android:id="@+id/tvProfileEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email: example"
+            android:textColor="#F5E7B0"
+            android:textSize="14sp"
+            android:paddingTop="6dp" />
+
+        <!-- PHONE -->
+        <TextView
+            android:id="@+id/tvProfilePhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone: ---"
+            android:textColor="#CCCCCC"
+            android:textSize="14sp"
+            android:paddingTop="4dp" />
+
+        <!-- DEVICE ID -->
         <TextView
             android:id="@+id/tvProfileDeviceId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Device ID:"
+            android:text="Device ID: ---"
+            android:textColor="#CCCCCC"
             android:textSize="14sp"
-            android:textColor="#333333"
-            android:layout_marginTop="4dp" />
+            android:paddingTop="4dp" />
 
+        <!-- Entrant -->
         <TextView
             android:id="@+id/tvProfileIsEntrant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Entrant: "
+            android:text="Entrant: Yes"
+            android:textColor="#AAAAAA"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
+            android:paddingTop="4dp" />
 
+        <!-- Organizer -->
         <TextView
             android:id="@+id/tvProfileIsOrganizer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Organizer: "
-            android:textSize="14sp"/>
+            android:text="Organizer: No"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:paddingTop="2dp" />
 
+        <!-- Admin -->
         <TextView
             android:id="@+id/tvProfileIsAdmin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Admin: "
-            android:textSize="14sp"/>
+            android:text="Admin: No"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:paddingTop="2dp" />
 
-
+        <!-- DELETE BUTTON -->
         <Button
             android:id="@+id/btnDeleteProfile"
-            android:layout_width="wrap_content"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
-            android:text="Delete"
-            android:backgroundTint="#E57373"
+            android:text="Delete Profile"
+            android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:layout_marginTop="8dp" />
+            android:backgroundTint="#B91C1C"
+            android:layout_marginTop="14dp"
+            android:paddingVertical="6dp"
+            android:paddingHorizontal="12dp"
+            app:cornerRadius="40dp"/>
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

@@ -7,6 +7,7 @@ package com.example.sulfurevents;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -43,8 +44,12 @@ public class AdminEventsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_events_activity);
 
-        Button btnBack = findViewById(R.id.btnBackEvents);
+        ImageButton btnBack = findViewById(R.id.btnBackEvents);
         btnBack.setOnClickListener(v -> finish());
+
+        ImageButton backBtn = findViewById(R.id.btnBackEvents);
+        backBtn.setOnClickListener(v -> finish());
+
 
         listViewEvents = findViewById(R.id.listViewEvents);
         eventList = new ArrayList<>();

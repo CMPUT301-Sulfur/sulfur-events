@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D8E3F0"
+    android:background="#000000"
     tools:context=".AdminDashboardActivity">
 
-    <!-- Page Title -->
+    <!-- GOLD TITLE -->
     <TextView
         android:id="@+id/tvAdminTitle"
         android:layout_width="wrap_content"
@@ -16,85 +16,74 @@
         android:text="Admin Dashboard"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#333333"
+        android:textColor="#D4AF37"
+        android:letterSpacing="0.05"
+        android:padding="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="60dp" />
 
-    <!-- Manage Events -->
+    <!-- GOLD DIVIDER -->
+    <View
+        android:id="@+id/goldDivider"
+        android:layout_width="140dp"
+        android:layout_height="2dp"
+        android:background="#D4AF37"
+        app:layout_constraintTop_toBottomOf="@id/tvAdminTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="6dp"/>
+
+    <!-- MANAGE EVENTS -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnManageEvents"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/GoldAdminButton"
         android:text="Manage Events"
-        android:textSize="18sp"
-        android:textColor="#ffffff"
-        app:cornerRadius="30dp"
-        android:backgroundTint="#5A67D8"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="50dp"
-        app:layout_constraintTop_toBottomOf="@id/tvAdminTitle"
+        android:layout_marginTop="100dp"
+        app:layout_constraintTop_toBottomOf="@id/goldDivider"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Manage Profiles -->
+    <!-- MANAGE PROFILES -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnManageProfiles"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/GoldAdminButton"
         android:text="Manage Profiles"
-        android:textSize="18sp"
-        android:textColor="#ffffff"
-        app:cornerRadius="30dp"
-        android:backgroundTint="#5A67D8"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/btnManageEvents"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Manage Images -->
+    <!-- MANAGE IMAGES -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnManageImages"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/GoldAdminButton"
         android:text="Manage Images"
-        android:textSize="18sp"
-        android:textColor="#ffffff"
-        app:cornerRadius="30dp"
-        android:backgroundTint="#5A67D8"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/btnManageProfiles"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- View Notification Logs -->
-    <Button
+    <!-- VIEW NOTIFICATION LOGS -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnNotificationLogs"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="View Notification Logs"
-        android:textAllCaps="false"
-        android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="32dp"
+        style="@style/GoldAdminButton"
+        android:text="Notification Logs"
         app:layout_constraintTop_toBottomOf="@id/btnManageImages"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Back to User Mode -->
+    <!-- BACK TO USER MODE (RED BUTTON) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/back_to_user_button"
-        android:layout_width="0dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:text="Back to User Mode"
         android:textSize="16sp"
-        android:textColor="#ffffff"
-        app:cornerRadius="30dp"
-        android:backgroundTint="#D32F2F"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="32dp"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="40dp"
+        android:backgroundTint="#B91C1C"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="48dp"
         app:layout_constraintTop_toBottomOf="@id/btnNotificationLogs"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
