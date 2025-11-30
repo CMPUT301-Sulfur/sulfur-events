@@ -87,12 +87,12 @@ public class OrganizerActivity extends AppCompatActivity {
 
         loadEventsFromFirestore(adapter);
 
-        // Back Button (returns to MainActivity)
-        ImageButton backButton = findViewById(R.id.BackButtonOrganizerEvents);
-        backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(OrganizerActivity.this, OrganizerActivity.class);
-            finish();
-        });
+//        // Back Button (returns to MainActivity)
+//        ImageButton backButton = findViewById(R.id.BackButtonOrganizerEvents);
+//        backButton.setOnClickListener(view -> {
+//            Intent intent = new Intent(OrganizerActivity.this, OrganizerActivity.class);
+//            finish();
+//        });
 
         // Create Event Button
         Button createEventButton = findViewById(R.id.CreateEventButton);
