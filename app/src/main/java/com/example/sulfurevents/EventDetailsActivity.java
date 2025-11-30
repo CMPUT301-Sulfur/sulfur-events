@@ -114,7 +114,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             EventPoster.setImageResource(R.drawable.outline_ad_off_24);
         }
 
-       
+
         // Check if user is on waiting list and load entrant count
         if (applyDateRestrictions()) {
             return; // Stop here if registration is closed
@@ -211,7 +211,7 @@ public class EventDetailsActivity extends AppCompatActivity {
      * Adds the current deviceId to {@code waiting_list} in Firestore and saves location if enabled.
      * On success updates the UI and re-reads the list to refresh the count.
      */
-private void joinWaitingList() {
+    private void joinWaitingList() {
         if (!checkLocationPermission()) {
             requestLocationPermission();
             return;
@@ -288,6 +288,11 @@ private void joinWaitingList() {
                                 isOnWaitingList = true;
                                 updateButtonState();
                                 Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+
+                                // Create notification for event history (US 01.02.03)
+                                String eventName = eventNameText.getText().toString();
+                                createJoinNotification(eventName);
+
                                 checkWaitingListStatus();
                             })
                             .addOnFailureListener(e -> {
@@ -306,7 +311,6 @@ private void joinWaitingList() {
     /**
      * Get current location and add user to waiting list (when geolocation is enabled)
      */
-
     private void getCurrentLocationAndJoin() {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -463,6 +467,11 @@ private void joinWaitingList() {
                     isOnWaitingList = true;
                     updateButtonState();
                     Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createJoinNotification(eventName);
+
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> {
@@ -473,10 +482,14 @@ private void joinWaitingList() {
                     isOnWaitingList = true;
                     updateButtonState();
                     Toast.makeText(this, "Joined waiting list (location not saved)", Toast.LENGTH_SHORT).show();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createJoinNotification(eventName);
+
                     checkWaitingListStatus();
                 });
     }
-
 
     /**
      * Removes the current deviceId from {@code waiting_list} and deletes location data if it exists.
@@ -500,6 +513,11 @@ private void joinWaitingList() {
                         isOnWaitingList = false;
                         updateButtonState();
                         Toast.makeText(this, "Successfully left waiting list", Toast.LENGTH_SHORT).show();
+
+                        // Create notification for event history (US 01.02.03)
+                        String eventName = eventNameText.getText().toString();
+                        createLeaveNotification(eventName);
+
                         checkWaitingListStatus(); // Refresh count
                     }
                 })
@@ -522,6 +540,11 @@ private void joinWaitingList() {
                     isOnWaitingList = false;
                     updateButtonState();
                     Toast.makeText(this, "Successfully left waiting list", Toast.LENGTH_SHORT).show();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createLeaveNotification(eventName);
+
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> {
@@ -530,6 +553,11 @@ private void joinWaitingList() {
                     isOnWaitingList = false;
                     updateButtonState();
                     Toast.makeText(this, "Left waiting list (location data may remain)", Toast.LENGTH_SHORT).show();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createLeaveNotification(eventName);
+
                     checkWaitingListStatus();
                 });
     }
@@ -589,6 +617,11 @@ private void joinWaitingList() {
                     isInvited = false;
                     isEnrolled = true;
                     updateButtonState();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createAcceptNotification(eventName);
+
                     showResultDialog("Invitation accepted", "You are now enrolled for this event.");
                     checkAndNotifyNotSelectedIfFull(eventId);
                 })
@@ -610,6 +643,11 @@ private void joinWaitingList() {
                     isInvited = false;
                     isCancelled = true;
                     updateButtonState();
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createDeclineNotification(eventName);
+
                     showResultDialog("Invitation declined", "You declined the invitation for this event.");
                 })
                 .addOnFailureListener(e -> {
@@ -767,4 +805,102 @@ private void joinWaitingList() {
 
         return false;
     }
+
+    /**
+     * Creates a notification in the user's history when they join the waiting list
+     * This supports US 01.02.03 - Event History feature
+     */
+    private void createJoinNotification(String eventName) {
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("eventId", eventId);
+        notification.put("eventName", eventName);
+        notification.put("type", "WAITING");
+        notification.put("message", "You joined the waiting list for " + eventName);
+        notification.put("timestamp", System.currentTimeMillis());
+        notification.put("read", false);
+
+        db.collection("Profiles")
+                .document(deviceID)
+                .collection("notifications")
+                .add(notification)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Join notification created successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create join notification: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Creates a notification when user leaves the waiting list
+     */
+    private void createLeaveNotification(String eventName) {
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("eventId", eventId);
+        notification.put("eventName", eventName);
+        notification.put("type", "LEFT_WAITLIST");
+        notification.put("message", "You left the waiting list for " + eventName);
+        notification.put("timestamp", System.currentTimeMillis());
+        notification.put("read", false);
+
+        db.collection("Profiles")
+                .document(deviceID)
+                .collection("notifications")
+                .add(notification)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Leave notification created successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create leave notification: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Creates a notification when user accepts an invitation
+     */
+    private void createAcceptNotification(String eventName) {
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("eventId", eventId);
+        notification.put("eventName", eventName);
+        notification.put("type", "ENROLLED");
+        notification.put("message", "You accepted the invitation and are now enrolled in " + eventName);
+        notification.put("timestamp", System.currentTimeMillis());
+        notification.put("read", false);
+
+        db.collection("Profiles")
+                .document(deviceID)
+                .collection("notifications")
+                .add(notification)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Accept notification created successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create accept notification: " + e.getMessage());
+                });
+    }
+
+    /**
+     * Creates a notification when user declines an invitation
+     */
+    private void createDeclineNotification(String eventName) {
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("eventId", eventId);
+        notification.put("eventName", eventName);
+        notification.put("type", "CANCELLED");
+        notification.put("message", "You declined the invitation for " + eventName);
+        notification.put("timestamp", System.currentTimeMillis());
+        notification.put("read", false);
+
+        db.collection("Profiles")
+                .document(deviceID)
+                .collection("notifications")
+                .add(notification)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Decline notification created successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create decline notification: " + e.getMessage());
+                });
+    }
+
 }
