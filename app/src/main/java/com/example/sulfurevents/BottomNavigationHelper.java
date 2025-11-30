@@ -52,6 +52,15 @@ public class BottomNavigationHelper {
                 }
                 return true;
 
+            } else if (id == R.id.entrant_history_navigation) {
+                // Handle History navigation (US 01.02.03)
+                if (!(context instanceof EntrantHistoryActivity)) {
+                    Intent intent = new Intent(context, EntrantHistoryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    context.startActivity(intent);
+                }
+                return true;
+
             }
 //            else if (id == R.id.notifications_navigation) {
 //                if (!(context instanceof NotificationsActivity)) {
@@ -73,7 +82,9 @@ public class BottomNavigationHelper {
             bottomNavigationView.setSelectedItemId(R.id.organizer_navigation);
         } else if (context instanceof EntrantActivity) {
             bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
-        }
+        } else if (context instanceof EntrantHistoryActivity) {
+            bottomNavigationView.setSelectedItemId(R.id.entrant_history_navigation);
+    }
     }
 
     public static void setupNotificationFab(Activity activity, int fabId, int bottomNavId) {

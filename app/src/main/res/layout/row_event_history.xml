@@ -32,13 +32,22 @@
             android:textColor="#444444" />
 
         <TextView
-            android:id="@+id/tvDate"
+            android:id="@+id/tvTimestamp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="2025-01-01 10:30"
+            android:text="Jan 01, 2025 at 10:30 AM"
             android:textSize="12sp"
             android:textColor="#777777" />
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="You joined the waiting list"
+            android:textSize="13sp"
+            android:textColor="#555555" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
