@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D3DEFF"
+    android:background="@color/black"
     tools:context=".EventMapActivity">
 
     <!-- Header Section with Back Button and Event Info -->
@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#D3DEFF">
+        android:background="@color/black">
 
         <!-- Back Button -->
         <ImageButton
@@ -35,7 +35,7 @@
             android:text="Event Name"
             android:textStyle="bold"
             android:textSize="24sp"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:text="Waitlist: 0 users"
             android:textSize="18sp"
-            android:textColor="#6B4EFF"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="12dp" />

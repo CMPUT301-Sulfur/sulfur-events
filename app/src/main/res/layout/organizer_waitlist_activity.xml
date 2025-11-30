@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#D3DEFF"
+    android:background="@color/black"
     android:padding="16dp">
 
     <ImageButton
@@ -12,19 +12,19 @@
         android:layout_height="36dp"
         android:background="@android:color/transparent"
         android:src="@drawable/back_arrow"
-        android:contentDescription="Back"
-        android:tint="@color/black" />
+        android:contentDescription="Back"/>
 
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Waiting List"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="@color/black"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:text="Waiting List"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -53,10 +53,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Send Invites to Selected"
+        android:textStyle="bold"
         android:textAllCaps="false"
         android:layout_marginTop="8dp"
-        android:backgroundTint="#6B4EFF"
-        android:textColor="@color/white"/>
+        android:background="@drawable/gold_border_rounded"
+        android:textColor="@color/yellow"/>
 
 
 
