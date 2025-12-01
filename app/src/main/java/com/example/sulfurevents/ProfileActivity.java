@@ -206,24 +206,58 @@ public class ProfileActivity extends AppCompatActivity {
      * Sets up the delete button with a confirmation dialog.
      * On confirmation, deletes the user's profile document and redirects to WelcomeEntrantActivity.
      */
-
     private void setupDeleteButton() {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new androidx.appcompat.app.AlertDialog.Builder(ProfileActivity.this)
+                // Create custom dialog with app color scheme
+                AlertDialog dialog = new AlertDialog.Builder(ProfileActivity.this)
                         .setTitle("Delete Profile")
                         .setMessage("Are you sure you want to delete your profile? This will:\n\n" +
                                 "• Remove you from all event lists\n" +
                                 "• Delete all events you've created\n" +
                                 "• Permanently delete your profile\n\n" +
                                 "This action cannot be undone.")
-                        .setPositiveButton("Delete", (dialog, which) -> {
+                        .setPositiveButton("Delete", (dialogInterface, which) -> {
                             deleteUserCompletely();
                         })
                         .setNegativeButton("Cancel", null)
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                        .create();
+
+                // Style the dialog
+                dialog.setOnShowListener(dialogInterface -> {
+                    // Set background to dark gray/black
+                    if (dialog.getWindow() != null) {
+                        dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFF000000));
+                    }
+
+                    // Style buttons - Delete in red/gold, Cancel in gray
+                    android.widget.Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    if (positiveButton != null) {
+                        positiveButton.setTextColor(0xFFFF4444); // Red for delete action
+                    }
+
+                    android.widget.Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    if (negativeButton != null) {
+                        negativeButton.setTextColor(0xFFD4AF37); // Gold
+                    }
+
+                    // Style message text
+                    TextView messageView = dialog.findViewById(android.R.id.message);
+                    if (messageView != null) {
+                        messageView.setTextColor(0xFFFFFFFF); // White
+                    }
+
+                    // Style title
+                    int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+                    TextView titleView = dialog.findViewById(titleId);
+                    if (titleView != null) {
+                        titleView.setTextColor(0xFFD4AF37); // Gold
+                    }
+                });
+
+                dialog.show();
             }
         });
     }
@@ -232,10 +266,45 @@ public class ProfileActivity extends AppCompatActivity {
      * Step 1: Start the deletion process
      */
     private void deleteUserCompletely() {
-        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(ProfileActivity.this);
-        progressDialog.setMessage("Deleting profile...");
-        progressDialog.setCancelable(false);
+        // Create a custom progress dialog with proper styling
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ProfileActivity.this);
+
+        // Create a custom view for the progress dialog
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(ProfileActivity.this);
+        layout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        layout.setPadding(50, 50, 50, 50);
+        layout.setGravity(android.view.Gravity.CENTER);
+        layout.setBackgroundColor(0xFF111111); // Dark background
+
+        android.widget.ProgressBar progressBar = new android.widget.ProgressBar(ProfileActivity.this);
+        progressBar.setIndeterminate(true);
+        android.widget.LinearLayout.LayoutParams progressParams = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        progressParams.setMargins(0, 0, 30, 0);
+        progressBar.setLayoutParams(progressParams);
+
+        android.widget.TextView textView = new android.widget.TextView(ProfileActivity.this);
+        textView.setText("Deleting profile...");
+        textView.setTextColor(0xFFD4AF37); // Gold
+        textView.setTextSize(18);
+
+        layout.addView(progressBar);
+        layout.addView(textView);
+
+        builder.setView(layout);
+        builder.setCancelable(false);
+
+        android.app.AlertDialog progressDialog = builder.create();
+
+        // Style the dialog window background
         progressDialog.show();
+        if (progressDialog.getWindow() != null) {
+            progressDialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(0xFF111111)
+            );
+        }
 
         // First, remove user from all event lists
         removeUserFromEventLists(progressDialog);
@@ -244,7 +313,7 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Step 2: Remove user from all event lists (waiting_list, enrolled_list, invited_list, cancelled_list)
      */
-    private void removeUserFromEventLists(android.app.ProgressDialog progressDialog) {
+    private void removeUserFromEventLists(android.app.AlertDialog progressDialog) {
         db.collection("Events")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -281,7 +350,7 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Step 3: Delete all events created by this user
      */
-    private void deleteUserCreatedEvents(android.app.ProgressDialog progressDialog) {
+    private void deleteUserCreatedEvents(android.app.AlertDialog progressDialog) {
         db.collection("Events")
                 .whereEqualTo("organizerId", deviceId)
                 .get()
@@ -311,7 +380,7 @@ public class ProfileActivity extends AppCompatActivity {
     /**
      * Step 4: Delete the user's profile
      */
-    private void deleteUserProfile(android.app.ProgressDialog progressDialog) {
+    private void deleteUserProfile(android.app.AlertDialog progressDialog) {
         db.collection("Profiles").document(deviceId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
@@ -333,10 +402,39 @@ public class ProfileActivity extends AppCompatActivity {
      * Shows an error message to the user
      */
     private void showError(String message) {
-        new androidx.appcompat.app.AlertDialog.Builder(ProfileActivity.this)
+        AlertDialog dialog = new AlertDialog.Builder(ProfileActivity.this)
                 .setTitle("Error")
                 .setMessage(message)
                 .setPositiveButton("OK", null)
-                .show();
+                .create();
+
+        // Style the error dialog
+        dialog.setOnShowListener(dialogInterface -> {
+            // Set background color
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFF000000));
+            }
+
+            // Style button
+            android.widget.Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (positiveButton != null) {
+                positiveButton.setTextColor(0xFFD4AF37); // Gold
+            }
+
+            // Style message text
+            TextView messageView = dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setTextColor(0xFFFFFFFF); // White
+            }
+
+            // Style title
+            int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+            TextView titleView = dialog.findViewById(titleId);
+            if (titleView != null) {
+                titleView.setTextColor(0xFFD4AF37); // Gold
+            }
+        });
+
+        dialog.show();
     }
 }

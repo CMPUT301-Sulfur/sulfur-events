@@ -3,6 +3,7 @@ package com.example.sulfurevents;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,6 +25,8 @@ public class BottomNavigationHelper {
      */
 
     public static void setupBottomNavigation(BottomNavigationView bottomNavigationView, Context context) {
+        // Apply color scheme to bottom navigation
+        applyColorScheme(bottomNavigationView);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -62,17 +65,55 @@ public class BottomNavigationHelper {
                 return true;
 
             }
-//            else if (id == R.id.notifications_navigation) {
-//                if (!(context instanceof NotificationsActivity)) {
-//                    Intent intent = new Intent(context, NotificationsActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//                    context.startActivity(intent);
-//                }
-//                return true;
-//            }
 
             return false;
         });
+    }
+
+    /**
+     * Applies the black and gold color scheme to the bottom navigation view
+     *
+     * @param bottomNavigationView The BottomNavigationView to style
+     */
+    private static void applyColorScheme(BottomNavigationView bottomNavigationView) {
+        // Create color state list for icons and text
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_checked },  // selected
+                new int[] { android.R.attr.state_selected }, // selected alternative
+                new int[] { -android.R.attr.state_checked }  // unselected
+        };
+
+        int[] colors = new int[] {
+                0xFFD4AF37,  // Gold for selected
+                0xFFD4AF37,  // Gold for selected alternative
+                0xFF777777   // Gray for unselected
+        };
+
+        ColorStateList colorStateList = new ColorStateList(states, colors);
+
+        // Apply colors to both icons and text
+        bottomNavigationView.setItemIconTintList(colorStateList);
+        bottomNavigationView.setItemTextColor(colorStateList);
+
+        // Set background to black
+        bottomNavigationView.setBackgroundColor(0xFF000000);
+
+        // Remove the white background ripple effect on selected items
+        bottomNavigationView.setItemRippleColor(null);
+
+        // Create transparent color state list for item backgrounds
+        int[][] bgStates = new int[][] {
+                new int[] { android.R.attr.state_checked },
+                new int[] { }
+        };
+
+        int[] bgColors = new int[] {
+                0x00000000,  // Transparent for selected
+                0x00000000   // Transparent for unselected
+        };
+
+        ColorStateList bgColorStateList = new ColorStateList(bgStates, bgColors);
+        bottomNavigationView.setItemActiveIndicatorColor(bgColorStateList);
     }
 
     public static void updateNavHighlighting(BottomNavigationView bottomNavigationView, Context context) {
@@ -84,7 +125,7 @@ public class BottomNavigationHelper {
             bottomNavigationView.setSelectedItemId(R.id.entrant_events_navigation);
         } else if (context instanceof EntrantHistoryActivity) {
             bottomNavigationView.setSelectedItemId(R.id.entrant_history_navigation);
-    }
+        }
     }
 
     public static void setupNotificationFab(Activity activity, int fabId, int bottomNavId) {
