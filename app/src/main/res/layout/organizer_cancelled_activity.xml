@@ -3,35 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#D3DEFF"
+    android:background="@color/black"
     android:padding="16dp">
 
-    <!-- Header -->
-    <LinearLayout
+    <!-- BACK BUTTON -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/back_arrow"
+        android:contentDescription="Back"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- PAGE TITLE -->
+    <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:text="Cancelled Entrants"
+        android:textColor="#D4AF37"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.05"
+        android:gravity="center"
+        android:layout_marginTop="30dp" />
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/back_arrow"
-            android:contentDescription="Back"
-            android:tint="@color/black" />
+    <!-- GOLD DIVIDER -->
+    <View
+        android:id="@+id/titleDivider"
+        android:layout_width="180dp"
+        android:layout_height="2dp"
+        android:background="#D4AF37"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="20dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancelled Entrants"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
-
+    <!-- LOADING -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -39,15 +48,17 @@
         android:layout_gravity="center_horizontal"
         android:visibility="gone" />
 
+    <!-- EMPTY -->
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No cancelled entrants."
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:visibility="gone"
         android:layout_marginTop="12dp" />
 
+    <!-- LIST -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCancelled"
         android:layout_width="match_parent"

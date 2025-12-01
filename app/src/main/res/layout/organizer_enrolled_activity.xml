@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#F5F5F5"
+    android:background="@color/black"
     tools:context=".OrganizerEnrolledActivity">
 
     <!-- Back button -->
@@ -20,21 +20,34 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Title -->
+    <!-- PAGE TITLE -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Enrolled Entrants"
+        android:textColor="#D4AF37"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="#000000"
+        android:letterSpacing="0.05"
         android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btnBack"
+        app:layout_constraintTop_toBottomOf="@id/btnBack"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/btnBack"
-        android:layout_marginStart="8dp" />
+        android:layout_marginTop="20dp"/>
+
+    <!-- GOLD DIVIDER -->
+    <View
+        android:id="@+id/goldDivider"
+        android:layout_width="180dp"
+        android:layout_height="2dp"
+        android:background="#D4AF37"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+
 
     <!-- Progress -->
     <ProgressBar
