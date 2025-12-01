@@ -265,11 +265,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                         showStyledDialog("Waitlist Full", "The waiting list is full");
                         progressBar.setVisibility(View.GONE);
                         joinLeaveButton.setEnabled(true);
-                        new androidx.appcompat.app.AlertDialog.Builder(this)
-                                .setTitle("Waiting List Full")
-                                .setMessage("Waiting list is full for this event.")
-                                .setPositiveButton("OK", null)
-                                .show();
                         return;
                     }
 
@@ -286,7 +281,6 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                                 // Create notification for event history (US 01.02.03)
                                 String eventName = eventNameText.getText().toString();
-                                createJoinNotification(eventName);
 
 
                                 checkWaitingListStatus();
@@ -336,6 +330,36 @@ public class EventDetailsActivity extends AppCompatActivity {
                 fusedLocationClient.removeLocationUpdates(this);
             }
         }, null);
+    }
+
+    private void saveRegistrationLocation(Double lat, Double lng) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("deviceId", deviceID);
+        data.put("timestamp", com.google.firebase.Timestamp.now());
+        data.put("latitude", lat);
+        data.put("longitude", lng);
+        data.put("hasLocation", lat != null && lng != null);
+
+        db.collection("Events").document(eventId).collection("entrant_registration_location")
+                .document(deviceID).set(data)
+                .addOnSuccessListener(aVoid -> {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    isOnWaitingList = true;
+                    updateButtonState();
+                    showStyledDialog("Success", "Successfully Joined Waiting List!");
+                    createJoinNotification(eventNameText.getText().toString());
+                    checkWaitingListStatus();
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    isOnWaitingList = true;
+                    updateButtonState();
+                    showStyledDialog("Partial Success", "Joined waiting list (location not saved)");
+                    createJoinNotification(eventNameText.getText().toString());
+                    checkWaitingListStatus();
+                });
     }
 
 private void addToWaitingListWithLocation(Double lat, Double lng) {
@@ -463,15 +487,6 @@ private void deleteRegistrationLocation() {
                 });
     }
 
-    private void finalizeLeave() {
-        progressBar.setVisibility(View.GONE);
-        joinLeaveButton.setEnabled(true);
-        isOnWaitingList = false;
-        updateButtonState();
-        showStyledDialog("Success", "Successfully Left Waiting List!");
-        createLeaveNotification(eventNameText.getText().toString());
-        checkWaitingListStatus();
-    }
 
     private void finalizeLeave() {
         progressBar.setVisibility(View.GONE);
