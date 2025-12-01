@@ -2,6 +2,7 @@ package com.example.sulfurevents;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
@@ -44,6 +45,19 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
+
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
+
+
 public class OrganizerCreateEventTest {
 
     @Rule
@@ -63,10 +77,25 @@ public class OrganizerCreateEventTest {
 
         onView(withId(R.id.etEventName)).perform(typeText("Test File Event test"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(typeText("This is a test run by the test file"), closeSoftKeyboard());
-        onView(withId(R.id.etStartDate)).perform(typeText("11/7/2025"), closeSoftKeyboard());
-        onView(withId(R.id.etEndDate)).perform(typeText("11/7/2025"), closeSoftKeyboard());
+
+
+        // Start date
+        onView(withId(R.id.etStartDate)).perform(click());
+        onView(withText("OK")).perform(click());
+
+        // End date
+        onView(withId(R.id.etEndDate)).perform(click());
+        onView(withText("OK")).perform(click());
+
         onView(withId(R.id.etLocation)).perform(typeText("Edmonton"), closeSoftKeyboard());
+        onView(withId(R.id.switchGeolocation)).perform(click());
         onView(withId(R.id.etLimitGuests)).perform(typeText("2"), closeSoftKeyboard());
+        onView(withId(R.id.etWaitingListLimit)).perform(typeText("1"), closeSoftKeyboard());
+        onView(withId(R.id.etWaitingListLimit)).perform(pressImeActionButton());
+
+        //SystemClock.sleep(2500);
+        onView(withId(R.id.GenerateEventButton)).perform(scrollTo()).perform(click());
+
         SystemClock.sleep(2500);
 
     }
@@ -98,7 +127,7 @@ public class OrganizerCreateEventTest {
         eventData.put("endDate", "later");
         eventData.put("location", "Edmonton");
         eventData.put("limitGuests", "2");
-        eventData.put("organizerEmail", "test@mail.com");
+        //eventData.put("organizerEmail", "test@mail.com");
         eventData.put("waiting_list", java.util.Arrays.asList(
                 "DEV_0","DEV_1","DEV_2","DEV_3","DEV_4","DEV_5","DEV_6","DEV_7","DEV_8","DEV_9"
         ));
