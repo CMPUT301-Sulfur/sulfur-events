@@ -93,6 +93,7 @@ public class AdminProfilesActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton("Delete", (dialog, which) -> {
 
+                    // Same as before (you asked to keep this)
                     android.app.ProgressDialog progressDialog =
                             new android.app.ProgressDialog(this);
                     progressDialog.setMessage("Deleting profile...");
@@ -105,20 +106,27 @@ public class AdminProfilesActivity extends AppCompatActivity {
                             .addOnSuccessListener(aVoid -> {
                                 progressDialog.dismiss();
 
-                                // The snapshot listener will auto-update the list
-                                Toast.makeText(this,
-                                        "Profile deleted.",
-                                        Toast.LENGTH_SHORT).show();
+                                // Popup instead of Toast
+                                new androidx.appcompat.app.AlertDialog.Builder(this)
+                                        .setTitle("Profile Deleted")
+                                        .setMessage("The profile has been successfully deleted.")
+                                        .setPositiveButton("OK", null)
+                                        .show();
                             })
                             .addOnFailureListener(e -> {
                                 progressDialog.dismiss();
-                                Toast.makeText(this,
-                                        "Error: " + e.getMessage(),
-                                        Toast.LENGTH_LONG).show();
+
+                                // Popup instead of Toast
+                                new androidx.appcompat.app.AlertDialog.Builder(this)
+                                        .setTitle("Delete Failed")
+                                        .setMessage("Error: " + e.getMessage())
+                                        .setPositiveButton("OK", null)
+                                        .show();
                             });
 
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
 }

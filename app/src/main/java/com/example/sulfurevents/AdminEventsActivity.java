@@ -4,12 +4,12 @@
 
 package com.example.sulfurevents;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 /**
- * This class defines the admin events screen.
- * It lets administrators view and delete events from Firestore.
+ * AdminEventsActivity
+ * This screen allows administrators to view and delete events stored in Firestore.
  */
 public class AdminEventsActivity extends AppCompatActivity {
 
@@ -36,26 +36,24 @@ public class AdminEventsActivity extends AppCompatActivity {
 
     /**
      * Called when the activity is created.
-     * Sets up the list and loads events from Firestore.
-     * @param savedInstanceState The saved instance state bundle
+     * Initializes UI components and loads events.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_events_activity);
 
+        // Back button
         ImageButton btnBack = findViewById(R.id.btnBackEvents);
         btnBack.setOnClickListener(v -> finish());
 
-        ImageButton backBtn = findViewById(R.id.btnBackEvents);
-        backBtn.setOnClickListener(v -> finish());
-
-
+        // Set up list + adapter
         listViewEvents = findViewById(R.id.listViewEvents);
         eventList = new ArrayList<>();
         adapter = new AdminEventsListAdapter(this, eventList);
         listViewEvents.setAdapter(adapter);
 
+        // Firestore initialization
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("Events");
 
@@ -63,13 +61,14 @@ public class AdminEventsActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads all events from the Firestore "Events" collection.
-     * Updates the list automatically when data changes.
+     * Loads all events from Firestore and listens for updates in real time.
      */
     private void loadEventsFromFirestore() {
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+
+                if (snapshots == null) return;
 
                 eventList.clear();
 
@@ -87,11 +86,24 @@ public class AdminEventsActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes an event from Firestore.
-     * @param eventId The ID of the event to delete
+     * Deletes an event from Firestore and shows a popup instead of a Toast.
+     * @param eventId ID of the event to delete
      */
     public void deleteEvent(String eventId) {
         eventsRef.document(eventId).delete()
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(aVoid -> showPopup("Event deleted successfully."))
+                .addOnFailureListener(e -> showPopup("Failed to delete event."));
+    }
+
+    /**
+     * Shows a simple popup dialog with a message.
+     * @param message Text to display
+     */
+    private void showPopup(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Admin Action")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }

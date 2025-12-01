@@ -1,6 +1,6 @@
 // AdminImagesActivity
 // This activity lists all events that have images uploaded.
-// Admin can browse, search by event name, and open an event to manage images (placeholder toast for now).
+// Admin can browse, search by event name, and open an event to manage images.
 
 package com.example.sulfurevents;
 
