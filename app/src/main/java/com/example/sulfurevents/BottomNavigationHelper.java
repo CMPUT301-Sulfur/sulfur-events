@@ -34,7 +34,7 @@ public class BottomNavigationHelper {
             if (id == R.id.home_navigation) {
                 if (!(context instanceof ProfileActivity)) {
                     Intent intent = new Intent(context, ProfileActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     context.startActivity(intent);
                 }
                 return true;
@@ -42,7 +42,7 @@ public class BottomNavigationHelper {
             } else if (id == R.id.organizer_navigation) {
                 if (!(context instanceof OrganizerActivity)) {
                     Intent intent = new Intent(context, OrganizerActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     context.startActivity(intent);
                 }
                 return true;
@@ -50,7 +50,7 @@ public class BottomNavigationHelper {
             } else if (id == R.id.entrant_events_navigation) {
                 if (!(context instanceof EntrantActivity)) {
                     Intent intent = new Intent(context, EntrantActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     context.startActivity(intent);
                 }
                 return true;
@@ -59,7 +59,7 @@ public class BottomNavigationHelper {
                 // Handle History navigation (US 01.02.03)
                 if (!(context instanceof EntrantHistoryActivity)) {
                     Intent intent = new Intent(context, EntrantHistoryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     context.startActivity(intent);
                 }
                 return true;
