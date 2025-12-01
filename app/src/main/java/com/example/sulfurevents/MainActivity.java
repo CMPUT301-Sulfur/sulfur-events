@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private FirebaseFirestore db;
     private String deviceId;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,5 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 });
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
     }
 }

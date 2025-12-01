@@ -114,7 +114,30 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         listenForNotifications(); // same name, but updated body
     }
 
-    /**
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Mark non-invitation notifications as read when user leaves this screen
+        markNonInvitationNotificationsAsRead();
+    }
+
+    private void markNonInvitationNotificationsAsRead() {
+        db.collection("Profiles")
+                .document(deviceId)
+                .collection("notifications")
+                .whereEqualTo("read", false)
+                .get()
+                .addOnSuccessListener(query -> {
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        String type = doc.getString("type");
+
+                        // Only mark as read if it's NOT an invitation
+                        if (!"INVITED".equalsIgnoreCase(type)) {
+                            doc.getReference().update("read", true);
+                        }
+                    }
+                });
+    }    /**
      * Subscribes to Firestore updates on the current entrant's notification collection.
      * The list is kept in reverse chronological order (latest first). When no notifications
      * are present, an empty-state text view is shown.
@@ -247,7 +270,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
             return;
         }
         Intent i = new Intent(this, EventDetailsActivity.class);
-        i.putExtra("EVENT_ID", item.eventId);
+        i.putExtra("eventId", item.eventId);
         startActivity(i);
         markNotificationRead(item);
     }
