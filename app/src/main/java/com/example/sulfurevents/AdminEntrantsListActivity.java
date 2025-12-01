@@ -18,6 +18,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This activity displays a list of all entrants (users) stored in Firestore.
+ * Administrators can select an entrant to view their notification logs.
+ */
 public class AdminEntrantsListActivity extends AppCompatActivity {
 
     private RecyclerView rvUsers;
@@ -30,6 +34,12 @@ public class AdminEntrantsListActivity extends AppCompatActivity {
     private final List<User> users = new ArrayList<>();
     private final List<String> userIds = new ArrayList<>();
 
+    /**
+     * Called when the activity is created.
+     * Initializes UI elements, sets up the RecyclerView, and loads user profiles.
+     *
+     * @param savedInstanceState Previously saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +61,11 @@ public class AdminEntrantsListActivity extends AppCompatActivity {
         loadProfiles();
     }
 
+    /**
+     * Loads all user profiles from Firestore.
+     * Updates the RecyclerView and displays appropriate UI states
+     * such as loading, empty, or error messages.
+     */
     private void loadProfiles() {
         progressBar.setVisibility(View.VISIBLE);
         tvEmpty.setVisibility(View.GONE);
@@ -85,6 +100,12 @@ public class AdminEntrantsListActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Opens the notification logs screen for the selected entrant.
+     *
+     * @param userId The Firestore ID of the selected entrant
+     * @param name   The name of the selected entrant
+     */
     private void openEntrantNotifications(String userId, String name) {
         Intent intent = new Intent(this, AdminEntrantNotificationsActivity.class);
         intent.putExtra("entrantId", userId);

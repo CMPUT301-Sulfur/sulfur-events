@@ -119,9 +119,11 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
                                         .commit();
                             }
 
-                            Toast.makeText(this,
-                                    "Geolocation tracking is not enabled for this event",
-                                    Toast.LENGTH_LONG).show();
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Geolocation Disabled")
+                                    .setMessage("Geolocation tracking is not enabled for this event.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
                         }
                     } else {
                         loadingIndicator.setVisibility(View.GONE);
@@ -206,13 +208,18 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
 
                     if (validLocationCount > 0) {
                         displayMarkersOnMap();
-                        Toast.makeText(this,
-                                "Loaded " + validLocationCount + " locations",
-                                Toast.LENGTH_SHORT).show();
+
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("Loaded " + validLocationCount + " locations.")
+                                .setPositiveButton("OK", null)
+                                .show();
+
                     } else {
-                        Toast.makeText(this,
-                                "No location data available for this event",
-                                Toast.LENGTH_LONG).show();
+
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("No location data available for this event.")
+                                .setPositiveButton("OK", null)
+                                .show();
                     }
                 })
                 .addOnFailureListener(e -> {

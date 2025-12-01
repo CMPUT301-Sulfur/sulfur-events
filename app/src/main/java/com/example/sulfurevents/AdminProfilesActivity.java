@@ -23,6 +23,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * This activity displays all user profiles stored in Firestore.
+ * Administrators can view profiles in a list and delete individual profiles if needed.
+ */
 public class AdminProfilesActivity extends AppCompatActivity {
 
     private ListView listViewProfiles;
@@ -31,6 +35,13 @@ public class AdminProfilesActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
 
+    /**
+     * Called when the activity is created.
+     * Initializes UI components, sets up the ListView adapter,
+     * connects to Firestore, and loads profiles.
+     *
+     * @param savedInstanceState Previously saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
