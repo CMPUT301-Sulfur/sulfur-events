@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -15,7 +17,9 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -50,72 +54,59 @@ import java.util.Locale;
 /**
  * The {@code OrganizerCreateEventActivity} class allows organizers to create new events
  * in the SulfurEvents application.
- * <p>
- * This screen lets the user:
- * <ul>
- *     <li>Enter event details (name, description, date, etc.)</li>
- *     <li>Upload an event poster image</li>
- *     <li>Automatically generate a QR code for the event</li>
- *     <li>Toggle geolocation requirement for entrants</li>
- * </ul>
- *
- * The new event is stored in the Firestore "Events" collection.
- *
- * <p>Associated layout: {@code create_event_activity.xml}
  */
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateEvent";
-
-    /** Request code for selecting an image from the gallery. */
     private static final int IMAGE_REQUEST = 1;
 
-    /** URI of the uploaded event poster image. */
     private Uri posterUri = null;
-
-    /** Firestore database instance. */
     private FirebaseFirestore db;
-
-    /** Device ID used as the organizer's unique identifier. */
     private String DeviceID;
-
-    /** The currently logged-in user (if available). */
     private User CurrentUser;
-
-    /** Geolocation toggle switch */
     private SwitchCompat switchGeolocation;
-
-    /** Geolocation status text */
     private TextView tvGeolocationStatus;
-
-    /** Geocoder for address validation */
     private Geocoder geocoder;
-    /** the appropriate email*/
     private String organizerProfileEmail;
 
-
-
     /**
-     * Called when the activity is first created.
-     * <p>
-     * Sets up UI elements, initializes Firebase, and configures button click listeners
-     * for creating events and uploading poster images.
-     *
-     * @param savedInstanceState The saved instance state bundle, if any.
+     * Shows a custom styled toast message matching the app's black and gold theme
      */
+    private void showStyledToast(String message) {
+        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        View toastView = toast.getView();
+
+        if (toastView != null) {
+            // Set background to dark with gold border
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(Color.parseColor("#111111")); // Dark background
+            background.setStroke(3, Color.parseColor("#D4AF37")); // Gold border
+            background.setCornerRadius(12);
+            toastView.setBackground(background);
+
+            // Style the text
+            TextView toastText = toastView.findViewById(android.R.id.message);
+            if (toastText != null) {
+                toastText.setTextColor(Color.parseColor("#D4AF37")); // Gold text
+                toastText.setTextSize(16);
+                toastText.setPadding(40, 20, 40, 20);
+            }
+        }
+
+        toast.show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.create_event_activity);
 
-
         Intent intent = getIntent();
         boolean isEdit = intent.getBooleanExtra("isEdit", false);
         if (isEdit) {
             enableEditMode(intent);
         }
-
 
         View root = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.GenerateEventButton), (v, insets) -> {
@@ -124,29 +115,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return insets;
         });
 
-
-        // getting the instance of device id and database access
         db = FirebaseFirestore.getInstance();
         DeviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        // Initialize geolocation switch and status text
         switchGeolocation = findViewById(R.id.switchGeolocation);
         tvGeolocationStatus = findViewById(R.id.tvGeolocationStatus);
 
-        // Set initial state to OFF (red)
         updateSwitchColors(false);
 
-        // Add listener to change colors when toggled
         switchGeolocation.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateSwitchColors(isChecked);
-
-            if (isChecked) {
-                Toast.makeText(this, "Geolocation enabled - entrants' locations will be tracked",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Geolocation disabled", Toast.LENGTH_SHORT).show();
-            }
         });
 
         db.collection("Profiles").document(DeviceID).get()
@@ -159,20 +138,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     }
                 });
 
-
-
-        // Back Button to main organizer home page with list of events
         ImageButton backButton = findViewById(R.id.Back_Button);
         backButton.setOnClickListener(v -> finish());
 
-        // Generate Link and Add Event Button
         Button GenerateQRCodeEventButon = findViewById(R.id.GenerateEventButton);
         GenerateQRCodeEventButon.setOnClickListener(view ->{
-            // CreateEvent(String Device ID, User CurrentUser,);
             CreateEvent();
         });
 
-        // listen for user to click on upload poster area
         FrameLayout poster = findViewById(R.id.posterUploadArea);
         poster.setOnClickListener(view ->{
             Intent pickintent = new Intent(Intent.ACTION_PICK);
@@ -180,74 +153,44 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             startActivityForResult(pickintent,IMAGE_REQUEST);
         });
 
-        // listen for user to click the date section on the date buttons
         EditText start = findViewById(R.id.etStartDate);
         EditText end = findViewById(R.id.etEndDate);
 
         setdate(start);
         setdate(end);
-
     }
 
-    /**
-     * Updates the switch colors and status text based on its state
-     * @param isChecked true if switch is ON (green), false if OFF (red)
-     */
     private void updateSwitchColors(boolean isChecked) {
         if (isChecked) {
-            // GREEN when enabled
             switchGeolocation.setThumbTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#4CAF50"))); // Green thumb
+                    android.graphics.Color.parseColor("#4CAF50")));
             switchGeolocation.setTrackTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#A5D6A7"))); // Light green track
+                    android.graphics.Color.parseColor("#A5D6A7")));
 
-            // Update status text
             tvGeolocationStatus.setText("ON");
             tvGeolocationStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"));
         } else {
-            // RED when disabled
             switchGeolocation.setThumbTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#F44336"))); // Red thumb
+                    android.graphics.Color.parseColor("#F44336")));
             switchGeolocation.setTrackTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#EF9A9A"))); // Light red track
+                    android.graphics.Color.parseColor("#EF9A9A")));
 
-            // Update status text
             tvGeolocationStatus.setText("OFF");
             tvGeolocationStatus.setTextColor(android.graphics.Color.parseColor("#F44336"));
         }
     }
 
-
-    /**
-     * Generates a QR code bitmap for the given value.
-     *
-     * @param value The text or ID to encode in the QR code.
-     * @return A Bitmap containing the generated QR code.
-     * @throws Exception If QR code generation fails.
-     */
     private Bitmap generateQR(String value) throws Exception{
         com.journeyapps.barcodescanner.BarcodeEncoder encoder = new com.journeyapps.barcodescanner.BarcodeEncoder();
         return encoder.encodeBitmap(value, com.google.zxing.BarcodeFormat.QR_CODE, 500, 500);
     }
 
-    /**
-     * Converts a Bitmap image to a Base64-encoded string.
-     *
-     * @param bitmap The bitmap to convert.
-     * @return A Base64 string representing the bitmap.
-     */
     private String bitmaptobase64(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
 
-    /**
-     * Validates that the entered address is a real, valid address using Google's Geocoder
-     *
-     * @param address The address string to validate
-     * @return true if address is valid, false otherwise
-     */
     private boolean validateAddress(String address) {
         if (TextUtils.isEmpty(address)) {
             return false;
@@ -259,19 +202,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             if (addresses == null || addresses.isEmpty()) {
                 EditText etLocation = findViewById(R.id.etLocation);
                 etLocation.setError("Please enter a valid address");
-                Toast.makeText(this,
-                        "Address not found. Please enter a valid address.",
-                        Toast.LENGTH_LONG).show();
+                showStyledToast("Address not found. Please enter a valid address.");
                 return false;
             }
 
-            // Address is valid
             Address validAddress = addresses.get(0);
             String formattedAddress = validAddress.getAddressLine(0);
 
             Log.d(TAG, "Valid address: " + formattedAddress);
 
-            // Update with formatted address
             EditText etLocation = findViewById(R.id.etLocation);
             etLocation.setText(formattedAddress);
 
@@ -279,21 +218,11 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         } catch (IOException e) {
             Log.e(TAG, "Geocoder error: " + e.getMessage());
-            Toast.makeText(this,
-                    "Unable to verify address. Please check your internet connection.",
-                    Toast.LENGTH_LONG).show();
+            showStyledToast("Unable to verify address. Please check your internet connection.");
             return false;
         }
     }
 
-    /**
-     * Creates a new event and uploads its data to Firestore.
-     * <p>
-     * If an image is selected, it uploads the event poster to Firebase Storage
-     * and stores the download URL in the event document.
-     * A unique event ID is generated for each event.
-     * Includes geolocation toggle status and validates address if geolocation is enabled.
-     */
     private void CreateEvent() {
         String title = ((EditText)findViewById(R.id.etEventName)).getText().toString();
         String description = ((EditText)findViewById(R.id.etDescription)).getText().toString();
@@ -304,14 +233,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String waitingLimit = ((EditText)findViewById(R.id.etWaitingListLimit)).getText().toString();
         String OGEmail = organizerProfileEmail;
 
-        // Get geolocation toggle status
         boolean geolocationEnabled = switchGeolocation.isChecked();
 
-        // ALWAYS validate address regardless of geolocation setting
         if (!location.isBlank() && !validateAddress(location)) {
-            Toast.makeText(this,
-                    "Please enter a valid address.",
-                    Toast.LENGTH_LONG).show();
+            showStyledToast("Please enter a valid address.");
             return;
         }
 
@@ -324,7 +249,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
-        // QR-code variables
         Bitmap qrBitmap;
         String qrBase64;
 
@@ -333,18 +257,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             qrBitmap = generateQR(deepLink);
             qrBase64 = bitmaptobase64(qrBitmap);
         } catch (Exception e) {
-            Toast.makeText(this, "Cannot create event: QR code generation failed", Toast.LENGTH_SHORT).show();
+            showStyledToast("Cannot create event: QR code generation failed");
             return;
         }
 
         if(title.isBlank() || description.isBlank() || start.isBlank() ||
                 end.isBlank() || location.isBlank() || limit.isBlank() || OGEmail.isBlank()) {
-            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+            showStyledToast("Please fill all fields");
             return;
         }
 
         if(!isDateValid(start, end)) {
-            Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
+            showStyledToast("End date cannot be before start date");
             return;
         }
 
@@ -367,7 +291,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             event.waitingListLimit = "";
         }
 
-        // Save poster
         if (posterUri == null) {
             event.posterURL = null;
 
@@ -376,21 +299,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         String message = geolocationEnabled
                                 ? "Event created with geolocation enabled!"
                                 : "Event created successfully!";
-                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                        showStyledToast(message);
 
-                        // SAVE QR TO GALLERY
                         saveQRToGallery(qrBitmap, eventId);
 
-                        // UPDATE PROFILE: Mark user as organizer
                         db.collection("Profiles").document(DeviceID)
                                 .update("isOrganizer", true);
 
-                        // RETURN TO ORGANIZER HOME
                         finish();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to create event: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
+                        showStyledToast("Failed to create event: " + e.getMessage());
                     });
 
         } else {
@@ -407,25 +326,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                 String message = geolocationEnabled
                                         ? "Event created with geolocation enabled!"
                                         : "Event created successfully!";
-                                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                                showStyledToast(message);
 
-                                // SAVE QR TO GALLERY
                                 saveQRToGallery(qrBitmap, eventId);
 
-                                // UPDATE PROFILE: Mark user as organizer
                                 db.collection("Profiles").document(DeviceID)
                                         .update("isOrganizer", true);
 
-                                // RETURN TO ORGANIZER HOME
                                 finish();
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Failed to create event: " + e.getMessage(),
-                                        Toast.LENGTH_LONG).show();
+                                showStyledToast("Failed to create event: " + e.getMessage());
                             });
                 });
             }).addOnFailureListener(e -> {
-                Toast.makeText(this, "Poster Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                showStyledToast("Poster upload failed: " + e.getMessage());
             });
         }
     }
@@ -462,26 +377,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
 
-            Toast.makeText(this, "QR saved to gallery!", Toast.LENGTH_LONG).show();
+            showStyledToast("QR code saved to gallery!");
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to save QR", Toast.LENGTH_SHORT).show();
+            showStyledToast("Failed to save QR code");
         }
     }
 
-
-
-    /**
-     * Handles the result from the image picker intent.
-     * <p>
-     * Displays a preview of the selected event poster or resets to default
-     * if no image is chosen.
-     *
-     * @param requestCode The request code used when starting the activity.
-     * @param resultCode  The result code returned by the activity.
-     * @param data        The intent data containing the selected image URI.
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -490,7 +393,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         if(requestCode == IMAGE_REQUEST && resultCode != RESULT_OK){
             posterUri = null;
-            eventposter.setImageResource(R.drawable.upload); // back to default icon
+            eventposter.setImageResource(R.drawable.upload);
             return;
         }
 
@@ -503,7 +406,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private void setdate(EditText editText){
         editText.setOnClickListener(v ->{
             Calendar calendar = Calendar.getInstance();
-            // if there is already a date parse the date
             String CurrentDate = editText.getText().toString();
             if(!CurrentDate.isBlank() && CurrentDate.length() == 10){
                 try{
@@ -517,7 +419,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 }
             }
 
-
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -526,7 +427,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     this,
                     (view, selectedYear, selectedMonth, selectedDay) -> {
                         String formattedDate = String.format("%02d/%02d/%04d",
-                                selectedMonth + 1, // Add 1 because month is 0-indexed
+                                selectedMonth + 1,
                                 selectedDay,
                                 selectedYear);
                         editText.setText(formattedDate);
@@ -543,29 +444,23 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String[] StartSplit = start.split("/");
         String[] EndSplit = end.split("/");
 
-        // Year
         Integer Syear = Integer.parseInt(StartSplit[2]);
         Integer Eyear = Integer.parseInt(EndSplit[2]);
-        //day
         Integer Sday = Integer.parseInt(StartSplit[1]);
         Integer Eday = Integer.parseInt(EndSplit[1]);
-        // month
         Integer Smonth = Integer.parseInt(StartSplit[0]);
         Integer Emonth = Integer.parseInt(EndSplit[0]);
-        // year comparison
+
         if(Eyear > Syear) return true;
         if(Eyear < Syear) return false;
 
-        // month comparison
         if(Emonth > Smonth) return true;
         if(Emonth < Smonth) return false;
 
-        // compare day
         return Eday >= Sday;
     }
 
     private void enableEditMode(Intent intent){
-        // Pre-fill fields
         ((EditText)findViewById(R.id.etEventName))
                 .setText(intent.getStringExtra("eventName"));
 
@@ -584,14 +479,12 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         ((EditText)findViewById(R.id.etLimitGuests))
                 .setText(intent.getStringExtra("capacity"));
 
-        // NEW: pre-fill waiting list limit if provided
         String waitingLimitExtra = intent.getStringExtra("waitingListLimit");
         if (waitingLimitExtra != null && !waitingLimitExtra.isEmpty()) {
             ((EditText)findViewById(R.id.etWaitingListLimit))
                     .setText(waitingLimitExtra);
         }
 
-        // Change button text
         Button btn = findViewById(R.id.GenerateEventButton);
         btn.setText("Save Changes");
 
@@ -608,19 +501,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                            String start, String end, String location,
                            String limit, String waitingLimit){
 
-        // Validate fields in edit mode
         if(title.isBlank() || description.isBlank() || start.isBlank() ||
                 end.isBlank() || location.isBlank() || limit.isBlank()){
-            Toast.makeText(this, "Please, fill all fields.", Toast.LENGTH_SHORT).show();
+            showStyledToast("Please fill all fields");
             return;
         }
 
         if(!isDateValid(start, end)){
-            Toast.makeText(this, "End date cannot be before start date.", Toast.LENGTH_SHORT).show();
+            showStyledToast("End date cannot be before start date");
             return;
         }
 
-        // If poster was updated, upload it first
         if (posterUri != null && !posterUri.toString().startsWith("http")) {
             StorageReference storeref = FirebaseStorage.getInstance()
                     .getReference("Event_Posters")
@@ -641,16 +532,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                     "waitingListLimit", waitingLimit != null ? waitingLimit : ""
                             )
                             .addOnSuccessListener(unused -> {
-                                Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
+                                showStyledToast("Event updated successfully");
                                 finish();
                             });
                 });
             }).addOnFailureListener(e -> {
-                Toast.makeText(this, "Failed to upload poster: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                showStyledToast("Failed to upload poster: " + e.getMessage());
             });
         } else {
-            // No new poster - just update fields
             db.collection("Events").document(eventId)
                     .update(
                             "eventName", title,
@@ -663,10 +552,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                             "waitingListLimit", waitingLimit != null ? waitingLimit : ""
                     )
                     .addOnSuccessListener(unused -> {
-                        Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show();
+                        showStyledToast("Event updated successfully");
                         finish();
                     });
         }
     }
-
 }
