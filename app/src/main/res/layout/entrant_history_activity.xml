@@ -85,11 +85,13 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        android:background="#000000"
+        app:itemIconTint="@color/nav_item_color_state"
+        app:itemTextColor="@color/nav_item_color_state"/>
 
     <!-- Floating Action Button for Notifications -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -100,6 +102,9 @@
         android:src="@drawable/ic_notifications"
         android:contentDescription="Notifications"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView" />
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:backgroundTint="#D4AF37"
+        app:tint="@android:color/black"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
