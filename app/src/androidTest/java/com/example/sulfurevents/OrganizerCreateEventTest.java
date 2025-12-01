@@ -3,10 +3,12 @@ package com.example.sulfurevents;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
@@ -75,6 +77,8 @@ public class OrganizerCreateEventTest {
     public void TestCreateEventButton() {
         onView(withId(R.id.CreateEventButton)).perform(click());
 
+
+        //onView(withId(R.id.GenerateEventButton)).perform(scrollTo()).perform(click());
         onView(withId(R.id.etEventName)).perform(typeText("Test File Event test"), closeSoftKeyboard());
         onView(withId(R.id.etDescription)).perform(typeText("This is a test run by the test file"), closeSoftKeyboard());
 
@@ -94,7 +98,11 @@ public class OrganizerCreateEventTest {
         onView(withId(R.id.etWaitingListLimit)).perform(pressImeActionButton());
 
         //SystemClock.sleep(2500);
-        onView(withId(R.id.GenerateEventButton)).perform(scrollTo()).perform(click());
+        //onView(withId(R.id.GenerateEventButton)).perform(scrollTo()).perform(click()).perform(click());
+        onView(isRoot()).perform(swipeUp());
+        onView(isRoot()).perform(swipeUp());
+        onView(isRoot()).perform(swipeUp());
+        onView(withId(R.id.GenerateEventButton)).perform(click());
 
         SystemClock.sleep(2500);
 
