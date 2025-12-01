@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:backgroundTint="#67E084"
-            android:text="Generate Link and Add Event"
+            android:text="Create Event"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="20dp"
