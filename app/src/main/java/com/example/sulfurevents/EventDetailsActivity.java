@@ -339,96 +339,58 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
 private void addToWaitingListWithLocation(Double lat, Double lng) {
-    db.collection("Events").document(eventId)
-            .get()
-            .addOnSuccessListener(doc -> {
-                if (!doc.exists()) {
-                    progressBar.setVisibility(View.GONE);
-                    joinLeaveButton.setEnabled(true);
-                    showStyledDialog("Error", "Event not found");
-                    return;
-                }
-
-                List<String> waiting = (List<String>) (
-                        doc.get("waiting_list") != null ?
-                                doc.get("waiting_list") :
-                                doc.get("waitingList")
-                );
-                if (waiting == null) waiting = new ArrayList<>();
-
-                String waitingLimitStr = doc.getString("waitingListLimit");
-                int waitingLimit = -1;
-
-                if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
-                    try {
-                        waitingLimit = Integer.parseInt(waitingLimitStr.trim());
-                    } catch (NumberFormatException ignored) {
-                        waitingLimit = -1;
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        showStyledDialog("Error", "Event not found");
+                        return;
                     }
-                }
+                    
+                    List<String> waiting = (List<String>) (
+                            doc.get("waiting_list") != null ?
+                                    doc.get("waiting_list") :
+                                    doc.get("waitingList")
+                    );
+                    if (waiting == null) waiting = new ArrayList<>();
 
-                // Enforce waiting list limit
-                if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
-                    progressBar.setVisibility(View.GONE);
-                    joinLeaveButton.setEnabled(true);
-                    showStyledDialog("Waitlist Full", "The waiting list is full for this event");
-                    return;
-                }
+                    String waitingLimitStr = doc.getString("waitingListLimit");
+                    int waitingLimit = -1;
 
-                // Add user to waiting_list array
-                db.collection("Events").document(eventId)
-                        .update("waiting_list", FieldValue.arrayUnion(deviceID))
-                        .addOnSuccessListener(aVoid -> {
-                            saveRegistrationLocation(lat, lng);
-                        })
-                        .addOnFailureListener(e -> {
-                            progressBar.setVisibility(View.GONE);
-                            joinLeaveButton.setEnabled(true);
-                            showStyledDialog("Error", "Failed to join waiting list");
-                        });
-            })
-            .addOnFailureListener(e -> {
-                progressBar.setVisibility(View.GONE);
-                joinLeaveButton.setEnabled(true);
-                showStyledDialog("Error", "Failed to load event");
-            });
-}
+                    if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
+                        try {
+                            waitingLimit = Integer.parseInt(waitingLimitStr.trim());
+                        } catch (NumberFormatException ignored) {
+                            waitingLimit = -1;
+                        }
+                    }
 
-    private void saveRegistrationLocation(Double lat, Double lng) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("deviceId", deviceID);
-        data.put("timestamp", com.google.firebase.Timestamp.now());
-        data.put("latitude", lat);
-        data.put("longitude", lng);
-        data.put("hasLocation", lat != null && lng != null);
+                    // Enforce waiting list limit
+                    if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        showStyledDialog("Waitlist Full", "The waiting list is full for this event");
+                        return;
+                    }
 
-        db.collection("Events").document(eventId).collection("entrant_registration_location")
-                .document(deviceID).set(data)
-                .addOnSuccessListener(aVoid -> {
-                    progressBar.setVisibility(View.GONE);
-                    joinLeaveButton.setEnabled(true);
-                    isOnWaitingList = true;
-                    updateButtonState();
-
-                    showStyledDialog("Success", "Successfully Joined Waiting List!");
-                    createJoinNotification(eventNameText.getText().toString());
-
-
-                    // Create notification for event history (US 01.02.03)
-                    String eventName = eventNameText.getText().toString();
-                    createJoinNotification(eventName);
-
-
-                    checkWaitingListStatus();
+                    // Add user to waiting_list array
+                    db.collection("Events").document(eventId)
+                            .update("waiting_list", FieldValue.arrayUnion(deviceID))
+                            .addOnSuccessListener(aVoid -> {
+                                saveRegistrationLocation(lat, lng);
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                joinLeaveButton.setEnabled(true);
+                                showStyledDialog("Error", "Failed to join waiting list");
+                            });
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     joinLeaveButton.setEnabled(true);
-                    isOnWaitingList = true;
-                    updateButtonState();
-                    showStyledDialog("Partial Success", "Joined waiting list (location not saved)");
-                    createJoinNotification(eventNameText.getText().toString());
-                    checkWaitingListStatus();
+                    showStyledDialog("Error", "Failed to load event");
                 });
     }
 
@@ -470,36 +432,46 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
     }
 
 private void deleteRegistrationLocation() {
-    db.collection("Events").document(eventId)
-            .collection("entrant_registration_location").document(deviceID)
-            .delete()
-            .addOnSuccessListener(aVoid -> {
-                progressBar.setVisibility(View.GONE);
-                joinLeaveButton.setEnabled(true);
-                isOnWaitingList = false;
-                updateButtonState();
-                showStyledDialog("Success", "Successfully left the waiting list!");
-                
-                // Create notification for event history (US 01.02.03)
-                String eventName = eventNameText.getText().toString();
-                createLeaveNotification(eventName);
-                
-                checkWaitingListStatus();
-            })
-            .addOnFailureListener(e -> {
-                progressBar.setVisibility(View.GONE);
-                joinLeaveButton.setEnabled(true);
-                isOnWaitingList = false;
-                updateButtonState();
-                showStyledDialog("Partial Success", "Left waiting list (location data may remain)");
-                
-                // Create notification for event history (US 01.02.03)
-                String eventName = eventNameText.getText().toString();
-                createLeaveNotification(eventName);
-                
-                checkWaitingListStatus();
-            });
-}
+        db.collection("Events").document(eventId)
+                .collection("entrant_registration_location").document(deviceID)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    isOnWaitingList = false;
+                    updateButtonState();
+                    showStyledDialog("Success", "Successfully left the waiting list!");
+                    
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createLeaveNotification(eventName);
+                    
+                    checkWaitingListStatus();
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    isOnWaitingList = false;
+                    updateButtonState();
+                    showStyledDialog("Partial Success", "Left waiting list (location data may remain)");
+                    
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createLeaveNotification(eventName);
+                    
+                    checkWaitingListStatus();
+                });
+    }
+
+    private void finalizeLeave() {
+        progressBar.setVisibility(View.GONE);
+        joinLeaveButton.setEnabled(true);
+        isOnWaitingList = false;
+        updateButtonState();
+        showStyledDialog("Success", "Successfully Left Waiting List!");
+        createLeaveNotification(eventNameText.getText().toString());
+        checkWaitingListStatus();
+    }
 
     private void finalizeLeave() {
         progressBar.setVisibility(View.GONE);
