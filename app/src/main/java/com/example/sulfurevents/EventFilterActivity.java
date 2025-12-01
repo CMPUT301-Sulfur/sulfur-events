@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -52,6 +53,9 @@ public class EventFilterActivity extends AppCompatActivity {
 
         applyFiltersButton = findViewById(R.id.apply_filters_button);
         clearFiltersButton = findViewById(R.id.clear_filters_button);
+
+        ImageButton back = findViewById(R.id.btnBackFilters);
+        back.setOnClickListener(v -> finish());
 
         // Load existing filter values if passed from EntrantActivity
         Intent intent = getIntent();

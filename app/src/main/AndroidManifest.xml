@@ -38,7 +38,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- MAIN LAUNCHER (ONLY ONE) -->
+        <!-- MAIN LAUNCHER -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -59,11 +59,13 @@
         <activity android:name=".OrganizerViewEventActivity" android:exported="false" />
 
         <!-- Entrant Screens -->
+<!--        testing push-->
         <activity android:name=".EntrantActivity" android:exported="false" />
+        <activity android:name=".EventFilterActivity" android:exported="false" android:label="Filter Events" />
+<!--        <activity android:name=".EventFilterActivity" android:exported="false" />-->
         <activity android:name=".LotteryGuidelinesActivity" android:exported="false" />
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".EntrantHistoryActivity" android:exported="false" android:label="Event History" />
-        <activity android:name=".EventFilterActivity" android:exported="false" android:label="Filter Events" />
 
         <!-- Profile & Onboarding -->
         <activity android:name=".WelcomeEntrantActivity" android:exported="false" />
@@ -76,11 +78,7 @@
         <activity android:name=".AdminEventsActivity" android:exported="false" />
         <activity android:name=".AdminProfilesActivity" android:exported="false" />
         <activity android:name=".AdminImagesActivity" android:exported="false" />
-
-        <!-- NEW: Admin Entrant List for Notification Logs -->
         <activity android:name=".AdminEntrantListActivity" android:exported="false" />
-
-        <!-- NEW: Admin Notification Logs (filtered per entrant) -->
         <activity android:name=".AdminNotificationLogsActivity" android:exported="false" />
 
         <!-- Image Viewer -->
@@ -94,7 +92,6 @@
         <activity
             android:name=".EventDetailsActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -104,7 +101,6 @@
                     android:scheme="sulfurevents"
                     android:host="event" />
             </intent-filter>
-
         </activity>
 
     </application>
