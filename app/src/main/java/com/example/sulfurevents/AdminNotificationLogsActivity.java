@@ -13,6 +13,11 @@ import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 
+/**
+ * This activity displays all notification logs for a selected user.
+ * Administrators can review messages such as event updates, lottery results,
+ * and other system-generated notifications linked to that user.
+ */
 public class AdminNotificationLogsActivity extends AppCompatActivity {
 
     private RecyclerView rvLogs;
@@ -24,6 +29,13 @@ public class AdminNotificationLogsActivity extends AppCompatActivity {
     private String deviceId;
     private String userName;
 
+    /**
+     * Called when the activity is created.
+     * Initializes UI elements, configures the RecyclerView,
+     * retrieves intent data, and loads notification logs.
+     *
+     * @param savedInstanceState Previously saved state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +61,10 @@ public class AdminNotificationLogsActivity extends AppCompatActivity {
         loadLogs();
     }
 
+    /**
+     * Loads the notification logs for the selected user from Firestore.
+     * Updates the RecyclerView and displays an empty-state message if needed.
+     */
     private void loadLogs() {
         db.collection("Profiles")
                 .document(deviceId)

@@ -116,6 +116,13 @@ public class BottomNavigationHelper {
         bottomNavigationView.setItemActiveIndicatorColor(bgColorStateList);
     }
 
+    /**
+     * Updates the highlighted item in the BottomNavigationView based on
+     * the current Activity type. Each activity corresponds to one nav item.
+     *
+     * @param bottomNavigationView The BottomNavigationView whose selection should be updated
+     * @param context              The current screen's context (used to identify the activity type)
+     */
     public static void updateNavHighlighting(BottomNavigationView bottomNavigationView, Context context) {
         if (context instanceof ProfileActivity) {
             bottomNavigationView.setSelectedItemId(R.id.home_navigation);
@@ -128,6 +135,15 @@ public class BottomNavigationHelper {
         }
     }
 
+    /**
+     * Sets up the notification FloatingActionButton (FAB).
+     * The FAB is only shown when the BottomNavigationView is present and visible;
+     * otherwise, it is hidden. When tapped, it opens the NotificationsActivity.
+     *
+     * @param activity  The activity where the FAB resides
+     * @param fabId     The resource ID of the FloatingActionButton
+     * @param bottomNavId The resource ID of the BottomNavigationView on that screen
+     */
     public static void setupNotificationFab(Activity activity, int fabId, int bottomNavId) {
         FloatingActionButton fab = activity.findViewById(fabId);
         BottomNavigationView bottomNav = activity.findViewById(bottomNavId);

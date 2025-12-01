@@ -40,7 +40,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         backToUserButton = findViewById(R.id.back_to_user_button);
         btnNotificationLogs = findViewById(R.id.btnNotificationLogs);
 
-        // go to Manage Events
+        /**
+         * Opens the event management screen for administrators.
+         */
         btnManageEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +51,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
-        // go to Manage Profiles
+        /**
+         * Opens the profile management screen for administrators.
+         */
         btnManageProfiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,7 +62,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
-        // go to Manage Images
+        /**
+         * Opens the image management screen for administrators.
+         */
         btnManageImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,6 +73,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * Returns the admin to the user profile screen.
+         */
         backToUserButton.setOnClickListener(v -> {
             Intent intent = new Intent(AdminDashboardActivity.this, ProfileActivity.class);
             intent.putExtra("deviceId", getIntent().getStringExtra("deviceId"));
@@ -74,7 +83,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             finish(); // close admin dashboard
         });
 
-
+        /**
+         * Opens the notification logs screen.
+         */
         btnNotificationLogs.setOnClickListener(v -> {
             Intent intent = new Intent(AdminDashboardActivity.this, AdminEntrantListActivity.class);
             startActivity(intent);

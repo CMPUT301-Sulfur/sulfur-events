@@ -243,8 +243,11 @@ public class EventDetailsActivity extends AppCompatActivity {
             } else {
                 progressBar.setVisibility(View.GONE);
                 joinLeaveButton.setEnabled(true);
-                Toast.makeText(this, "Location permission is required to join the waiting list",
-                        Toast.LENGTH_LONG).show();
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Permission Required")
+                        .setMessage("Location permission is required to join the waiting list.")
+                        .setPositiveButton("OK", null)
+                        .show();
             }
         }
     }
@@ -317,7 +320,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                     if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
                         progressBar.setVisibility(View.GONE);
                         joinLeaveButton.setEnabled(true);
-                        Toast.makeText(this, "Waiting list is full for this event.", Toast.LENGTH_SHORT).show();
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Waiting List Full")
+                                .setMessage("Waiting list is full for this event.")
+                                .setPositiveButton("OK", null)
+                                .show();
                         return;
                     }
 
@@ -329,7 +336,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 joinLeaveButton.setEnabled(true);
                                 isOnWaitingList = true;
                                 updateButtonState();
-                                Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                                new androidx.appcompat.app.AlertDialog.Builder(this)
+                                        .setMessage("Successfully joined the waiting list!")
+                                        .setPositiveButton("OK", null)
+                                        .show();
 
                                 // Create notification for event history (US 01.02.03)
                                 String eventName = eventNameText.getText().toString();
@@ -457,7 +467,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                     if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
                         progressBar.setVisibility(View.GONE);
                         joinLeaveButton.setEnabled(true);
-                        Toast.makeText(this, "Waiting list is full for this event.", Toast.LENGTH_SHORT).show();
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("Waiting List is full for this event")
+                                .setPositiveButton("OK", null)
+                                .show();
                         return;
                     }
 
@@ -508,7 +521,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                     joinLeaveButton.setEnabled(true);
                     isOnWaitingList = true;
                     updateButtonState();
-                    Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setMessage("Successfully joined the waiting list!")
+                            .setPositiveButton("OK", null)
+                            .show();
 
                     // Create notification for event history (US 01.02.03)
                     String eventName = eventNameText.getText().toString();
@@ -554,7 +570,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                         joinLeaveButton.setEnabled(true);
                         isOnWaitingList = false;
                         updateButtonState();
-                        Toast.makeText(this, "Successfully left waiting list", Toast.LENGTH_SHORT).show();
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("Successfully left waiting list!")
+                                .setPositiveButton("OK", null)
+                                .show();
 
                         // Create notification for event history (US 01.02.03)
                         String eventName = eventNameText.getText().toString();
@@ -581,7 +600,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                     joinLeaveButton.setEnabled(true);
                     isOnWaitingList = false;
                     updateButtonState();
-                    Toast.makeText(this, "Successfully left waiting list", Toast.LENGTH_SHORT).show();
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setMessage("Successfully left the waiting list!")
+                            .setPositiveButton("OK", null)
+                            .show();
 
                     // Create notification for event history (US 01.02.03)
                     String eventName = eventNameText.getText().toString();

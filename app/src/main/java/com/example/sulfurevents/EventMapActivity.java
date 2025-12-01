@@ -8,7 +8,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,82 +42,48 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
     private String eventId;
     private String eventName;
     private List<EntrantLocation> entrantLocations;
-    private boolean geolocationEnabled = true;
-
-    /**
-     * Shows a styled alert dialog matching the app's black and gold theme
-     */
-    private void showStyledDialog(String title, String message) {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            // Set background color
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(
-                        new android.graphics.drawable.ColorDrawable(0xFF000000)
-                );
-            }
-
-            // Style button
-            android.widget.Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            if (positiveButton != null) {
-                positiveButton.setTextColor(0xFFD4AF37); // Gold
-            }
-
-            // Style message text
-            TextView messageView = dialog.findViewById(android.R.id.message);
-            if (messageView != null) {
-                messageView.setTextColor(0xFFFFFFFF); // White
-            }
-
-            // Style title
-            int titleId = getResources().getIdentifier("alertTitle", "id", "android");
-            TextView titleView = dialog.findViewById(titleId);
-            if (titleView != null) {
-                titleView.setTextColor(0xFFD4AF37); // Gold
-            }
-        });
-
-        dialog.show();
-    }
+    private boolean geolocationEnabled = true; // Default to true
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waiting_list_map);
 
+        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         entrantLocations = new ArrayList<>();
 
+        // Get event info from Intent
         eventId = getIntent().getStringExtra("eventId");
         eventName = getIntent().getStringExtra("eventName");
 
         if (eventId == null) {
-            showStyledDialog("Error", "No event ID provided");
+            Toast.makeText(this, "Error: No event ID provided", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        // Initialize UI components
         eventNameText = findViewById(R.id.eventNameText);
         waitlistCountText = findViewById(R.id.waitlistCountText);
         loadingIndicator = findViewById(R.id.loadingIndicator);
 
+        // Set event name
         if (eventName != null) {
             eventNameText.setText(eventName);
         } else {
             eventNameText.setText("Event Map");
         }
 
+        // Initialize map fragment
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
+        // Back button
         ImageButton backButton = findViewById(R.id.backButtonMap);
         backButton.setOnClickListener(v -> finish());
 
+        // Check if geolocation is enabled before loading map
         checkGeolocationStatus();
     }
 
@@ -138,32 +103,40 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
                         Log.d(TAG, "Geolocation enabled: " + geolocationEnabled);
 
                         if (geolocationEnabled) {
+                            // Geolocation is enabled - load the map
                             if (mapFragment != null) {
                                 mapFragment.getMapAsync(this);
                             }
                         } else {
+                            // Geolocation is disabled - show message and hide map
                             loadingIndicator.setVisibility(View.GONE);
                             waitlistCountText.setText("Geolocation Not Enabled");
 
+                            // Hide the map fragment
                             if (mapFragment != null) {
                                 getSupportFragmentManager().beginTransaction()
                                         .hide(mapFragment)
                                         .commit();
                             }
 
-                            showStyledDialog("Geolocation Disabled",
-                                    "Geolocation tracking is not enabled for this event");
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Geolocation Disabled")
+                                    .setMessage("Geolocation tracking is not enabled for this event.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
                         }
                     } else {
                         loadingIndicator.setVisibility(View.GONE);
-                        showStyledDialog("Error", "Event not found");
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 })
                 .addOnFailureListener(e -> {
                     loadingIndicator.setVisibility(View.GONE);
                     Log.e(TAG, "Error checking geolocation status: " + e.getMessage());
-                    showStyledDialog("Error", "Error loading event details: " + e.getMessage());
+                    Toast.makeText(this,
+                            "Error loading event details: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -171,14 +144,17 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
+        // Configure map settings
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setScrollGesturesEnabled(true);
         mMap.getUiSettings().setRotateGesturesEnabled(true);
 
+        // Set initial camera position (world view)
         LatLng initialPosition = new LatLng(20, 0);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialPosition, 2));
 
+        // Load event sign-up locations from Firestore
         loadEventSignUpLocations();
     }
 
@@ -202,6 +178,7 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
                             String deviceId = document.getString("deviceId");
                             Boolean hasLocation = document.getBoolean("hasLocation");
 
+                            // Check if location data exists
                             if (hasLocation != null && hasLocation) {
                                 Double latitude = document.getDouble("latitude");
                                 Double longitude = document.getDouble("longitude");
@@ -226,22 +203,31 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
 
                     loadingIndicator.setVisibility(View.GONE);
 
+                    // Update UI with count
                     waitlistCountText.setText("Waitlist: " + queryDocumentSnapshots.size() + " users");
 
                     if (validLocationCount > 0) {
                         displayMarkersOnMap();
-                        showStyledDialog("Locations Loaded",
-                                "Successfully loaded " + validLocationCount + " location" +
-                                        (validLocationCount == 1 ? "" : "s"));
+
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("Loaded " + validLocationCount + " locations.")
+                                .setPositiveButton("OK", null)
+                                .show();
+
                     } else {
-                        showStyledDialog("No Locations",
-                                "No location data is available for this event");
+
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("No location data available for this event.")
+                                .setPositiveButton("OK", null)
+                                .show();
                     }
                 })
                 .addOnFailureListener(e -> {
                     loadingIndicator.setVisibility(View.GONE);
                     Log.e(TAG, "Error loading locations: " + e.getMessage());
-                    showStyledDialog("Error", "Error loading locations: " + e.getMessage());
+                    Toast.makeText(this,
+                            "Error loading locations: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -254,15 +240,18 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
             return;
         }
 
+        // Clear existing markers
         mMap.clear();
 
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
         int markerCount = 0;
 
+        // Add a marker for each entrant location
         for (int i = 0; i < entrantLocations.size(); i++) {
             EntrantLocation location = entrantLocations.get(i);
             LatLng position = new LatLng(location.latitude, location.longitude);
 
+            // Create marker
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(position)
                     .title("Entrant " + (i + 1))
@@ -274,11 +263,13 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
             markerCount++;
         }
 
+        // Adjust camera to show all markers
         if (markerCount > 0) {
             try {
                 LatLngBounds bounds = boundsBuilder.build();
-                int padding = 100;
+                int padding = 100; // padding in pixels
 
+                // Animate camera to show all markers
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
             } catch (Exception e) {
                 Log.e(TAG, "Error adjusting camera: " + e.getMessage());

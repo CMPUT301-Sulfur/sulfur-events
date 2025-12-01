@@ -16,6 +16,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * This activity displays a list of all entrants (profiles) in the system.
+ * Administrators can select an entrant to view their notification logs.
+ */
 public class AdminEntrantListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -24,6 +28,13 @@ public class AdminEntrantListActivity extends AppCompatActivity {
 
     private ArrayList<ProfileModel> userList = new ArrayList<>();
     private AdminEntrantListAdapter adapter;
+
+    /**
+     * Called when the activity is created.
+     * Initializes the UI and begins loading entrant data.
+     *
+     * @param savedInstanceState Previously saved instance state bundle
+     */
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +62,9 @@ public class AdminEntrantListActivity extends AppCompatActivity {
         loadEntrants();
     }
 
+    /**
+     * Loads all entrant profiles from Firestore and updates the RecyclerView.
+     */
     private void loadEntrants() {
         progressBar.setVisibility(View.VISIBLE);
 

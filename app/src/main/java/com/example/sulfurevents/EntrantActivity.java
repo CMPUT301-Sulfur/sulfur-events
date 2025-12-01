@@ -140,7 +140,11 @@ public class EntrantActivity extends AppCompatActivity {
 
                         // Show toast with active filters
                         if (hasActiveFilters()) {
-                            Toast.makeText(this, "Filters applied successfully", Toast.LENGTH_SHORT).show();
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Filters Applied")
+                                    .setMessage("Filters applied successfully.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
                         }
                     }
                 }
@@ -207,7 +211,10 @@ public class EntrantActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(q -> {
                     if (!q.isEmpty()) {
-                        Toast.makeText(this, "You have " + q.size() + " lottery update(s). Open the event to respond.", Toast.LENGTH_LONG).show();
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("You have " + q.size() + " lottery update(s).\nOpen the event to respond.")
+                                .setPositiveButton("OK", null)
+                                .show();
                     }
                 });
     }
