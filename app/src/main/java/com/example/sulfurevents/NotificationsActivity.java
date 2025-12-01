@@ -247,7 +247,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
             return;
         }
         Intent i = new Intent(this, EventDetailsActivity.class);
-        i.putExtra("EVENT_ID", item.eventId);
+        i.putExtra("eventId", item.eventId);
         startActivity(i);
         markNotificationRead(item);
     }

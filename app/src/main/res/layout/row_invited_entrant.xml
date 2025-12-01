@@ -12,7 +12,10 @@
         android:id="@+id/cbSelect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColorHint="@drawable/gold_border_rounded"/>
+        android:buttonTint="@color/yellow"
+        android:textColor="@color/white"
+        />
+
 
     <LinearLayout
         android:layout_width="0dp"

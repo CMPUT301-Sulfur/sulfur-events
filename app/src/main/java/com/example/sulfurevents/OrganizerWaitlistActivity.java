@@ -231,8 +231,7 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
      * No notification documents are written (ahan can add that later).
      */
     private void sendInvitesForSelected() {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Use the class-level 'db'
         DocumentReference eventRef = db.collection("Events").document(eventId);
 
         eventRef.get().addOnSuccessListener(doc -> {
@@ -241,17 +240,18 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                 return;
             }
 
-//            String eventName = doc.getString("eventName");
-
+            // Capacity from the event ("limitGuests" string)
             String capStr = doc.getString("limitGuests");
             int capacity = 0;
             try {
                 capacity = Integer.parseInt(capStr);
-            } catch (Exception ignored) { }
-
+            } catch (Exception ignored) {
+            }
 
             @SuppressWarnings("unchecked")
-            List<String> waiting = (List<String>) (doc.get("waiting_list") != null ? doc.get("waiting_list") : doc.get("waitingList"));
+            List<String> waiting = (List<String>) (doc.get("waiting_list") != null
+                    ? doc.get("waiting_list")
+                    : doc.get("waitingList"));
             if (waiting == null) waiting = new ArrayList<>();
 
             @SuppressWarnings("unchecked")
@@ -262,46 +262,57 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
             List<String> invited = (List<String>) doc.get("invited_list");
             if (invited == null) invited = new ArrayList<>();
 
-
             int available = capacity - enrolled.size() - invited.size();
             if (available <= 0) {
                 Toast.makeText(OrganizerWaitlistActivity.this, "No available slots to invite.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Random selection Logic
+            if (waiting.isEmpty()) {
+                Toast.makeText(OrganizerWaitlistActivity.this, "No entrants on the waiting list.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 🔀 Random selection from waiting list
             List<String> shuffled = new ArrayList<>(waiting);
-            java.util.Collections.shuffle(shuffled);
+            Collections.shuffle(shuffled);
             List<String> chosen = shuffled.subList(0, Math.min(available, shuffled.size()));
 
+            // Get safe event name once
+            String rawName = doc.getString("eventName");
+            String eventName = (rawName != null && !rawName.isEmpty()) ? rawName : "Event";
+
+            // ✅ First update waiting_list + invited_list
             eventRef.update(
-                    "waiting_list", FieldValue.arrayRemove(chosen.toArray()),
-                    "invited_list", FieldValue.arrayUnion(chosen.toArray())
-            ).addOnSuccessListener(aVoid ->{
-                Toast.makeText(this, "Randomly invited " + chosen.size() + " entrant(s).", Toast.LENGTH_LONG).show();
-                loadWaitlist();
-            }).addOnFailureListener(e ->
-                    Toast.makeText(this, "Failed to update invites: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-            );
+                            "waiting_list", FieldValue.arrayRemove(chosen.toArray()),
+                            "invited_list", FieldValue.arrayUnion(chosen.toArray())
+                    )
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Randomly invited " + chosen.size() + " entrant(s).", Toast.LENGTH_LONG).show();
+                        loadWaitlist();
 
+                        // ✅ Only after successful update: send notifications
+                        for (String invitedId : chosen) {
+                            Map<String, Object> notif = new HashMap<>();
+                            notif.put("eventId", eventId);
+                            notif.put("eventName", eventName);
+                            notif.put("type", "INVITED");
+                            notif.put("message", "You were selected for " + eventName + ". Tap the event to accept or decline.");
+                            notif.put("timestamp", System.currentTimeMillis());
+                            notif.put("read", false);
 
-            String eventName = doc.getString("eventName");
-            for (String invitedId : chosen) {
-                Map<String, Object> notif = new HashMap<>();
-                notif.put("eventId", eventId);
-                notif.put("eventName", eventName != null ? eventName : "Event");
-                notif.put("type", "INVITED");
-                notif.put("message", "You were selected for " + eventName + ". Tap the event to accept or decline.");
-                notif.put("timestamp", System.currentTimeMillis());
-                notif.put("read", false);
+                            sendNotifIfEnabled(invitedId, notif);
+                        }
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to update invites: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
 
-                sendNotifIfEnabled(invitedId, notif);
-            }
         }).addOnFailureListener(e ->
                 Toast.makeText(OrganizerWaitlistActivity.this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
-
     }
+
 
     private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
         db.collection("Profiles").document(targetId).get()

@@ -83,6 +83,9 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
+        if (eventId == null) {
+            eventId = getIntent().getStringExtra("EVENT_ID"); // optional fallback
+        }
         organizerDeviceId = android.provider.Settings.Secure.getString(
                 getContentResolver(),
                 android.provider.Settings.Secure.ANDROID_ID
