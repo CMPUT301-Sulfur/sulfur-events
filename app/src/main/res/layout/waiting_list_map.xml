@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D3DEFF"
+    android:background="#000000"
     tools:context=".EventMapActivity">
 
     <!-- Header Section with Back Button and Event Info -->
@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#D3DEFF">
+        android:background="#000000">
 
         <!-- Back Button -->
         <ImageButton
@@ -23,6 +23,7 @@
             android:layout_height="40dp"
             android:background="@android:color/transparent"
             android:src="@drawable/back_arrow"
+            android:tint="#D4AF37"
             android:contentDescription="Back"
             android:layout_gravity="start"
             android:layout_marginBottom="8dp" />
@@ -35,7 +36,7 @@
             android:text="Event Name"
             android:textStyle="bold"
             android:textSize="24sp"
-            android:textColor="@color/black"
+            android:textColor="#D4AF37"
             android:gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
@@ -44,7 +45,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/black"
+            android:background="#D4AF37"
             android:layout_marginBottom="12dp" />
 
         <!-- Waitlist Count -->
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:text="Waitlist: 0 users"
             android:textSize="18sp"
-            android:textColor="#6B4EFF"
+            android:textColor="#F5E7B0"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="12dp" />
@@ -79,6 +80,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"
-        android:indeterminateTint="#6B4EFF" />
+        android:indeterminateTint="#D4AF37" />
 
 </RelativeLayout>

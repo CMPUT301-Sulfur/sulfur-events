@@ -13,4 +13,21 @@
         <item name="android:padding">16dp</item>
         <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Bottom Navigation colors -->
+        <item name="colorPrimary">#D4AF37</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorSurface">#111111</item>
+        <item name="colorOnSurface">#F5E7B0</item>
+
+        <!-- Bottom Navigation specific styling -->
+        <item name="bottomNavigationStyle">@style/BottomNavigationTheme</item>
+    </style>
+
+    <style name="BottomNavigationTheme" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconTint">#D4AF37</item>
+        <item name="itemTextColor">#D4AF37</item>
+        <item name="backgroundTint">#111111</item>
+    </style>
 </resources>
