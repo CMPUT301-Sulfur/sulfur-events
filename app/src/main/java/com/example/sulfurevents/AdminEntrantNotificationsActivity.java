@@ -13,6 +13,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This activity displays all notification logs for a specific entrant.
+ * Administrators can review messages such as lottery updates or event notifications.
+ */
 public class AdminEntrantNotificationsActivity extends AppCompatActivity {
 
     private RecyclerView rvLogs;
@@ -25,6 +29,12 @@ public class AdminEntrantNotificationsActivity extends AppCompatActivity {
     private String entrantId;
     private String entrantName;
 
+    /**
+     * Called when the activity is created.
+     * Initializes UI elements and begins loading logs from Firestore.
+     *
+     * @param savedInstanceState Previously saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +61,10 @@ public class AdminEntrantNotificationsActivity extends AppCompatActivity {
         loadNotifications();
     }
 
+    /**
+     * Loads notification logs for the selected entrant from Firestore.
+     * Updates the RecyclerView and displays a placeholder if empty.
+     */
     private void loadNotifications() {
         db.collection("Profiles")
                 .document(entrantId)

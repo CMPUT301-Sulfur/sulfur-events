@@ -91,7 +91,11 @@ public class EventImageDetailActivity extends AppCompatActivity {
                         .document(eventId)
                         .update("posterURL", "")
                         .addOnSuccessListener(a -> {
-                            Toast.makeText(this, "Image deleted successfully", Toast.LENGTH_SHORT).show();
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Image Deleted")
+                                    .setMessage("Image deleted successfully.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
                             finish();
                         })
                         .addOnFailureListener(e ->

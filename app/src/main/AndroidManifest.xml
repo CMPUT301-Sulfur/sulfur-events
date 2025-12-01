@@ -79,6 +79,7 @@
         <activity android:name=".AdminProfilesActivity" android:exported="false" />
         <activity android:name=".AdminImagesActivity" android:exported="false" />
         <activity android:name=".AdminEntrantListActivity" android:exported="false" />
+        <activity android:name=".AdminEntrantNotificationsActivity" />
         <activity android:name=".AdminNotificationLogsActivity" android:exported="false" />
 
         <!-- Image Viewer -->

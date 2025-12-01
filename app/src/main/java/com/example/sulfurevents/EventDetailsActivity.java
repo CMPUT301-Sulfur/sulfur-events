@@ -265,6 +265,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                         showStyledDialog("Waitlist Full", "The waiting list is full");
                         progressBar.setVisibility(View.GONE);
                         joinLeaveButton.setEnabled(true);
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Waiting List Full")
+                                .setMessage("Waiting list is full for this event.")
+                                .setPositiveButton("OK", null)
+                                .show();
                         return;
                     }
 
@@ -275,8 +280,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 joinLeaveButton.setEnabled(true);
                                 isOnWaitingList = true;
                                 updateButtonState();
+
                                 showStyledDialog("Success", "Successfully Joined Waiting List!");
                                 createJoinNotification(eventNameText.getText().toString());
+
+                                // Create notification for event history (US 01.02.03)
+                                String eventName = eventNameText.getText().toString();
+                                createJoinNotification(eventName);
+
+
                                 checkWaitingListStatus();
                             })
                             .addOnFailureListener(e -> {
@@ -326,16 +338,61 @@ public class EventDetailsActivity extends AppCompatActivity {
         }, null);
     }
 
-    private void addToWaitingListWithLocation(Double lat, Double lng) {
-        db.collection("Events").document(eventId)
-                .update("waiting_list", FieldValue.arrayUnion(deviceID))
-                .addOnSuccessListener(aVoid -> saveRegistrationLocation(lat, lng))
-                .addOnFailureListener(e -> {
+private void addToWaitingListWithLocation(Double lat, Double lng) {
+    db.collection("Events").document(eventId)
+            .get()
+            .addOnSuccessListener(doc -> {
+                if (!doc.exists()) {
                     progressBar.setVisibility(View.GONE);
                     joinLeaveButton.setEnabled(true);
-                    showStyledDialog("Error", "Failed to join waiting list");
-                });
-    }
+                    showStyledDialog("Error", "Event not found");
+                    return;
+                }
+
+                List<String> waiting = (List<String>) (
+                        doc.get("waiting_list") != null ?
+                                doc.get("waiting_list") :
+                                doc.get("waitingList")
+                );
+                if (waiting == null) waiting = new ArrayList<>();
+
+                String waitingLimitStr = doc.getString("waitingListLimit");
+                int waitingLimit = -1;
+
+                if (waitingLimitStr != null && !waitingLimitStr.isEmpty()) {
+                    try {
+                        waitingLimit = Integer.parseInt(waitingLimitStr.trim());
+                    } catch (NumberFormatException ignored) {
+                        waitingLimit = -1;
+                    }
+                }
+
+                // Enforce waiting list limit
+                if (waitingLimit > 0 && waiting.size() >= waitingLimit) {
+                    progressBar.setVisibility(View.GONE);
+                    joinLeaveButton.setEnabled(true);
+                    showStyledDialog("Waitlist Full", "The waiting list is full for this event");
+                    return;
+                }
+
+                // Add user to waiting_list array
+                db.collection("Events").document(eventId)
+                        .update("waiting_list", FieldValue.arrayUnion(deviceID))
+                        .addOnSuccessListener(aVoid -> {
+                            saveRegistrationLocation(lat, lng);
+                        })
+                        .addOnFailureListener(e -> {
+                            progressBar.setVisibility(View.GONE);
+                            joinLeaveButton.setEnabled(true);
+                            showStyledDialog("Error", "Failed to join waiting list");
+                        });
+            })
+            .addOnFailureListener(e -> {
+                progressBar.setVisibility(View.GONE);
+                joinLeaveButton.setEnabled(true);
+                showStyledDialog("Error", "Failed to load event");
+            });
+}
 
     private void saveRegistrationLocation(Double lat, Double lng) {
         Map<String, Object> data = new HashMap<>();
@@ -352,8 +409,16 @@ public class EventDetailsActivity extends AppCompatActivity {
                     joinLeaveButton.setEnabled(true);
                     isOnWaitingList = true;
                     updateButtonState();
+
                     showStyledDialog("Success", "Successfully Joined Waiting List!");
                     createJoinNotification(eventNameText.getText().toString());
+
+
+                    // Create notification for event history (US 01.02.03)
+                    String eventName = eventNameText.getText().toString();
+                    createJoinNotification(eventName);
+
+
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> {
@@ -374,8 +439,28 @@ public class EventDetailsActivity extends AppCompatActivity {
         db.collection("Events").document(eventId)
                 .update("waiting_list", FieldValue.arrayRemove(deviceID))
                 .addOnSuccessListener(aVoid -> {
-                    if (geolocationEnabled) deleteRegistrationLocation();
-                    else finalizeLeave();
+                    // Successfully removed from waiting list
+                    if (geolocationEnabled) {
+                        // Delete location data if geolocation was enabled
+                        deleteRegistrationLocation();
+                    } else {
+                        // No location data to delete
+                        progressBar.setVisibility(View.GONE);
+                        joinLeaveButton.setEnabled(true);
+                        isOnWaitingList = false;
+                        updateButtonState();
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setMessage("Successfully left waiting list!")
+                                .setPositiveButton("OK", null)
+                                .show();
+
+                        // Create notification for event history (US 01.02.03)
+                        String eventName = eventNameText.getText().toString();
+                        createLeaveNotification(eventName);
+
+                        checkWaitingListStatus(); // Refresh count
+                    }
+
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
@@ -384,13 +469,37 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
-    private void deleteRegistrationLocation() {
-        db.collection("Events").document(eventId)
-                .collection("entrant_registration_location").document(deviceID)
-                .delete()
-                .addOnSuccessListener(aVoid -> finalizeLeave())
-                .addOnFailureListener(e -> finalizeLeave());
-    }
+private void deleteRegistrationLocation() {
+    db.collection("Events").document(eventId)
+            .collection("entrant_registration_location").document(deviceID)
+            .delete()
+            .addOnSuccessListener(aVoid -> {
+                progressBar.setVisibility(View.GONE);
+                joinLeaveButton.setEnabled(true);
+                isOnWaitingList = false;
+                updateButtonState();
+                showStyledDialog("Success", "Successfully left the waiting list!");
+                
+                // Create notification for event history (US 01.02.03)
+                String eventName = eventNameText.getText().toString();
+                createLeaveNotification(eventName);
+                
+                checkWaitingListStatus();
+            })
+            .addOnFailureListener(e -> {
+                progressBar.setVisibility(View.GONE);
+                joinLeaveButton.setEnabled(true);
+                isOnWaitingList = false;
+                updateButtonState();
+                showStyledDialog("Partial Success", "Left waiting list (location data may remain)");
+                
+                // Create notification for event history (US 01.02.03)
+                String eventName = eventNameText.getText().toString();
+                createLeaveNotification(eventName);
+                
+                checkWaitingListStatus();
+            });
+}
 
     private void finalizeLeave() {
         progressBar.setVisibility(View.GONE);
