@@ -22,6 +22,7 @@
             android:layout_height="40dp"
             android:background="@android:color/transparent"
             android:src="@drawable/back_arrow"
+            android:tint="#D4AF37"
             android:contentDescription="Back"
             android:layout_gravity="start"
             android:layout_marginTop="16dp"
@@ -35,18 +36,17 @@
             android:textColor="#D4AF37"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="#D4AF37"
             android:letterSpacing="0.05"
             android:gravity="center"
             android:layout_marginTop="30dp" />
 
         <View
-            android:id="@+id/titleDivider"
-            android:layout_width="180dp"
-            android:layout_height="2dp"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:background="#D4AF37"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="12dp" />
 
         <TextView
             android:id="@+id/waitlistCountText"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:text="Waitlist: 0 users"
             android:textSize="18sp"
-            android:textColor="@color/white"
+            android:textColor="#F5E7B0"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="12dp" />
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"
-        android:indeterminateTint="#6B4EFF" />
+        android:indeterminateTint="#D4AF37" />
 
 </RelativeLayout>
 
