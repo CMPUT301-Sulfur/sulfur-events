@@ -10,7 +10,6 @@
     android:padding="16dp"
     tools:context=".EntrantHistoryActivity">
 
-
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="40dp"
@@ -21,7 +20,6 @@
         android:src="@drawable/back_arrow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <!-- Screen title -->
     <TextView
@@ -39,7 +37,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintBottom_toBottomOf="@id/btnBack" />
 
-
     <!-- RecyclerView list of history items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
@@ -47,29 +44,28 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingTop="12dp"
+        android:paddingBottom="8dp"
         app:layout_constraintTop_toBottomOf="@id/titleHistory"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/row_event_history" />
-
 
     <!-- Empty state message -->
     <TextView
         android:id="@+id/tvEmptyHistory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="You haven’t registered for any events yet."
+        android:text="You haven't registered for any events yet."
         android:textSize="16sp"
         android:textColor="#555555"
         android:gravity="center"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleHistory"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
-
 
     <!-- Loading spinner -->
     <ProgressBar
@@ -78,11 +74,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleHistory"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
 
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+    <!-- Floating Action Button for Notifications -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_notifications"
+        android:contentDescription="Notifications"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
