@@ -35,6 +35,8 @@ import java.util.Map;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.annotation.meta.When;
+
 public class EventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "EventDetailsActivity";
@@ -98,6 +100,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // Normal navigation (coming from list)
         eventId = intent.getStringExtra("eventId");
+        if (eventId == null) {
+            eventId = intent.getStringExtra("EVENT_ID"); // fallback, just in case
+        }
         String eventName = intent.getStringExtra("eventName");
         String description = intent.getStringExtra("description");
         String organizer = intent.getStringExtra("organizerEmail");
@@ -120,7 +125,9 @@ public class EventDetailsActivity extends AppCompatActivity {
             return; // Stop here if registration is closed
         }
 
+        // Always load event status; date restrictions are handled inside updateButtonState()
         checkWaitingListStatus();
+
 
         joinLeaveButton.setOnClickListener(v -> {
             if (isOnWaitingList) {
@@ -140,6 +147,13 @@ public class EventDetailsActivity extends AppCompatActivity {
      * </ul>
      * Then updates the UI appropriately.
      */
+    /**
+     * Reads the event document to see:
+     *  - if this device is in waiting_list / invited_list / enrolled_list / cancelled_list
+     *  - how many entrants are in the waiting_list
+     *  - whether geolocation is enabled for this event
+     * Then updates the UI appropriately.
+     */
     private void checkWaitingListStatus() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -148,26 +162,53 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        List<String> waitingList = (List<String>) documentSnapshot.get("waiting_list");
+                        // waiting list (support old and new field names)
+                        List<String> waitingList = (List<String>) (
+                                documentSnapshot.get("waiting_list") != null
+                                        ? documentSnapshot.get("waiting_list")
+                                        : documentSnapshot.get("waitingList")
+                        );
+                        if (waitingList == null) waitingList = new ArrayList<>();
 
-                        // Check if geolocation is enabled for this event
+                        // invited, enrolled, cancelled lists
+                        List<String> invitedList = (List<String>) (
+                                documentSnapshot.get("invited_list") != null
+                                        ? documentSnapshot.get("invited_list")
+                                        : documentSnapshot.get("invitedList")
+                        );
+                        if (invitedList == null) invitedList = new ArrayList<>();
+
+                        List<String> enrolledList = (List<String>) (
+                                documentSnapshot.get("enrolled_list") != null
+                                        ? documentSnapshot.get("enrolled_list")
+                                        : documentSnapshot.get("enrolledList")
+                        );
+                        if (enrolledList == null) enrolledList = new ArrayList<>();
+
+                        List<String> cancelledList = (List<String>) (
+                                documentSnapshot.get("cancelled_list") != null
+                                        ? documentSnapshot.get("cancelled_list")
+                                        : documentSnapshot.get("cancelledList")
+                        );
+                        if (cancelledList == null) cancelledList = new ArrayList<>();
+
+                        // geolocation enabled?
                         Boolean geoEnabled = documentSnapshot.getBoolean("geolocationEnabled");
                         geolocationEnabled = (geoEnabled != null && geoEnabled);
 
-                        Log.d(TAG, "Event geolocation enabled: " + geolocationEnabled);
+                        // update flags for this device
+                        isOnWaitingList = waitingList.contains(deviceID);
+                        isInvited       = invitedList.contains(deviceID);
+                        isEnrolled      = enrolledList.contains(deviceID);
+                        isCancelled     = cancelledList.contains(deviceID);
 
-                        if (waitingList != null) {
-                            isOnWaitingList = waitingList.contains(deviceID);
-                            updateButtonState();
-                            totalEntrantsText.setText("Total Entrants: " + waitingList.size());
-                        } else {
-                            isOnWaitingList = false;
-                            updateButtonState();
-                            totalEntrantsText.setText("Total Entrants: 0");
-                        }
+                        // show number of entrants on waiting list
+                        totalEntrantsText.setText("Total Entrants: " + waitingList.size());
                     }
+
                     progressBar.setVisibility(View.GONE);
                     joinLeaveButton.setEnabled(true);
+                    updateButtonState();
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
@@ -175,6 +216,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error loading event details", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(this,
@@ -563,21 +605,13 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void updateButtonState() {
-        if (applyDateRestrictions()) return;
-
-        joinLeaveButton.setVisibility(View.VISIBLE);
+        // default visibility
         acceptInviteButton.setVisibility(View.GONE);
         declineInviteButton.setVisibility(View.GONE);
+        joinLeaveButton.setVisibility(View.VISIBLE);
+        joinLeaveButton.setEnabled(true);
 
-        if (isInvited) {
-            joinLeaveButton.setVisibility(View.GONE);
-            acceptInviteButton.setVisibility(View.VISIBLE);
-            declineInviteButton.setVisibility(View.VISIBLE);
-            acceptInviteButton.setOnClickListener(v -> acceptInvitation());
-            declineInviteButton.setOnClickListener(v -> declineInvitation());
-            return;
-        }
-
+        // 1) Final states first
         if (isEnrolled) {
             joinLeaveButton.setText("You are enrolled");
             joinLeaveButton.setEnabled(false);
@@ -596,14 +630,37 @@ public class EventDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        // 2) Pending invitation – show Accept / Decline, ignore date restrictions
+        if (isInvited) {
+            joinLeaveButton.setVisibility(View.GONE);
+            acceptInviteButton.setVisibility(View.VISIBLE);
+            declineInviteButton.setVisibility(View.VISIBLE);
+
+            acceptInviteButton.setOnClickListener(v -> acceptInvitation());
+            declineInviteButton.setOnClickListener(v -> declineInvitation());
+            return;
+        }
+
+        // 3) Normal state – only now do date restrictions matter
+        if (applyDateRestrictions()) {
+            // applyDateRestrictions already set the text / enabled state for joinLeaveButton
+            return;
+        }
+
+        // 4) Default waiting-list behavior
         if (isOnWaitingList) {
             joinLeaveButton.setText("Leave Waiting List");
-            joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light));
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_red_light)
+            );
         } else {
             joinLeaveButton.setText("Join Waiting List");
-            joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_green_light));
+            joinLeaveButton.setBackgroundTintList(
+                    getResources().getColorStateList(android.R.color.holo_green_light)
+            );
         }
     }
+
 
     private void acceptInvitation() {
         progressBar.setVisibility(View.VISIBLE);
@@ -649,12 +706,106 @@ public class EventDetailsActivity extends AppCompatActivity {
                     createDeclineNotification(eventName);
 
                     showResultDialog("Invitation declined", "You declined the invitation for this event.");
+                    drawReplacementAfterDecline();
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     showResultDialog("Error", "Couldn't decline: " + e.getMessage());
                 });
     }
+
+    /**
+     * After an invited entrant declines, automatically invite one
+     * replacement from waiting_list (FIFO), skipping users already invited or enrolled.
+     */
+    private void drawReplacementAfterDecline() {
+        db.collection("Events").document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) return;
+
+                    // ----- Load lists safely -----
+                    @SuppressWarnings("unchecked")
+                    List<String> waiting = (List<String>) (doc.get("waiting_list") != null
+                            ? doc.get("waiting_list")
+                            : doc.get("waitingList"));
+                    if (waiting == null) waiting = new ArrayList<>();
+
+                    @SuppressWarnings("unchecked")
+                    List<String> enrolled = (List<String>) (doc.get("enrolled_list") != null
+                            ? doc.get("enrolled_list")
+                            : doc.get("enrolledList"));
+                    if (enrolled == null) enrolled = new ArrayList<>();
+
+                    @SuppressWarnings("unchecked")
+                    List<String> invited = (List<String>) (doc.get("invited_list") != null
+                            ? doc.get("invited_list")
+                            : doc.get("invitedList"));
+                    if (invited == null) invited = new ArrayList<>();
+
+                    // ----- Capacity check -----
+                    String capStr = doc.getString("limitGuests");
+                    int capacity = 0;
+                    try {
+                        capacity = Integer.parseInt(capStr);
+                    } catch (Exception ignored) {}
+
+                    if (capacity <= 0) return; // no capacity set → nothing to do
+
+                    int taken = enrolled.size() + invited.size();
+                    if (taken >= capacity) {
+                        // Event is already full again, no reroll needed
+                        return;
+                    }
+
+                    // ----- Pick next waiting entrant (FIFO, skipping already enrolled/invited) -----
+                    final String[] replacementId = {null};
+                    for (String id : waiting) {
+                        if (!enrolled.contains(id) && !invited.contains(id)) {
+                            replacementId[0] = id;
+                            break;
+                        }
+                    }
+
+                    if (replacementId[0] == null) {
+                        // No eligible replacements
+                        return;
+                    }
+
+                    // ----- Move waiting_list → invited_list atomically -----
+                    db.collection("Events").document(eventId)
+                            .update(
+                                    "waiting_list", FieldValue.arrayRemove(replacementId[0]),
+                                    "invited_list", FieldValue.arrayUnion(replacementId[0])
+                            )
+                            .addOnSuccessListener(aVoid -> {
+                                // Send notification to the new invitee
+                                String eventName = doc.getString("eventName");
+                                if (eventName == null || eventName.isEmpty()) {
+                                    eventName = "Event";
+                                }
+
+                                Map<String, Object> notif = new HashMap<>();
+                                notif.put("eventId", eventId);
+                                notif.put("eventName", eventName);
+                                notif.put("type", "INVITED");
+                                notif.put("message", "You were selected for " + eventName +
+                                        ". Tap the event to accept or decline.");
+                                notif.put("timestamp", System.currentTimeMillis());
+                                notif.put("read", false);
+
+                                sendNotifIfEnabled(replacementId[0], notif);
+                            })
+                            .addOnFailureListener(e -> {
+                                // Silent fail
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    // Optional: log/ignore
+                });
+    }
+
+
 
     private void showResultDialog(String title, String message) {
         new androidx.appcompat.app.AlertDialog.Builder(this)
@@ -769,6 +920,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private boolean applyDateRestrictions() {
         String start = getIntent().getStringExtra("startDate");
         String end = getIntent().getStringExtra("endDate");
+
+        // When opened from a notification or QR, we usually don't have dates in the Intent.
+        // In that case, do NOT block the UI.
+        if (start == null || end == null || start.isEmpty() || end.isEmpty()) {
+            return false;
+        }
 
         try {
             SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
