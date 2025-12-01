@@ -197,6 +197,8 @@
         android:backgroundTint="#D4AF37"
         app:srcCompat="@drawable/ic_notifications"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:tint="@android:color/black"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
