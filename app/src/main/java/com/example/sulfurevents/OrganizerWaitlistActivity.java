@@ -8,14 +8,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -26,6 +24,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
+
+// ✨ NEW imports for date handling (needed for auto-lottery)
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 // Java docs done for part 3
 /**
@@ -108,7 +112,6 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
         Button btnSend = findViewById(R.id.btnSendSelectedInvites);
         btnSend.setOnClickListener(v -> sendInvitesForSelected());
 
-
         // Back button simply finishes this Activity
         back.setOnClickListener(v -> finish());
 
@@ -131,6 +134,16 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
 
         db.collection(EVENTS).document(eventId).get()
                 .addOnSuccessListener(doc -> {
+
+                    // 🔹 NEW: auto-run lottery after registration end if:
+                    // - event has passed endDate
+                    // - waiting_list is non-empty
+                    // - invited_list is empty (so we don't re-draw)
+                    if (shouldAutoRunLottery(doc)) {
+                        sendInvitesForSelected();
+                        return;
+                    }
+
                     List<String> list = null;
                     if (doc.exists()) {
                         list = (List<String>) doc.get(WAITING);
@@ -153,6 +166,54 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                     emptyText.setText("Failed to load waitlist.");
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    // 🔹 NEW helper: decides if we should automatically run the lottery for US 02.05.01
+    @SuppressWarnings("unchecked")
+    private boolean shouldAutoRunLottery(DocumentSnapshot doc) {
+        if (doc == null || !doc.exists()) return false;
+
+        // endDate stored as string "MM/dd/yyyy"
+        String endDateStr = doc.getString("endDate");
+        if (endDateStr == null || endDateStr.isEmpty()) {
+            return false;
+        }
+
+        // If there are already invited people, we've already run the lottery once.
+        List<String> invited = (List<String>) (doc.get("invited_list") != null
+                ? doc.get("invited_list")
+                : doc.get("invitedList"));
+        if (invited != null && !invited.isEmpty()) {
+            return false;
+        }
+
+        // Must have people on waiting_list, otherwise nothing to draw from.
+        List<String> waiting = (List<String>) (doc.get("waiting_list") != null
+                ? doc.get("waiting_list")
+                : doc.get("waitingList"));
+        if (waiting == null || waiting.isEmpty()) {
+            return false;
+        }
+
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            Date now = new Date();
+            Date eDate = df.parse(endDateStr);
+            if (eDate == null) return false;
+
+            // Treat endDate as end-of-day (23:59:59.999)
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(eDate);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MILLISECOND, -1);
+            eDate = cal.getTime();
+
+            // Only auto-run if we are AFTER the registration end datetime
+            return now.after(eDate);
+
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**
@@ -340,10 +401,5 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
-
-
 
 }
