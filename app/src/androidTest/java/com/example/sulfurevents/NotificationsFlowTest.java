@@ -237,6 +237,9 @@ public class NotificationsFlowTest {
         String optedOutId = "DEV_OPT_OUT_INVITED";
         String otherWaiting = "DEV_OTHER_WAITING";
 
+        // Clean up any old notifications from previous test runs
+        clearNotifications(db, optedOutId, otherWaiting);
+
         // Profiles: opted-out user and a normal user
         Map<String, Object> optedProfile = new HashMap<>();
         optedProfile.put("name", "Opted Out User");
@@ -289,6 +292,9 @@ public class NotificationsFlowTest {
         String normalWaiting = "DEV_NORMAL_WAITING";
         String enrolled1 = "DEV_ENROLLED_OPT";
         String enrolled2 = "DEV_ENROLLED_NORM";
+
+        // Clean up old notifications
+        clearNotifications(db, optedOutWaiting, normalWaiting, enrolled1, enrolled2);
 
         Map<String, Object> optedProfile = new HashMap<>();
         optedProfile.put("name", "Opted Out User");
@@ -457,6 +463,24 @@ public class NotificationsFlowTest {
 
         assertTrue("Opted-in cancelled entrant should receive CANCELLED_BROADCAST", inHas);
         assertFalse("Opted-out cancelled entrant should NOT receive CANCELLED_BROADCAST", outHas);
+    }
+
+    /** Utility to clear all notifications for one or more users. */
+    private void clearNotifications(FirebaseFirestore db, String... userIds) throws Exception {
+        for (String userId : userIds) {
+            // Get all notifications for this user
+            java.util.List<DocumentSnapshot> docs = Tasks.await(
+                    db.collection("Profiles")
+                            .document(userId)
+                            .collection("notifications")
+                            .get()
+            ).getDocuments();
+
+            // Delete each notification document
+            for (DocumentSnapshot d : docs) {
+                Tasks.await(d.getReference().delete());
+            }
+        }
     }
 
 }
