@@ -77,6 +77,15 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         this.listener = listener;
     }
 
+    /**
+     * Inflates the notification row layout and creates a new {@link NotifVH}
+     * to hold its views. This is called by the RecyclerView when it needs
+     * a new list item to be displayed on screen.
+     *
+     * @param parent  the parent ViewGroup into which the new view will be inserted
+     * @param viewType ignored here because the adapter uses only one view type
+     * @return a fully constructed {@link NotifVH} ready for binding
+     */
     @NonNull
     @Override
     public NotifVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -85,6 +94,21 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         return new NotifVH(v);
     }
 
+    /**
+     * Binds a {@link NotificationItem} to the provided {@link NotifVH} ViewHolder.
+     * <p>
+     * This method:
+     * <ul>
+     *     <li>Shows the event name, message, and timestamp</li>
+     *     <li>Displays Accept/Decline buttons only for INVITED notifications</li>
+     *     <li>Grey-outs the row if the notification has been marked as read</li>
+     *     <li>Invokes callbacks on the attached {@link NotificationActionListener}
+     *         so the hosting activity can update Firestore accordingly</li>
+     * </ul>
+     *
+     * @param h        the ViewHolder whose views will be populated
+     * @param position the list position of the notification being bound
+     */
     @Override
     public void onBindViewHolder(@NonNull NotifVH h, int position) {
         NotificationItem item = data.get(position);
@@ -134,6 +158,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         }
     }
 
+    /**
+     * Returns the number of notifications in the current dataset.
+     *
+     * @return total count of {@link NotificationItem} objects rendered by the adapter
+     */
     @Override
     public int getItemCount() {
         return data.size();
@@ -160,7 +189,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             btnAccept = itemView.findViewById(R.id.btnAccept);
             btnDecline = itemView.findViewById(R.id.btnDecline);
-//            btnView = itemView.findViewById(R.id.btnView);
         }
     }
 }

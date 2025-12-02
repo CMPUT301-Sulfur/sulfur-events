@@ -114,6 +114,15 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         listenForNotifications(); // same name, but updated body
     }
 
+    /**
+     * Lifecycle callback invoked when the notifications screen is no longer in the
+     * foreground (e.g., user navigates away or the app is backgrounded).
+     *
+     * <p>To keep the UI tidy, this marks all non-invitation notifications as read so
+     * that on the next visit they appear in the “history” section instead of the
+     * primary list of new notifications. Invitation notifications remain unread
+     * until the user explicitly accepts or declines them.</p>
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -121,6 +130,15 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         markNonInvitationNotificationsAsRead();
     }
 
+    /**
+     * Marks all unread, non-invitation notifications for the current device as read.
+     *
+     * <p>This method queries {@code Profiles/{deviceId}/notifications} for documents
+     * where {@code read == false} and sets {@code read = true} for every notification
+     * whose {@code type} is not {@code "INVITED"}. This ensures that informational
+     * and outcome messages (e.g., NOT_SELECTED) are moved to the history section,
+     * while invitation messages remain highlighted until the entrant responds.</p>
+     */
     private void markNonInvitationNotificationsAsRead() {
         db.collection("Profiles")
                 .document(deviceId)

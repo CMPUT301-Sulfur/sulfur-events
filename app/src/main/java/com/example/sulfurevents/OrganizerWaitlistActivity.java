@@ -227,8 +227,16 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
     }
 
     /**
-     * Sends invites to the selected entrants by moving them from waiting_list → invited_list.
-     * No notification documents are written (ahan can add that later).
+     * US 02.05.01 / US 02.05.02 – Organizer draws selected entrants from the waiting list.
+     *
+     * <p>Randomly selects a subset of entrants from the event's {@code waiting_list}
+     * up to the remaining event capacity, moves them into {@code invited_list},
+     * and then sends each selected entrant an {@code "INVITED"} notification
+     * (respecting their {@code notificationsEnabled} preference).</p>
+     *
+     * <p>Capacity is computed from {@code limitGuests} minus the number of already
+     * enrolled and invited users. If there are no available slots or no users on
+     * the waiting list, a toast is shown and no updates are performed.</p>
      */
     private void sendInvitesForSelected() {
         // Use the class-level 'db'
@@ -313,7 +321,30 @@ public class OrganizerWaitlistActivity extends AppCompatActivity {
         );
     }
 
-
+    /**
+     * Sends a notification to a specific entrant only if notifications are enabled
+     * for their profile, and records an admin-visible log entry.
+     *
+     * <p>US 01.04.01 / US 01.04.02 – deliver “invited / not selected” style
+     * notifications to entrants; US 03.08.01 – allow administrators to review
+     * logs of all notifications sent by organizers.</p>
+     *
+     * <p>The method:
+     * <ol>
+     *     <li>Reads {@code Profiles/{targetId}} and checks the
+     *         {@code notificationsEnabled} flag.</li>
+     *     <li>If enabled (or missing), writes the notification into
+     *         {@code Profiles/{targetId}/notifications}.</li>
+     *     <li>Appends a summary row into the {@code NotificationLogs} collection
+     *         including sender id/role, recipient id, event id/name, type,
+     *         message, and timestamp.</li>
+     * </ol>
+     *
+     * @param targetId device ID of the entrant to notify
+     * @param notif    notification payload; expected to contain at least
+     *                 {@code eventId}, {@code eventName}, {@code type},
+     *                 {@code message}, and {@code timestamp}
+     */
     private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
         db.collection("Profiles").document(targetId).get()
                 .addOnSuccessListener(doc -> {
