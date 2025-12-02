@@ -17,6 +17,26 @@ import java.util.*;
 public class TaskHelpers {
 
     /**
+     * Sends a Firestore notification ONLY if the target entrant has
+     * notificationsEnabled = true (or the field is missing).
+     */
+    private static void sendNotificationIfEnabled(FirebaseFirestore db,
+                                                  String userId,
+                                                  Map<String, Object> notif) throws Exception {
+        DocumentSnapshot profileDoc = Tasks.await(
+                db.collection("Profiles").document(userId).get()
+        );
+        Boolean enabled = profileDoc.getBoolean("notificationsEnabled");
+        if (enabled == null || enabled) {
+            Tasks.await(
+                    db.collection("Profiles")
+                            .document(userId)
+                            .collection("notifications")
+                            .add(notif)
+            );
+        }
+    }
+    /**
      * Simulates inviting the first entrant from the waiting list to an event.
      * <p>
      * - Moves the first user from {@code waiting_list} → {@code invited_list}.<br>
@@ -53,10 +73,7 @@ public class TaskHelpers {
         notif.put("timestamp", System.currentTimeMillis());
         notif.put("read", false);
 
-        Tasks.await(
-                db.collection("Profiles").document(next)
-                        .collection("notifications").add(notif)
-        );
+        sendNotificationIfEnabled(db, next, notif);
     }
 
     /**
@@ -102,10 +119,7 @@ public class TaskHelpers {
             notif.put("timestamp", System.currentTimeMillis());
             notif.put("read", false);
 
-            Tasks.await(
-                    db.collection("Profiles").document(deviceId)
-                            .collection("notifications").add(notif)
-            );
+            sendNotificationIfEnabled(db, deviceId, notif);
         }
 
         Tasks.await(db.collection("Events").document(eventId)
@@ -148,10 +162,98 @@ public class TaskHelpers {
         notif.put("timestamp", System.currentTimeMillis());
         notif.put("read", false);
 
-        Tasks.await(
-                db.collection("Profiles").document(nextId)
-                        .collection("notifications").add(notif)
-        );
+        sendNotificationIfEnabled(db, nextId, notif);
+    }
+
+    // -------------------------------------------------------------------
+    // US 02.07.01 — ORGANIZER BROADCAST TO WAITING LIST
+    // -------------------------------------------------------------------
+    public static void broadcastToWaitingEntrants(FirebaseFirestore db,
+                                                  String eventId,
+                                                  String message) throws Exception {
+        DocumentSnapshot doc = Tasks.await(db.collection("Events").document(eventId).get());
+        if (!doc.exists()) return;
+
+        String eventName = doc.getString("eventName");
+        if (eventName == null) eventName = "Event";
+
+        List<String> waiting = (List<String>) doc.get("waiting_list");
+        if (waiting == null) waiting = new ArrayList<>();
+
+        for (String uid : waiting) {
+            Map<String, Object> notif = new HashMap<>();
+            notif.put("eventId", eventId);
+            notif.put("eventName", eventName);
+            notif.put("type", "WAITING_BROADCAST");
+            notif.put("message", message);
+            notif.put("timestamp", System.currentTimeMillis());
+            notif.put("read", false);
+
+            sendNotificationIfEnabled(db, uid, notif);
+        }
+    }
+
+    // -------------------------------------------------------------------
+    // US 02.07.02 — ORGANIZER BROADCAST TO SELECTED ENTRANTS
+    // selected = invited_list + enrolled_list
+    // -------------------------------------------------------------------
+    public static void broadcastToInvitedEntrants(FirebaseFirestore db,
+                                                  String eventId,
+                                                  String message) throws Exception {
+        DocumentSnapshot doc = Tasks.await(db.collection("Events").document(eventId).get());
+        if (!doc.exists()) return;
+
+        String eventName = doc.getString("eventName");
+        if (eventName == null) eventName = "Event";
+
+        List<String> invited = (List<String>) doc.get("invited_list");
+        List<String> enrolled = (List<String>) doc.get("enrolled_list");
+        if (invited == null) invited = new ArrayList<>();
+        if (enrolled == null) enrolled = new ArrayList<>();
+
+        Set<String> recipients = new HashSet<>();
+        recipients.addAll(invited);
+        recipients.addAll(enrolled);
+
+        for (String uid : recipients) {
+            Map<String, Object> notif = new HashMap<>();
+            notif.put("eventId", eventId);
+            notif.put("eventName", eventName);
+            notif.put("type", "SELECTED_BROADCAST");
+            notif.put("message", message);
+            notif.put("timestamp", System.currentTimeMillis());
+            notif.put("read", false);
+
+            sendNotificationIfEnabled(db, uid, notif);
+        }
+    }
+
+    // -------------------------------------------------------------------
+    // US 02.07.03 — ORGANIZER BROADCAST TO CANCELLED ENTRANTS
+    // -------------------------------------------------------------------
+    public static void broadcastToCancelledEntrants(FirebaseFirestore db,
+                                                    String eventId,
+                                                    String message) throws Exception {
+        DocumentSnapshot doc = Tasks.await(db.collection("Events").document(eventId).get());
+        if (!doc.exists()) return;
+
+        String eventName = doc.getString("eventName");
+        if (eventName == null) eventName = "Event";
+
+        List<String> cancelled = (List<String>) doc.get("cancelled_list");
+        if (cancelled == null) cancelled = new ArrayList<>();
+
+        for (String uid : cancelled) {
+            Map<String, Object> notif = new HashMap<>();
+            notif.put("eventId", eventId);
+            notif.put("eventName", eventName);
+            notif.put("type", "CANCELLED_BROADCAST");
+            notif.put("message", message);
+            notif.put("timestamp", System.currentTimeMillis());
+            notif.put("read", false);
+
+            sendNotificationIfEnabled(db, uid, notif);
+        }
     }
 
     /** Removes a specific ID from a list. */
