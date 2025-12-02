@@ -376,6 +376,29 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Sends a notification to a target entrant iff notifications are enabled
+     * on their profile, and writes a corresponding admin log entry.
+     *
+     * <p>US 01.04.01 / US 01.04.02 – deliver notifications about being
+     * selected or not selected; US 03.08.01 – allow administrators to
+     * review logs of all notifications sent to entrants by organizers.</p>
+     *
+     * <p>This method:
+     * <ol>
+     *     <li>Reads {@code Profiles/{targetId}} and checks the
+     *         {@code notificationsEnabled} flag.</li>
+     *     <li>If enabled (or missing), adds the notification document under
+     *         {@code Profiles/{targetId}/notifications}.</li>
+     *     <li>Appends a record to the {@code NotificationLogs} collection
+     *         containing sender, recipient, event, type, message and timestamp.</li>
+     * </ol>
+     *
+     * @param targetId device ID of the entrant to notify
+     * @param notif    notification payload to store; must at least contain
+     *                 {@code eventId}, {@code eventName}, {@code type},
+     *                 {@code message}, and {@code timestamp}.
+     */
     private void sendNotifIfEnabled(String targetId, Map<String, Object> notif) {
         db.collection("Profiles").document(targetId).get()
                 .addOnSuccessListener(doc -> {
@@ -405,6 +428,18 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Removes obsolete invitation notifications for a given entrant and event.
+     *
+     * <p>When an organizer cancels an invitation (US 02.06.04), the entrant should
+     * no longer see any "accept/decline" prompts for that event. This helper
+     * queries {@code Profiles/{targetId}/notifications} for the current
+     * {@code eventId} and deletes any documents whose {@code type} is either
+     * {@code "INVITED"} or {@code "INVITED_REPLACEMENT"}.</p>
+     *
+     * @param targetId device ID whose invitation-related notifications
+     *                 should be cleaned up for the current event.
+     */
     private void clearInvitationNotifications(String targetId) {
         db.collection("Profiles")
                 .document(targetId)

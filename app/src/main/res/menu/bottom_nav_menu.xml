@@ -24,11 +24,4 @@
         android:id="@+id/entrant_history_navigation"
         android:icon="@android:drawable/ic_menu_recent_history"
         android:title="History" />
-
-
-    <!--    &lt;!&ndash; Notifications &ndash;&gt;-->
-    <!--    <item-->
-    <!--        android:id="@+id/notifications_navigation"-->
-    <!--        android:title="Notifications"-->
-    <!--        android:icon="@drawable/ic_notifications" />-->
 </menu>
