@@ -7,17 +7,21 @@ import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import static androidx.test.espresso.intent.Intents.intended;
@@ -35,10 +39,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,21 +66,56 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static kotlinx.coroutines.flow.FlowKt.withIndex;
 
+import android.content.Context;
+import android.provider.Settings;
+import android.view.View;
+
+import androidx.test.core.app.ApplicationProvider;
+import java.util.HashMap;
+
+
+/**
+ * Instrumented tests for organizer event-creation and entrant-sampling workflows.
+ * <p>
+ * This class uses Espresso and ActivityScenario to validate UI behavior in
+ * {@link OrganizerActivity} and event-sampling logic in {@link OrganizerInvitedActivity}.
+ * It also uses Firebase Firestore to prepare test data and assert correct back-end updates.
+ */
 
 public class OrganizerCreateEventTest {
 
+    /**
+     * Launch rule for {@link OrganizerActivity} providing an ActivityScenario for UI testing.
+     */
     @Rule
     public ActivityScenarioRule<OrganizerActivity> scenario = new
             ActivityScenarioRule<>(OrganizerActivity.class);
 
+    /**
+     * Rule enabling Espresso Intents validation for {@link OrganizerActivity}.
+     * This allows capturing and asserting fired intents during UI tests.
+     */
     @Rule
     public IntentsTestRule<OrganizerActivity> intentsRule =
             new IntentsTestRule<>(OrganizerActivity.class);
 
 
 
-
+    /**
+     * Validates the entire event creation from the organizer UI.
+     * <p>
+     * Steps verified:
+     * <ul>
+     *     <li>Clicking the "Create Event" button opens the event creation screen</li>
+     *     <li>Entering event name, description, location, limits</li>
+     *     <li>Selecting start and end dates via date picker</li>
+     *     <li>Scrolling and submitting the event</li>
+     * </ul>
+     * The test asserts only that no crashes occur and UI interactions complete successfully.
+     */
     @Test
     public void TestCreateEventButton() {
         onView(withId(R.id.CreateEventButton)).perform(click());
@@ -108,6 +151,24 @@ public class OrganizerCreateEventTest {
 
     }
 
+
+
+
+    /**
+     * Tests the entrant sampling logic used by organizers when drawing entrants from a waiting list.
+     * <p>
+     * This test:
+     * <ul>
+     *     <li>Creates mock user profiles in Firestore</li>
+     *     <li>Creates a test event document with a 10 user waiting list</li>
+     *     <li>Launches {@link OrganizerInvitedActivity} with the prepared event</li>
+     *     <li>Triggers a "draw one replacement" action via UI</li>
+     *     <li>Reads the updated event document to confirm that at least one user
+     *         has been moved into the invited list</li>
+     * </ul>
+     *
+     * @throws Exception if Firestore operations fail or the activity fails to launch
+     */
 
     @Test
     public void TestSampleEntrants() throws Exception {
@@ -172,5 +233,8 @@ public class OrganizerCreateEventTest {
         java.util.List<String> invited = (java.util.List<String>) doc.get("invited_list");
         assertTrue(invited != null && invited.size() >= 1);
     }
+
+
+
 
 }
