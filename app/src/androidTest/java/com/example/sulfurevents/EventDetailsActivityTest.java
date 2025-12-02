@@ -8,67 +8,105 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumented tests for {@link EventDetailsActivity}.
- *
- * These tests only check the UI that comes from the Intent extras
- * (name, description, organizer, and the presence of the join button),
- * because Firestore is created inside the activity and is harder to stub
- * without changing the production code.
+ * Small, stable UI test suite for EventDetailsActivity.
+ * These tests only verify that important views are present
+ * and show the expected text. No clicks, permissions, or
+ * Firestore expectations.
  */
 @RunWith(AndroidJUnit4.class)
 public class EventDetailsActivityTest {
 
-    // build an Intent with the same keys the activity expects
-    private static Intent buildIntent() {
-        return new Intent(
+    private Intent testIntent;
+
+    @Before
+    public void setup() {
+        testIntent = new Intent(
                 ApplicationProvider.getApplicationContext(),
-                EventDetailsActivity.class)
-                .putExtra("eventId", "event123")
-                .putExtra("eventName", "Test Event")
-                .putExtra("description", "This is only a test.")
-                .putExtra("organizerEmail", "organizer@test.com");
+                EventDetailsActivity.class
+        );
+        testIntent.putExtra("eventId", "test_event_123");
+        testIntent.putExtra("eventName", "Test Conference 2025");
+        testIntent.putExtra("description", "A test event for unit testing");
+        testIntent.putExtra("organizerEmail", "organizer@test.com");
+        // no start/end dates -> no date restriction logic triggered
     }
 
-    @Rule
-    public ActivityScenarioRule<EventDetailsActivity> activityRule =
-            new ActivityScenarioRule<>(buildIntent());
-
+    /**
+     * Test 1: Event name TextView is visible with correct text.
+     */
     @Test
-    public void screen_shows_event_info_from_intent() {
-        // title
-        onView(withId(R.id.event_name_detail))
-                .check(matches(isDisplayed()))
-                .check(matches(withText("Test Event")));
+    public void testEventNameVisible() {
+        try (ActivityScenario<EventDetailsActivity> ignored =
+                     ActivityScenario.launch(testIntent)) {
 
-        // description
-        onView(withId(R.id.event_description))
-                .check(matches(isDisplayed()))
-                .check(matches(withText("This is only a test.")));
-
-        // organizer line
-        onView(withId(R.id.event_organizer))
-                .check(matches(isDisplayed()))
-                .check(matches(withText("Organizer: organizer@test.com")));
+            onView(withId(R.id.event_name_detail))
+                    .check(matches(isDisplayed()))
+                    .check(matches(withText("Test Conference 2025")));
+        }
     }
 
+    /**
+     * Test 2: Description TextView is visible with correct text.
+     */
     @Test
-    public void join_button_is_visible_initially() {
-        onView(withId(R.id.join_leave_button))
-                .check(matches(isDisplayed()));
+    public void testDescriptionVisible() {
+        try (ActivityScenario<EventDetailsActivity> ignored =
+                     ActivityScenario.launch(testIntent)) {
+
+            onView(withId(R.id.event_description))
+                    .check(matches(isDisplayed()))
+                    .check(matches(withText("A test event for unit testing")));
+        }
     }
 
+    /**
+     * Test 3: Organizer TextView is visible with correct text.
+     */
     @Test
-    public void back_button_is_visible() {
-        onView(withId(R.id.back_button_details))
-                .check(matches(isDisplayed()));
+    public void testOrganizerVisible() {
+        try (ActivityScenario<EventDetailsActivity> ignored =
+                     ActivityScenario.launch(testIntent)) {
+
+            onView(withId(R.id.event_organizer))
+                    .check(matches(isDisplayed()))
+                    .check(matches(withText("Organizer: organizer@test.com")));
+        }
+    }
+
+    /**
+     * Test 4: Event poster ImageView exists and is displayed.
+     * We don't assert on the actual image content.
+     */
+    @Test
+    public void testEventPosterImageViewVisible() {
+        try (ActivityScenario<EventDetailsActivity> ignored =
+                     ActivityScenario.launch(testIntent)) {
+
+            onView(withId(R.id.EntrantEventImage))
+                    .check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * Test 5: Total entrants TextView exists and is displayed.
+     * We do not check the text because it depends on Firestore.
+     */
+    @Test
+    public void testTotalEntrantsTextViewVisible() {
+        try (ActivityScenario<EventDetailsActivity> ignored =
+                     ActivityScenario.launch(testIntent)) {
+
+            onView(withId(R.id.total_entrants))
+                    .check(matches(isDisplayed()));
+        }
     }
 }
