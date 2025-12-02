@@ -109,4 +109,52 @@ public class EventDetailsActivityTest {
                     .check(matches(isDisplayed()));
         }
     }
+
+    /**
+     * If the event dates are clearly in the past, the join button
+     * should say "Cannot join (Registration closed)".
+     */
+    @Test
+    public void pastEvent_showsRegistrationClosedText() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                EventDetailsActivity.class
+        )
+                .putExtra("eventId", "pastEvent")
+                .putExtra("eventName", "Past Event")
+                .putExtra("description", "Already finished")
+                .putExtra("organizerEmail", "org@test.com")
+                // way in the past
+                .putExtra("startDate", "01/01/2000")
+                .putExtra("endDate", "01/02/2000");
+
+        try (var scenario = androidx.test.core.app.ActivityScenario.launch(intent)) {
+            onView(withId(R.id.join_leave_button))
+                    .check(matches(withText("Cannot join (Registration closed)")));
+        }
+    }
+
+    /**
+     * If the start/end date extras are malformed, the button should show
+     * "Invalid event dates" (the defensive branch in applyDateRestrictions()).
+     */
+    @Test
+    public void invalidDates_showsInvalidEventDatesText() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                EventDetailsActivity.class
+        )
+                .putExtra("eventId", "badDates")
+                .putExtra("eventName", "Bad Date Event")
+                .putExtra("description", "Broken dates")
+                .putExtra("organizerEmail", "org@test.com")
+                .putExtra("startDate", "not-a-date")
+                .putExtra("endDate", "also-bad");
+
+        try (var scenario = androidx.test.core.app.ActivityScenario.launch(intent)) {
+            onView(withId(R.id.join_leave_button))
+                    .check(matches(withText("Invalid event dates")));
+        }
+    }
+
 }
