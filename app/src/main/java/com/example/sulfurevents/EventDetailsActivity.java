@@ -8,14 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,28 +29,63 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Activity shown to entrants when they view the details of a specific event.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *     <li>Display event information (name, description, organizer, poster image).</li>
+ *     <li>Allow entrants to join/leave the waiting list (with optional geolocation).</li>
+ *     <li>Handle invitation acceptance/decline and update Firestore lists.</li>
+ *     <li>Enforce registration date restrictions and waiting-list limits.</li>
+ *     <li>Create entrant-facing notifications for history / US01.* user stories.</li>
+ * </ul>
+ */
 public class EventDetailsActivity extends AppCompatActivity {
 
+    /** Log tag for debugging. */
     private static final String TAG = "EventDetailsActivity";
+
+    /** Request code for runtime location permission. */
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
+    /** Firestore database reference. */
     private FirebaseFirestore db;
+
+    /** Unique device identifier for the current entrant. */
     private String deviceID;
+
+    /** Firestore document ID of the event being displayed. */
     private String eventId;
+
+    /** Client used to fetch the entrant's location when geolocation is enabled. */
     private FusedLocationProviderClient fusedLocationClient;
 
-    private TextView eventNameText, descriptionText, organizerText, totalEntrantsText;
-    private Button joinLeaveButton, acceptInviteButton, declineInviteButton;
+    // --- UI elements ---
+    private TextView eventNameText;
+    private TextView descriptionText;
+    private TextView organizerText;
+    private TextView totalEntrantsText;
+    private Button joinLeaveButton;
+    private Button acceptInviteButton;
+    private Button declineInviteButton;
     private ProgressBar progressBar;
     private ImageButton backButton;
     private ImageView eventPoster;
 
+    // --- State flags for entrant's relationship to this event ---
     private boolean isOnWaitingList = false;
     private boolean isInvited = false;
     private boolean isEnrolled = false;
     private boolean isCancelled = false;
     private boolean geolocationEnabled = false;
 
+    /**
+     * Android lifecycle callback.
+     * <p>
+     * Initializes Firestore/location clients, binds UI views, and processes the
+     * incoming {@link Intent} (either deep link or normal navigation).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +101,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         handleIntent(intent);
 
+        // Main waiting list button
         joinLeaveButton.setOnClickListener(v -> {
-            if (isOnWaitingList) leaveWaitingList();
-            else joinWaitingList();
+            if (isOnWaitingList) {
+                leaveWaitingList();
+            } else {
+                joinWaitingList();
+            }
         });
     }
 
+    /**
+     * Binds all view references to UI elements from the layout.
+     */
     private void initViews() {
         eventNameText = findViewById(R.id.event_name_detail);
         descriptionText = findViewById(R.id.event_description);
@@ -87,13 +127,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventPoster = findViewById(R.id.EntrantEventImage);
     }
 
+    /**
+     * Configures the back button to simply finish the activity.
+     */
     private void setupBackButton() {
         backButton.setOnClickListener(v -> finish());
     }
 
     /**
-     * Shows a styled alert dialog matching the app's black and gold theme
-     * Auto-dismisses after 2.5 seconds
+     * Shows a styled AlertDialog matching the app's black–gold theme.
+     * The dialog automatically dismisses after 2.5 seconds.
+     *
+     * @param title   dialog title
+     * @param message dialog message
      */
     private void showStyledDialog(String title, String message) {
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -133,8 +179,18 @@ public class EventDetailsActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Handles the incoming intent in two modes:
+     * <ul>
+     *     <li>Deep link ({@link Intent#ACTION_VIEW}) – extract eventId from URI and load from Firestore.</li>
+     *     <li>Normal navigation – read event fields from extras and show them directly.</li>
+     * </ul>
+     *
+     * @param intent launching intent
+     */
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            // Deep link: sulfur://.../event/{eventId}
             Uri uri = intent.getData();
             if (uri != null) {
                 eventId = uri.getLastPathSegment();
@@ -143,8 +199,11 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
 
+        // Normal case: event passed as extras
         eventId = intent.getStringExtra("eventId");
-        if (eventId == null) eventId = intent.getStringExtra("EVENT_ID");
+        if (eventId == null) {
+            eventId = intent.getStringExtra("EVENT_ID");
+        }
         String eventName = intent.getStringExtra("eventName");
         String description = intent.getStringExtra("description");
         String organizer = intent.getStringExtra("organizerEmail");
@@ -152,21 +211,39 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         displayEventInfo(eventName, description, organizer, posterURL);
 
+        // Only allow interaction if registration is currently open
         if (applyDateRestrictions()) return;
         checkWaitingListStatus();
     }
 
+    /**
+     * Populates the UI with event information and loads the poster image (if any).
+     *
+     * @param name        event name
+     * @param description event description (may be null)
+     * @param organizer   organizer email (may be null)
+     * @param posterURL   URL of event poster in Firebase Storage (may be null/blank)
+     */
     private void displayEventInfo(String name, String description, String organizer, String posterURL) {
         eventNameText.setText(name);
         descriptionText.setText(description != null ? description : "No description available");
         organizerText.setText("Organizer: " + (organizer != null ? organizer : "Unknown"));
 
-        if (posterURL != null && !posterURL.isEmpty())
+        if (posterURL != null && !posterURL.isEmpty()) {
             Glide.with(this).load(posterURL).into(eventPoster);
-        else
+        } else {
             eventPoster.setImageResource(R.drawable.outline_ad_off_24);
+        }
     }
 
+    /**
+     * Reads the event document and:
+     * <ul>
+     *     <li>Updates the entrant's status flags (waiting list / invited / enrolled / cancelled).</li>
+     *     <li>Displays the total number of waiting list entrants.</li>
+     *     <li>Refreshes the state of buttons.</li>
+     * </ul>
+     */
     private void checkWaitingListStatus() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -189,6 +266,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Updates internal flags for this entrant based on the event document.
+     *
+     * @param doc Firestore event document
+     */
     private void updateFlags(com.google.firebase.firestore.DocumentSnapshot doc) {
         isOnWaitingList = getWaitingList(doc).contains(deviceID);
         isInvited = getInvitedList(doc).contains(deviceID);
@@ -198,39 +280,59 @@ public class EventDetailsActivity extends AppCompatActivity {
         geolocationEnabled = geoEnabled != null && geoEnabled;
     }
 
+    /**
+     * Helper to get the waiting list of an event, supporting both
+     * {@code waiting_list} and {@code waitingList} field names.
+     */
     private List<String> getWaitingList(com.google.firebase.firestore.DocumentSnapshot doc) {
         List<String> list = (List<String>) (doc.get("waiting_list") != null ? doc.get("waiting_list") : doc.get("waitingList"));
         return list != null ? list : new ArrayList<>();
     }
+
+    /** Helper to get invited_list with legacy field name support. */
     private List<String> getInvitedList(com.google.firebase.firestore.DocumentSnapshot doc) {
         List<String> list = (List<String>) (doc.get("invited_list") != null ? doc.get("invited_list") : doc.get("invitedList"));
         return list != null ? list : new ArrayList<>();
     }
+
+    /** Helper to get enrolled_list with legacy field name support. */
     private List<String> getEnrolledList(com.google.firebase.firestore.DocumentSnapshot doc) {
         List<String> list = (List<String>) (doc.get("enrolled_list") != null ? doc.get("enrolled_list") : doc.get("enrolledList"));
         return list != null ? list : new ArrayList<>();
     }
+
+    /** Helper to get cancelled_list with legacy field name support. */
     private List<String> getCancelledList(com.google.firebase.firestore.DocumentSnapshot doc) {
         List<String> list = (List<String>) (doc.get("cancelled_list") != null ? doc.get("cancelled_list") : doc.get("cancelledList"));
         return list != null ? list : new ArrayList<>();
     }
 
+    /**
+     * @return {@code true} if fine location permission is currently granted.
+     */
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Requests fine + coarse location permissions at runtime.
+     */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
 
+    /**
+     * Callback for Android runtime permission results.
+     * If permission was granted, the join flow resumes; otherwise a dialog is shown.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 joinWaitingList();
-            else {
+            } else {
                 progressBar.setVisibility(View.GONE);
                 joinLeaveButton.setEnabled(true);
                 showStyledDialog("Permission Required", "Location permission is required to join the waitlist");
@@ -238,17 +340,34 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Main entry for joining the waiting list.
+     * <ul>
+     *     <li>Checks location permission and date restrictions.</li>
+     *     <li>If geolocation is enabled, saves location; otherwise joins without it.</li>
+     * </ul>
+     */
     private void joinWaitingList() {
-        if (!checkLocationPermission()) { requestLocationPermission(); return; }
+        if (!checkLocationPermission()) {
+            requestLocationPermission();
+            return;
+        }
         if (applyDateRestrictions()) return;
 
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
 
-        if (geolocationEnabled) getCurrentLocationAndJoin();
-        else addToWaitingListWithoutLocation();
+        if (geolocationEnabled) {
+            getCurrentLocationAndJoin();
+        } else {
+            addToWaitingListWithoutLocation();
+        }
     }
 
+    /**
+     * Joins the waiting list when geolocation is <b>not</b> enabled for this event.
+     * Performs capacity checks before updating Firestore.
+     */
     private void addToWaitingListWithoutLocation() {
         db.collection("Events").document(eventId)
                 .get()
@@ -279,10 +398,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 showStyledDialog("Success", "Successfully Joined Waiting List!");
                                 createJoinNotification(eventNameText.getText().toString());
 
-                                // Create notification for event history (US 01.02.03)
-                                String eventName = eventNameText.getText().toString();
-
-
                                 checkWaitingListStatus();
                             })
                             .addOnFailureListener(e -> {
@@ -298,25 +413,51 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Parses a string waiting list limit, returning -1 if not set or invalid.
+     *
+     * @param str waitingListLimit field
+     * @return integer limit, or -1 if unlimited/invalid
+     */
     private int parseLimit(String str) {
-        try { return str != null ? Integer.parseInt(str.trim()) : -1; }
-        catch (Exception e) { return -1; }
+        try {
+            return str != null ? Integer.parseInt(str.trim()) : -1;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
+    /**
+     * Attempts to use the last known location to join with geolocation.
+     * If last location is null or fails, falls back to an active location request.
+     */
     private void getCurrentLocationAndJoin() {
-        if (!checkLocationPermission()) { progressBar.setVisibility(View.GONE); joinLeaveButton.setEnabled(true); return; }
+        if (!checkLocationPermission()) {
+            progressBar.setVisibility(View.GONE);
+            joinLeaveButton.setEnabled(true);
+            return;
+        }
 
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(location -> {
-                    if (location != null)
+                    if (location != null) {
                         addToWaitingListWithLocation(location.getLatitude(), location.getLongitude());
-                    else requestCurrentLocation();
+                    } else {
+                        requestCurrentLocation();
+                    }
                 })
                 .addOnFailureListener(e -> requestCurrentLocation());
     }
 
+    /**
+     * Requests a one-time high-accuracy location update, then joins the waitlist
+     * with whatever coordinates were obtained (or null if none).
+     */
     private void requestCurrentLocation() {
-        if (!checkLocationPermission()) { addToWaitingListWithLocation(null, null); return; }
+        if (!checkLocationPermission()) {
+            addToWaitingListWithLocation(null, null);
+            return;
+        }
 
         LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setMaxUpdates(1).build();
@@ -325,13 +466,22 @@ public class EventDetailsActivity extends AppCompatActivity {
             @Override
             public void onLocationResult(@NonNull LocationResult result) {
                 Location loc = result.getLastLocation();
-                if (loc != null) addToWaitingListWithLocation(loc.getLatitude(), loc.getLongitude());
-                else addToWaitingListWithLocation(null, null);
+                if (loc != null) {
+                    addToWaitingListWithLocation(loc.getLatitude(), loc.getLongitude());
+                } else {
+                    addToWaitingListWithLocation(null, null);
+                }
                 fusedLocationClient.removeLocationUpdates(this);
             }
         }, null);
     }
 
+    /**
+     * Saves the entrant's registration location in the event's subcollection.
+     *
+     * @param lat latitude (nullable)
+     * @param lng longitude (nullable)
+     */
     private void saveRegistrationLocation(Double lat, Double lng) {
         Map<String, Object> data = new HashMap<>();
         data.put("deviceId", deviceID);
@@ -362,7 +512,14 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
-private void addToWaitingListWithLocation(Double lat, Double lng) {
+    /**
+     * Joins the waiting list when geolocation is enabled: checks capacity and then
+     * saves the user into the {@code waiting_list} and location subcollection.
+     *
+     * @param lat latitude (nullable)
+     * @param lng longitude (nullable)
+     */
+    private void addToWaitingListWithLocation(Double lat, Double lng) {
         db.collection("Events").document(eventId)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -372,7 +529,7 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                         showStyledDialog("Error", "Event not found");
                         return;
                     }
-                    
+
                     List<String> waiting = (List<String>) (
                             doc.get("waiting_list") != null ?
                                     doc.get("waiting_list") :
@@ -402,9 +559,7 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                     // Add user to waiting_list array
                     db.collection("Events").document(eventId)
                             .update("waiting_list", FieldValue.arrayUnion(deviceID))
-                            .addOnSuccessListener(aVoid -> {
-                                saveRegistrationLocation(lat, lng);
-                            })
+                            .addOnSuccessListener(aVoid -> saveRegistrationLocation(lat, lng))
                             .addOnFailureListener(e -> {
                                 progressBar.setVisibility(View.GONE);
                                 joinLeaveButton.setEnabled(true);
@@ -418,6 +573,10 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                 });
     }
 
+    /**
+     * Removes the entrant from the event's waiting list.
+     * If geolocation was enabled, removes the stored registration location as well.
+     */
     private void leaveWaitingList() {
         progressBar.setVisibility(View.VISIBLE);
         joinLeaveButton.setEnabled(false);
@@ -427,10 +586,8 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                 .addOnSuccessListener(aVoid -> {
                     // Successfully removed from waiting list
                     if (geolocationEnabled) {
-                        // Delete location data if geolocation was enabled
                         deleteRegistrationLocation();
                     } else {
-                        // No location data to delete
                         progressBar.setVisibility(View.GONE);
                         joinLeaveButton.setEnabled(true);
                         isOnWaitingList = false;
@@ -440,7 +597,6 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                                 .setPositiveButton("OK", null)
                                 .show();
 
-                        // Create notification for event history (US 01.02.03)
                         String eventName = eventNameText.getText().toString();
                         createLeaveNotification(eventName);
 
@@ -455,7 +611,11 @@ private void addToWaitingListWithLocation(Double lat, Double lng) {
                 });
     }
 
-private void deleteRegistrationLocation() {
+    /**
+     * Deletes the entrant's stored registration location (if any) and
+     * then updates UI and notifications accordingly.
+     */
+    private void deleteRegistrationLocation() {
         db.collection("Events").document(eventId)
                 .collection("entrant_registration_location").document(deviceID)
                 .delete()
@@ -465,11 +625,10 @@ private void deleteRegistrationLocation() {
                     isOnWaitingList = false;
                     updateButtonState();
                     showStyledDialog("Success", "Successfully left the waiting list!");
-                    
-                    // Create notification for event history (US 01.02.03)
+
                     String eventName = eventNameText.getText().toString();
                     createLeaveNotification(eventName);
-                    
+
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> {
@@ -478,16 +637,18 @@ private void deleteRegistrationLocation() {
                     isOnWaitingList = false;
                     updateButtonState();
                     showStyledDialog("Partial Success", "Left waiting list (location data may remain)");
-                    
-                    // Create notification for event history (US 01.02.03)
+
                     String eventName = eventNameText.getText().toString();
                     createLeaveNotification(eventName);
-                    
+
                     checkWaitingListStatus();
                 });
     }
 
-
+    /**
+     * Legacy helper (no longer called directly) that finalizes leaving the list.
+     * Kept for compatibility / clarity but not used in the current flow.
+     */
     private void finalizeLeave() {
         progressBar.setVisibility(View.GONE);
         joinLeaveButton.setEnabled(true);
@@ -498,6 +659,16 @@ private void deleteRegistrationLocation() {
         checkWaitingListStatus();
     }
 
+    /**
+     * Updates button visibility, labels, and colors based on the entrant's status:
+     * <ul>
+     *     <li>Enrolled – disabled green button.</li>
+     *     <li>Not selected – disabled red button.</li>
+     *     <li>Invited – show Accept / Decline buttons instead of join/leave.</li>
+     *     <li>Waiting list – show "Leave Waiting List".</li>
+     *     <li>Default – show "Join Waiting List".</li>
+     * </ul>
+     */
     private void updateButtonState() {
         acceptInviteButton.setVisibility(View.GONE);
         declineInviteButton.setVisibility(View.GONE);
@@ -533,6 +704,13 @@ private void deleteRegistrationLocation() {
         }
     }
 
+    /**
+     * Applies registration date restrictions based on extras {@code startDate} and {@code endDate}.
+     * <p>
+     * When out of range, disables the join/leave button and sets an appropriate label.
+     *
+     * @return {@code true} if interaction should be blocked due to date rules
+     */
     private boolean applyDateRestrictions() {
         String start = getIntent().getStringExtra("startDate");
         String end = getIntent().getStringExtra("endDate");
@@ -545,15 +723,37 @@ private void deleteRegistrationLocation() {
             Date sDate = df.parse(start);
             Date eDate = df.parse(end);
             Calendar cal = Calendar.getInstance();
-            cal.setTime(eDate); cal.add(Calendar.DAY_OF_MONTH, 1); cal.add(Calendar.MILLISECOND, -1); eDate = cal.getTime();
+            cal.setTime(eDate);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MILLISECOND, -1);
+            eDate = cal.getTime();
 
-            if (now.before(sDate)) { joinLeaveButton.setText("Waitlist opens on " + start); joinLeaveButton.setEnabled(false); joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light)); return true; }
-            if (now.after(eDate)) { joinLeaveButton.setText("Cannot join (Registration closed)"); joinLeaveButton.setEnabled(false); joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light)); return true; }
+            if (now.before(sDate)) {
+                joinLeaveButton.setText("Waitlist opens on " + start);
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light));
+                return true;
+            }
+            if (now.after(eDate)) {
+                joinLeaveButton.setText("Cannot join (Registration closed)");
+                joinLeaveButton.setEnabled(false);
+                joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light));
+                return true;
+            }
 
-        } catch (Exception ex) { joinLeaveButton.setText("Invalid event dates"); joinLeaveButton.setEnabled(false); joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light)); return true; }
+        } catch (Exception ex) {
+            joinLeaveButton.setText("Invalid event dates");
+            joinLeaveButton.setEnabled(false);
+            joinLeaveButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_red_light));
+            return true;
+        }
         return false;
     }
 
+    /**
+     * Loads full event details (for deep links) directly from Firestore
+     * and triggers a status refresh once loaded.
+     */
     private void loadEventDetailsFromFirestore() {
         db.collection("Events").document(eventId)
                 .get()
@@ -562,17 +762,43 @@ private void deleteRegistrationLocation() {
                         showStyledDialog("Error", "Event not found");
                         return;
                     }
-                    displayEventInfo(doc.getString("eventName"), doc.getString("description"), doc.getString("organizerEmail"), doc.getString("posterURL"));
+                    displayEventInfo(doc.getString("eventName"),
+                            doc.getString("description"),
+                            doc.getString("organizerEmail"),
+                            doc.getString("posterURL"));
                     checkWaitingListStatus();
                 })
                 .addOnFailureListener(e -> showStyledDialog("Error", "Error loading event"));
     }
 
-    private void createJoinNotification(String eventName) { createNotification("WAITING", "You joined the waiting list for " + eventName); }
-    private void createLeaveNotification(String eventName) { createNotification("LEFT_WAITLIST", "You left the waiting list for " + eventName); }
-    private void createAcceptNotification(String eventName) { createNotification("ENROLLED", "You accepted the invitation and are now enrolled in " + eventName); }
-    private void createDeclineNotification(String eventName) { createNotification("CANCELLED", "You declined the invitation for " + eventName); }
+    // --- Notification helper methods ---
 
+    /** Creates a "joined waiting list" notification for the entrant. */
+    private void createJoinNotification(String eventName) {
+        createNotification("WAITING", "You joined the waiting list for " + eventName);
+    }
+
+    /** Creates a "left waiting list" notification for the entrant. */
+    private void createLeaveNotification(String eventName) {
+        createNotification("LEFT_WAITLIST", "You left the waiting list for " + eventName);
+    }
+
+    /** Creates an "enrolled" notification after accepting an invite. */
+    private void createAcceptNotification(String eventName) {
+        createNotification("ENROLLED", "You accepted the invitation and are now enrolled in " + eventName);
+    }
+
+    /** Creates a "declined invitation" notification. */
+    private void createDeclineNotification(String eventName) {
+        createNotification("CANCELLED", "You declined the invitation for " + eventName);
+    }
+
+    /**
+     * Writes a notification document under {@code Profiles/{deviceId}/notifications}.
+     *
+     * @param type    logical notification type (WAITING, ENROLLED, etc.)
+     * @param message human-readable message for the entrant
+     */
     private void createNotification(String type, String message) {
         Map<String, Object> notif = new HashMap<>();
         notif.put("eventId", eventId);
@@ -584,13 +810,23 @@ private void deleteRegistrationLocation() {
         db.collection("Profiles").document(deviceID).collection("notifications").add(notif);
     }
 
+    /**
+     * Handles logic when an entrant accepts an event invitation:
+     * <ul>
+     *     <li>Moves them from {@code invited_list} to {@code enrolled_list}.</li>
+     *     <li>Updates UI flags and shows a success dialog.</li>
+     *     <li>Checks if the event is now full to notify remaining waitlist users.</li>
+     * </ul>
+     */
     private void acceptInvitation() {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("Events").document(eventId)
-                .update("invited_list", FieldValue.arrayRemove(deviceID), "enrolled_list", FieldValue.arrayUnion(deviceID))
+                .update("invited_list", FieldValue.arrayRemove(deviceID),
+                        "enrolled_list", FieldValue.arrayUnion(deviceID))
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    isInvited = false; isEnrolled = true;
+                    isInvited = false;
+                    isEnrolled = true;
                     updateButtonState();
                     createAcceptNotification(eventNameText.getText().toString());
                     showStyledDialog("Success", "Invitation accepted");
@@ -601,13 +837,22 @@ private void deleteRegistrationLocation() {
                 });
     }
 
+    /**
+     * Handles logic when an entrant declines an event invitation:
+     * <ul>
+     *     <li>Moves them from {@code invited_list} to {@code cancelled_list}.</li>
+     *     <li>Triggers draw for a replacement from the waiting list.</li>
+     * </ul>
+     */
     private void declineInvitation() {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("Events").document(eventId)
-                .update("invited_list", FieldValue.arrayRemove(deviceID), "cancelled_list", FieldValue.arrayUnion(deviceID))
+                .update("invited_list", FieldValue.arrayRemove(deviceID),
+                        "cancelled_list", FieldValue.arrayUnion(deviceID))
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    isInvited = false; isCancelled = true;
+                    isInvited = false;
+                    isCancelled = true;
                     updateButtonState();
                     createDeclineNotification(eventNameText.getText().toString());
                     showStyledDialog("Invitation Declined", "Invitation declined");
@@ -618,6 +863,10 @@ private void deleteRegistrationLocation() {
                 });
     }
 
+    /**
+     * When an invite is declined, this method pulls the next entrant in the waiting list
+     * (if capacity allows) and moves them directly into {@code enrolled_list}.
+     */
     private void drawReplacementAfterDecline() {
         db.collection("Events").document(eventId).get().addOnSuccessListener(doc -> {
             List<String> waitingList = getWaitingList(doc);
@@ -627,10 +876,17 @@ private void deleteRegistrationLocation() {
             if (spotsAvailable <= 0 || waitingList.isEmpty()) return;
             String nextInLine = waitingList.get(0);
             db.collection("Events").document(eventId)
-                    .update("waiting_list", FieldValue.arrayRemove(nextInLine), "enrolled_list", FieldValue.arrayUnion(nextInLine));
+                    .update("waiting_list", FieldValue.arrayRemove(nextInLine),
+                            "enrolled_list", FieldValue.arrayUnion(nextInLine));
         });
     }
 
+    /**
+     * Checks if the event has reached its enrollment limit and, if so,
+     * sends "NOT_SELECTED" notifications to all remaining waiting-list entrants.
+     *
+     * @param eventId ID of the event being checked
+     */
     private void checkAndNotifyNotSelectedIfFull(String eventId) {
         db.collection("Events").document(eventId).get().addOnSuccessListener(doc -> {
             List<String> waitingList = getWaitingList(doc);
@@ -638,10 +894,10 @@ private void deleteRegistrationLocation() {
             List<String> enrolled = getEnrolledList(doc);
             if (enrolled.size() >= limit) {
                 for (String id : waitingList) {
-                    Map<String,Object> notif = new HashMap<>();
+                    Map<String, Object> notif = new HashMap<>();
                     notif.put("eventId", eventId);
-                    notif.put("type","NOT_SELECTED");
-                    notif.put("message","You were not selected for " + eventNameText.getText().toString());
+                    notif.put("type", "NOT_SELECTED");
+                    notif.put("message", "You were not selected for " + eventNameText.getText().toString());
                     notif.put("timestamp", System.currentTimeMillis());
                     notif.put("read", false);
                     db.collection("Profiles").document(id).collection("notifications").add(notif);
