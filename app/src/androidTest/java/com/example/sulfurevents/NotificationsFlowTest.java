@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import android.os.SystemClock;
 
@@ -215,4 +216,247 @@ public class NotificationsFlowTest {
         }
         return false;
     }
+
+    /**
+     * Test: US 01.04.03 – Opt-out for invitations
+     *
+     * Verifies that when an entrant has notifications disabled
+     * (notificationsEnabled = false in their profile), they do NOT
+     * receive an INVITED notification even if they are selected.
+     *
+     * Steps:
+     * 1) Create a profile with notificationsEnabled = false.
+     * 2) Create an event where that user is first in waiting_list.
+     * 3) Call TaskHelpers.inviteFirstWaitingUser().
+     * 4) Verify no INVITED notification is created for that user.
+     */
+    @Test
+    public void testOptedOutUserDoesNotReceiveInvitedNotification() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String optedOutId = "DEV_OPT_OUT_INVITED";
+        String otherWaiting = "DEV_OTHER_WAITING";
+
+        // Profiles: opted-out user and a normal user
+        Map<String, Object> optedProfile = new HashMap<>();
+        optedProfile.put("name", "Opted Out User");
+        optedProfile.put("notificationsEnabled", false); // key part
+
+        Map<String, Object> normalProfile = new HashMap<>();
+        normalProfile.put("name", "Normal User");
+
+        Tasks.await(db.collection("Profiles").document(optedOutId).set(optedProfile));
+        Tasks.await(db.collection("Profiles").document(otherWaiting).set(normalProfile));
+
+        // Event where opted-out user is selected first
+        String eventId = "event_opt_out_invited_test";
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventName", "Opt-Out Invite Event");
+        event.put("limitGuests", "1");
+        event.put("waiting_list", Arrays.asList(optedOutId, otherWaiting));
+        event.put("invited_list", new ArrayList<String>());
+        event.put("enrolled_list", new ArrayList<String>());
+        event.put("cancelled_list", new ArrayList<String>());
+        Tasks.await(db.collection("Events").document(eventId).set(event));
+
+        // Simulate organizer drawing first waiting user
+        TaskHelpers.inviteFirstWaitingUser(db, eventId);
+        SystemClock.sleep(1500);
+
+        // Opted-out user should NOT get INVITED
+        boolean hasInvited = containsType(db, optedOutId, "INVITED");
+        assertFalse("Opted-out user should NOT receive INVITED notification", hasInvited);
+    }
+
+    /**
+     * Test: US 01.04.03 – Opt-out for NOT_SELECTED
+     *
+     * Verifies that when an event reaches full capacity and notifications
+     * are sent with type NOT_SELECTED, users who opted out of notifications
+     * do NOT receive that notification, while others still do.
+     *
+     * Steps:
+     * 1) Create two waiting users: one opted-out, one normal.
+     * 2) Create a full event (enrolled == limitGuests).
+     * 3) Call TaskHelpers.checkAndNotifyNotSelectedIfFull().
+     * 4) Verify only the normal user gets NOT_SELECTED.
+     */
+    @Test
+    public void testOptedOutUserDoesNotReceiveNotSelected() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String optedOutWaiting = "DEV_OPT_OUT_WAITING";
+        String normalWaiting = "DEV_NORMAL_WAITING";
+        String enrolled1 = "DEV_ENROLLED_OPT";
+        String enrolled2 = "DEV_ENROLLED_NORM";
+
+        Map<String, Object> optedProfile = new HashMap<>();
+        optedProfile.put("name", "Opted Out User");
+        optedProfile.put("notificationsEnabled", false);
+
+        Map<String, Object> normalProfile = new HashMap<>();
+        normalProfile.put("name", "Normal User");
+
+        // Profiles
+        Tasks.await(db.collection("Profiles").document(optedOutWaiting).set(optedProfile));
+        Tasks.await(db.collection("Profiles").document(normalWaiting).set(normalProfile));
+        Tasks.await(db.collection("Profiles").document(enrolled1).set(normalProfile));
+        Tasks.await(db.collection("Profiles").document(enrolled2).set(normalProfile));
+
+        // Full event
+        String eventId = "event_opt_out_not_selected_test";
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventName", "Opt-Out NotSelected Event");
+        event.put("limitGuests", "2");
+        event.put("waiting_list", Arrays.asList(optedOutWaiting, normalWaiting));
+        event.put("enrolled_list", Arrays.asList(enrolled1, enrolled2));
+        event.put("invited_list", new ArrayList<String>());
+        event.put("cancelled_list", new ArrayList<String>());
+        Tasks.await(db.collection("Events").document(eventId).set(event));
+
+        // Trigger NOT_SELECTED logic
+        TaskHelpers.checkAndNotifyNotSelectedIfFull(db, eventId);
+        SystemClock.sleep(1500);
+
+        boolean optedHasNotSelected = containsType(db, optedOutWaiting, "NOT_SELECTED");
+        boolean normalHasNotSelected = containsType(db, normalWaiting, "NOT_SELECTED");
+
+        assertFalse("Opted-out waiting user should NOT receive NOT_SELECTED", optedHasNotSelected);
+        assertTrue("Normal waiting user SHOULD receive NOT_SELECTED", normalHasNotSelected);
+    }
+
+    /**
+     * Test: US 02.07.01 – Organizer broadcasts to all waiting entrants.
+     *
+     * Verifies that when the organizer sends a broadcast to the waiting list,
+     * all waiting entrants with notifications enabled receive a
+     * WAITING_BROADCAST notification, and opted-out entrants do NOT.
+     */
+    @Test
+    public void testBroadcastToWaitingEntrantsRespectsOptOut() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String waitingOptIn = "DEV_WAITING_BCAST_IN";
+        String waitingOptOut = "DEV_WAITING_BCAST_OUT";
+
+        Map<String, Object> optInProfile = new HashMap<>();
+        optInProfile.put("name", "Waiting Opt-in");
+
+        Map<String, Object> optOutProfile = new HashMap<>();
+        optOutProfile.put("name", "Waiting Opt-out");
+        optOutProfile.put("notificationsEnabled", false);
+
+        Tasks.await(db.collection("Profiles").document(waitingOptIn).set(optInProfile));
+        Tasks.await(db.collection("Profiles").document(waitingOptOut).set(optOutProfile));
+
+        String eventId = "event_waiting_broadcast";
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventName", "Waiting Broadcast Event");
+        event.put("limitGuests", "5");
+        event.put("waiting_list", Arrays.asList(waitingOptIn, waitingOptOut));
+        event.put("invited_list", new ArrayList<String>());
+        event.put("enrolled_list", new ArrayList<String>());
+        event.put("cancelled_list", new ArrayList<String>());
+        Tasks.await(db.collection("Events").document(eventId).set(event));
+
+        // Organizer broadcast to waiting entrants
+        TaskHelpers.broadcastToWaitingEntrants(db, eventId, "Message to waiting entrants");
+        SystemClock.sleep(1500);
+
+        boolean inHas = containsType(db, waitingOptIn, "WAITING_BROADCAST");
+        boolean outHas = containsType(db, waitingOptOut, "WAITING_BROADCAST");
+
+        assertTrue("Opted-in waiting entrant should receive WAITING_BROADCAST", inHas);
+        assertFalse("Opted-out waiting entrant should NOT receive WAITING_BROADCAST", outHas);
+    }
+
+    /**
+     * Test: US 02.07.02 – Organizer broadcasts to all selected entrants.
+     *
+     * Verifies that when the organizer sends a broadcast to selected entrants
+     * (invited/enrolled), only opted-in selected entrants receive
+     * SELECTED_BROADCAST notifications.
+     */
+    @Test
+    public void testBroadcastToSelectedEntrantsRespectsOptOut() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String invitedOptIn = "DEV_INVITED_BCAST_IN";
+        String invitedOptOut = "DEV_INVITED_BCAST_OUT";
+
+        Map<String, Object> optInProfile = new HashMap<>();
+        optInProfile.put("name", "Invited Opt-in");
+
+        Map<String, Object> optOutProfile = new HashMap<>();
+        optOutProfile.put("name", "Invited Opt-out");
+        optOutProfile.put("notificationsEnabled", false);
+
+        Tasks.await(db.collection("Profiles").document(invitedOptIn).set(optInProfile));
+        Tasks.await(db.collection("Profiles").document(invitedOptOut).set(optOutProfile));
+
+        String eventId = "event_selected_broadcast";
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventName", "Selected Broadcast Event");
+        event.put("limitGuests", "2");
+        event.put("waiting_list", new ArrayList<String>());
+        event.put("invited_list", Arrays.asList(invitedOptIn, invitedOptOut));
+        event.put("enrolled_list", new ArrayList<String>());
+        event.put("cancelled_list", new ArrayList<String>());
+        Tasks.await(db.collection("Events").document(eventId).set(event));
+
+        // Organizer broadcast to selected entrants
+        TaskHelpers.broadcastToInvitedEntrants(db, eventId, "Message to selected entrants");
+        SystemClock.sleep(1500);
+
+        boolean inHas = containsType(db, invitedOptIn, "SELECTED_BROADCAST");
+        boolean outHas = containsType(db, invitedOptOut, "SELECTED_BROADCAST");
+
+        assertTrue("Opted-in selected entrant should receive SELECTED_BROADCAST", inHas);
+        assertFalse("Opted-out selected entrant should NOT receive SELECTED_BROADCAST", outHas);
+    }
+
+    /**
+     * Test: US 02.07.03 – Organizer broadcasts to all cancelled entrants.
+     *
+     * Verifies that when the organizer sends a broadcast to cancelled entrants,
+     * only opted-in cancelled entrants receive CANCELLED_BROADCAST notifications.
+     */
+    @Test
+    public void testBroadcastToCancelledEntrantsRespectsOptOut() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String cancelledOptIn = "DEV_CANCELLED_BCAST_IN";
+        String cancelledOptOut = "DEV_CANCELLED_BCAST_OUT";
+
+        Map<String, Object> optInProfile = new HashMap<>();
+        optInProfile.put("name", "Cancelled Opt-in");
+
+        Map<String, Object> optOutProfile = new HashMap<>();
+        optOutProfile.put("name", "Cancelled Opt-out");
+        optOutProfile.put("notificationsEnabled", false);
+
+        Tasks.await(db.collection("Profiles").document(cancelledOptIn).set(optInProfile));
+        Tasks.await(db.collection("Profiles").document(cancelledOptOut).set(optOutProfile));
+
+        String eventId = "event_cancelled_broadcast";
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventName", "Cancelled Broadcast Event");
+        event.put("limitGuests", "2");
+        event.put("waiting_list", new ArrayList<String>());
+        event.put("invited_list", new ArrayList<String>());
+        event.put("enrolled_list", new ArrayList<String>());
+        event.put("cancelled_list", Arrays.asList(cancelledOptIn, cancelledOptOut));
+        Tasks.await(db.collection("Events").document(eventId).set(event));
+
+        // Organizer broadcast to cancelled entrants
+        TaskHelpers.broadcastToCancelledEntrants(db, eventId, "Message to cancelled entrants");
+        SystemClock.sleep(1500);
+
+        boolean inHas = containsType(db, cancelledOptIn, "CANCELLED_BROADCAST");
+        boolean outHas = containsType(db, cancelledOptOut, "CANCELLED_BROADCAST");
+
+        assertTrue("Opted-in cancelled entrant should receive CANCELLED_BROADCAST", inHas);
+        assertFalse("Opted-out cancelled entrant should NOT receive CANCELLED_BROADCAST", outHas);
+    }
+
 }

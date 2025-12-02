@@ -272,7 +272,11 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                 notif.put("timestamp", System.currentTimeMillis());
                 notif.put("read", false);
 
+                // send “not selected” notification + log
                 sendNotifIfEnabled(cancelledId, notif);
+
+                // remove any previous accept/decline invites for this event
+                clearInvitationNotifications(cancelledId);
             }
 
             // automatically draw replacements for the same number we just cancelled
@@ -397,6 +401,23 @@ public class OrganizerInvitedActivity extends AppCompatActivity {
                         log.put("timestamp", System.currentTimeMillis());
 
                         db.collection("NotificationLogs").add(log);
+                    }
+                });
+    }
+
+    private void clearInvitationNotifications(String targetId) {
+        db.collection("Profiles")
+                .document(targetId)
+                .collection("notifications")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String type = doc.getString("type");
+                        // delete only the “accept/decline” style invites
+                        if ("INVITED".equals(type) || "INVITED_REPLACEMENT".equals(type)) {
+                            doc.getReference().delete();
+                        }
                     }
                 });
     }
