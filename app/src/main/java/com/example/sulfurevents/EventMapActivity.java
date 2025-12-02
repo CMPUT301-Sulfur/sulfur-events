@@ -15,12 +15,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * EventMapActivity displays all waitlist sign-up locations for a specific event on a Google Map.
@@ -42,6 +46,7 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
     private String eventId;
     private String eventName;
     private List<EntrantLocation> entrantLocations;
+    private Map<String, String> markerToDeviceIdMap; // Maps marker ID to device ID
     private boolean geolocationEnabled = true; // Default to true
 
     @Override
@@ -52,6 +57,7 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         entrantLocations = new ArrayList<>();
+        markerToDeviceIdMap = new HashMap<>();
 
         // Get event info from Intent
         eventId = getIntent().getStringExtra("eventId");
@@ -154,6 +160,23 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
         LatLng initialPosition = new LatLng(20, 0);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialPosition, 2));
 
+        // Set up marker click listener
+        mMap.setOnMarkerClickListener(marker -> {
+            String deviceId = markerToDeviceIdMap.get(marker.getId());
+            if (deviceId != null) {
+                fetchAndDisplayUserDetails(deviceId);
+            }
+            return false; // Return false to show default info window as well
+        });
+
+        // Set up info window click listener for more details
+        mMap.setOnInfoWindowClickListener(marker -> {
+            String deviceId = markerToDeviceIdMap.get(marker.getId());
+            if (deviceId != null) {
+                fetchAndDisplayUserDetails(deviceId);
+            }
+        });
+
         // Load event sign-up locations from Firestore
         loadEventSignUpLocations();
     }
@@ -210,7 +233,7 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
                         displayMarkersOnMap();
 
                         new androidx.appcompat.app.AlertDialog.Builder(this)
-                                .setMessage("Loaded " + validLocationCount + " locations.")
+                                .setMessage("Loaded " + validLocationCount + " locations. Tap markers for user details.")
                                 .setPositiveButton("OK", null)
                                 .show();
 
@@ -240,8 +263,9 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
             return;
         }
 
-        // Clear existing markers
+        // Clear existing markers and mapping
         mMap.clear();
+        markerToDeviceIdMap.clear();
 
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
         int markerCount = 0;
@@ -255,10 +279,16 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(position)
                     .title("Entrant " + (i + 1))
-                    .snippet("Device: " + location.deviceId.substring(0, Math.min(8, location.deviceId.length())) + "...")
+                    .snippet("Tap for user details")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
 
-            mMap.addMarker(markerOptions);
+            Marker marker = mMap.addMarker(markerOptions);
+
+            // Map marker ID to device ID for click handling
+            if (marker != null) {
+                markerToDeviceIdMap.put(marker.getId(), location.deviceId);
+            }
+
             boundsBuilder.include(position);
             markerCount++;
         }
@@ -277,6 +307,71 @@ public class EventMapActivity extends FragmentActivity implements OnMapReadyCall
         }
 
         Log.d(TAG, "Displayed " + markerCount + " markers on map");
+    }
+
+    /**
+     * Fetches and displays user details from the Users collection
+     * @param deviceId The device ID to look up user information
+     */
+    private void fetchAndDisplayUserDetails(String deviceId) {
+        loadingIndicator.setVisibility(View.VISIBLE);
+
+        // Query the Users collection using deviceId
+        db.collection("Profiles")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    loadingIndicator.setVisibility(View.GONE);
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Get the first matching user document
+                        DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+
+                        // Extract user details
+                        String name = userDoc.getString("name");
+                        String email = userDoc.getString("email");
+                        String phone = userDoc.getString("phone");
+                        String profileImageUrl = userDoc.getString("profileImageUrl");
+
+                        // Build details message
+                        StringBuilder detailsBuilder = new StringBuilder();
+                        detailsBuilder.append("User Details:\n\n");
+
+                        if (name != null && !name.isEmpty()) {
+                            detailsBuilder.append("Name: ").append(name).append("\n");
+                        }
+                        if (email != null && !email.isEmpty()) {
+                            detailsBuilder.append("Email: ").append(email).append("\n");
+                        }
+                        if (phone != null && !phone.isEmpty()) {
+                            detailsBuilder.append("Phone: ").append(phone).append("\n");
+                        }
+
+                        detailsBuilder.append("\nDevice ID: ").append(deviceId);
+
+                        // Show details in dialog
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Entrant Information")
+                                .setMessage(detailsBuilder.toString())
+                                .setPositiveButton("OK", null)
+                                .show();
+
+                    } else {
+                        // No user found with this device ID
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("User Not Found")
+                                .setMessage("No user information available for this device.\n\nDevice ID: " + deviceId)
+                                .setPositiveButton("OK", null)
+                                .show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    loadingIndicator.setVisibility(View.GONE);
+                    Log.e(TAG, "Error fetching user details: " + e.getMessage());
+                    Toast.makeText(this,
+                            "Error loading user details: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**
