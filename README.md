@@ -12,24 +12,6 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 3.  **Admins:** Moderators who oversee the platform, managing events, profiles, and images.
 
 
-<p align="center">
-  <img src="images/AdminDashBoard.png" width="45%"/>
-  <img src="images/AllowGeolocation.png" width="45%"/>
-  <img src="images/FilterEvents.png" width="45%"/>
-  <img src="images/Geolocation.png" width="45%"/>
-  <img src="images/JoinableEvents.png" width="45%"/>
-  <img src="images/JoiningEvent.png" width="45%"/>
-  <img src="images/ManageEvents.png" width="45%"/>
-  <img src="images/ManageImages.png" width="45%"/>
-  <img src="images/ManageProfiles.png" width="45%"/>
-  <img src="images/Notification.png" width="45%"/>
-  <img src="images/Profile.png" width="45%"/>
-  <img src="images/ViewDetails.png" width="45%"/>
-  <img src="images/WaitList.png" width="45%"/>
-  <img src="images/YourEvents.png" width="45%"/>
-</p>
-
-
 ##  Key Features
 
 ### For Entrants
@@ -75,15 +57,23 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 
 
 ## 📸 Screenshots
+<p align="center">
+  <img src="images/AdminDashBoard.png" width="45%"/>
+  <img src="images/AllowGeolocation.png" width="45%"/>
+  <img src="images/FilterEvents.png" width="45%"/>
+  <img src="images/Geolocation.png" width="45%"/>
+  <img src="images/JoinableEvents.png" width="45%"/>
+  <img src="images/JoiningEvent.png" width="45%"/>
+  <img src="images/ManageEvents.png" width="45%"/>
+  <img src="images/ManageImages.png" width="45%"/>
+  <img src="images/ManageProfiles.png" width="45%"/>
+  <img src="images/Notification.png" width="45%"/>
+  <img src="images/Profile.png" width="45%"/>
+  <img src="images/ViewDetails.png" width="45%"/>
+  <img src="images/WaitList.png" width="45%"/>
+  <img src="images/YourEvents.png" width="45%"/>
+</p>
 
-|                Entrant Home                |               Event Details               |
-|:------------------------------------------:|:-----------------------------------------:|
-| ![Entrant Home](images/JoinableEvents.png) | ![Event Details](images/JoiningEvent.png) |
-
-|           Organizer Dashboard            |              Map View               |                Admin Panel                |
-|:----------------------------------------:|:-----------------------------------:|:-----------------------------------------:|
-| ![Organizer Dash](images/YourEvents.png) | ![Map View](images/Geolocation.png) | ![Admin Panel](images/AdminDashBoard.png) |
-|       *Manage your created events*       |       *See entrant locations*       |          *Moderate app content*           |
 
 ##  Setup & Installation
 
