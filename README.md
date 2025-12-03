@@ -11,6 +11,25 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 2.  **Organizers:** Users who create events, generate QR codes, and manage waitlists/enrollments.
 3.  **Admins:** Moderators who oversee the platform, managing events, profiles, and images.
 
+
+<p align="center">
+  <img src="images/AdminDashBoard.png" width="45%"/>
+  <img src="images/AllowGeolocation.png" width="45%"/>
+  <img src="images/FilterEvents.png" width="45%"/>
+  <img src="images/Geolocation.png" width="45%"/>
+  <img src="images/JoinableEvents.png" width="45%"/>
+  <img src="images/JoiningEvent.png" width="45%"/>
+  <img src="images/ManageEvents.png" width="45%"/>
+  <img src="images/ManageImages.png" width="45%"/>
+  <img src="images/ManageProfiles.png" width="45%"/>
+  <img src="images/Notification.png" width="45%"/>
+  <img src="images/Profile.png" width="45%"/>
+  <img src="images/ViewDetails.png" width="45%"/>
+  <img src="images/WaitList.png" width="45%"/>
+  <img src="images/YourEvents.png" width="45%"/>
+</p>
+
+
 ##  Key Features
 
 ### For Entrants
