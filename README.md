@@ -75,6 +75,96 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 </p>
 
 
+<p align="center">
+
+  <!-- Admin Dashboard -->
+  <figure>
+    <img src="images/AdminDashBoard.png" width="45%">
+    <figcaption><b>Admin Dashboard</b> – Overview of admin controls for managing events, profiles, and images.</figcaption>
+  </figure>
+
+  <!-- Geolocation Permission -->
+  <figure>
+    <img src="images/AllowGeolocation.png" width="45%">
+    <figcaption><b>Allow Geolocation</b> – Prompt requesting permission to access user location.</figcaption>
+  </figure>
+
+  <!-- Event Filters -->
+  <figure>
+    <img src="images/FilterEvents.png" width="45%">
+    <figcaption><b>Filter Events</b> – Entrants filtering events by category, location, and date.</figcaption>
+  </figure>
+
+  <!-- Event Map -->
+  <figure>
+    <img src="images/Geolocation.png" width="45%">
+    <figcaption><b>Geolocation Map</b> – Organizer view of entrant distribution on Google Maps.</figcaption>
+  </figure>
+
+  <!-- Joinable Events -->
+  <figure>
+    <img src="images/JoinableEvents.png" width="45%">
+    <figcaption><b>Joinable Events</b> – List of available events for entrants to join.</figcaption>
+  </figure>
+
+  <!-- Joining an Event -->
+  <figure>
+    <img src="images/JoiningEvent.png" width="45%">
+    <figcaption><b>Event Details</b> – Entrant viewing details and joining an event.</figcaption>
+  </figure>
+
+  <!-- Manage Events -->
+  <figure>
+    <img src="images/ManageEvents.png" width="45%">
+    <figcaption><b>Manage Events</b> – Admin reviewing and deleting event entries.</figcaption>
+  </figure>
+
+  <!-- Manage Images -->
+  <figure>
+    <img src="images/ManageImages.png" width="45%">
+    <figcaption><b>Manage Images</b> – Admin browsing uploaded event posters.</figcaption>
+  </figure>
+
+  <!-- Manage Profiles -->
+  <figure>
+    <img src="images/ManageProfiles.png" width="45%">
+    <figcaption><b>Manage Profiles</b> – Admin tools for user profile moderation.</figcaption>
+  </figure>
+
+  <!-- Notifications -->
+  <figure>
+    <img src="images/Notification.png" width="45%">
+    <figcaption><b>Notifications</b> – Entrant receiving lottery invitations and waitlist updates.</figcaption>
+  </figure>
+
+  <!-- User Profile -->
+  <figure>
+    <img src="images/Profile.png" width="45%">
+    <figcaption><b>Profile</b> – Entrant viewing and editing personal information.</figcaption>
+  </figure>
+
+  <!-- Organizer Event View -->
+  <figure>
+    <img src="images/ViewDetails.png" width="45%">
+    <figcaption><b>Organizer Event Panel</b> – Detailed event breakdown with access to all management lists.</figcaption>
+  </figure>
+
+  <!-- Waiting List -->
+  <figure>
+    <img src="images/WaitList.png" width="45%">
+    <figcaption><b>Waiting List</b> – Organizer reviewing users currently waiting for selection.</figcaption>
+  </figure>
+
+  <!-- Organizer Dashboard -->
+  <figure>
+    <img src="images/YourEvents.png" width="45%">
+    <figcaption><b>Your Events</b> – Organizer home screen showing all created events.</figcaption>
+  </figure>
+
+</p>
+
+
+
 ##  Setup & Installation
 
 To run this project locally, follow these steps:
