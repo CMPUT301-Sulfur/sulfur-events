@@ -54,6 +54,19 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 * **Glide:** For efficient image loading and caching.
 * **Espresso & JUnit:** For UI and unit testing.
 
+
+## 📸 Screenshots
+
+| Entrant Home | Event Details | QR Scanner |
+|:---:|:---:|:---:|
+| ![Entrant Home](images/entrant_home.png) | ![Event Details](images/event_details.png) | ![QR Scanner](images/qr_scanner.png) |
+| *Browse and filter events* | *View event info and join waitlist* | *Quick check-in capability* |
+
+| Organizer Dashboard | Map View | Admin Panel |
+|:---:|:---:|:---:|
+| ![Organizer Dash](images/organizer_dash.png) | ![Map View](images/map_view.png) | ![Admin Panel](images/admin_panel.png) |
+| *Manage your created events* | *See entrant locations* | *Moderate app content* |
+
 ##  Setup & Installation
 
 To run this project locally, follow these steps:
