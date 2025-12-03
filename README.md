@@ -107,64 +107,6 @@ To run this project locally, follow these steps:
     * Select a device/emulator (Recommended: Pixel 6 API 34+).
     * Click **Run**.
 
-## 📂 Project Structure
-
-The project is organized into the following directory structure:
-
-```text
-cmput301-sulfur/sulfur-events/
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/sulfurevents/
-│   │   │   │   ├── adapters/                # RecyclerView Adapters for lists
-│   │   │   │   │   ├── AdminEntrantListAdapter.java
-│   │   │   │   │   ├── AdminEventsListAdapter.java
-│   │   │   │   │   ├── EventAdapter.java
-│   │   │   │   │   ├── NotificationsAdapter.java
-│   │   │   │   │   └── OrganizerEventsAdapter.java
-│   │   │   │   │
-│   │   │   │   ├── models/                  # Data Models (POJOs)
-│   │   │   │   │   ├── EventModel.java
-│   │   │   │   │   ├── ProfileModel.java
-│   │   │   │   │   ├── User.java
-│   │   │   │   │   └── NotificationItem.java
-│   │   │   │   │
-│   │   │   │   ├── AdminDashboardActivity.java    # Admin landing page
-│   │   │   │   ├── BottomNavigationHelper.java    # Helper for nav bar logic
-│   │   │   │   ├── EntrantActivity.java           # Main Entrant screen
-│   │   │   │   ├── MainActivity.java              # App Entry (Role check)
-│   │   │   │   ├── OrganizerActivity.java         # Main Organizer screen
-│   │   │   │   └── ProfileActivity.java           # User profile management
-│   │   │
-│   │   │   ├── res/
-│   │   │   │   ├── layout/                  # XML UI Definitions
-│   │   │   │   │   ├── activity_main.xml
-│   │   │   │   │   ├── activity_entrant.xml
-│   │   │   │   │   ├── item_notification.xml
-│   │   │   │   │   └── ...
-│   │   │   │   ├── drawable/                # Icons and shape resources
-│   │   │   │   ├── values/                  # Strings, Colors, Themes
-│   │   │   │   └── xml/                     # File provider paths & rules
-│   │   │   │
-│   │   │   └── AndroidManifest.xml          # App permissions & activity declarations
-│   │   │
-│   │   ├── androidTest/                     # Instrumented/UI Tests (Espresso)
-│   │   │   └── java/com/example/sulfurevents/
-│   │   │       ├── EntrantActivityTest.java
-│   │   │       ├── ProfileActivityTest.java
-│   │   │       └── ...
-│   │   │
-│   │   └── test/                            # Unit Tests (JUnit)
-│   │       └── java/com/example/sulfurevents/
-│   │           └── ExampleUnitTest.java
-│   │
-│   ├── build.gradle.kts                     # App-level build configuration
-│   └── google-services.json                 # Firebase configuration file
-│
-├── gradle/                                  # Gradle wrapper files
-└── build.gradle.kts                         # Project-level build configuration
-```
 ##  Testing
 
 The project includes both Unit tests and UI tests.
