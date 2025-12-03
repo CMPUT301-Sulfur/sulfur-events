@@ -57,15 +57,14 @@ The application utilizes the **Android SDK (Java)** and **Firebase** to provide 
 
 ## 📸 Screenshots
 
-| Entrant Home | Event Details | QR Scanner |
-|:---:|:---:|:---:|
-| ![Entrant Home](images/entrant_home.png) | ![Event Details](images/event_details.png) | ![QR Scanner](images/qr_scanner.png) |
-| *Browse and filter events* | *View event info and join waitlist* | *Quick check-in capability* |
+|                Entrant Home                |               Event Details               |
+|:------------------------------------------:|:-----------------------------------------:|
+| ![Entrant Home](images/JoinableEvents.png) | ![Event Details](images/JoiningEvent.png) |
 
-| Organizer Dashboard | Map View | Admin Panel |
-|:---:|:---:|:---:|
-| ![Organizer Dash](images/organizer_dash.png) | ![Map View](images/map_view.png) | ![Admin Panel](images/admin_panel.png) |
-| *Manage your created events* | *See entrant locations* | *Moderate app content* |
+|           Organizer Dashboard            |              Map View               |                Admin Panel                |
+|:----------------------------------------:|:-----------------------------------:|:-----------------------------------------:|
+| ![Organizer Dash](images/YourEvents.png) | ![Map View](images/Geolocation.png) | ![Admin Panel](images/AdminDashBoard.png) |
+|       *Manage your created events*       |       *See entrant locations*       |          *Moderate app content*           |
 
 ##  Setup & Installation
 
