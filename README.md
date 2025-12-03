@@ -142,6 +142,7 @@ cmput301-sulfur/sulfur-events/
 │
 ├── gradle/                                  # Gradle wrapper files
 └── build.gradle.kts                         # Project-level build configuration
+```
 ##  Testing
 
 The project includes both Unit tests and UI tests.
