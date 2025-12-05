@@ -116,9 +116,6 @@ The project includes both Unit tests and UI tests.
 * **Run UI Tests:**
   Execute tests located in `src/androidTest/java/` using Espresso.
 
-##  License
-
-This project is created for educational purposes within CMPUT 301 at the University of Alberta.
 
 -----
 
